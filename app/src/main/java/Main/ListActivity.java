@@ -17,8 +17,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jovanovic.stefan.sqlitetutorial.R;
-
 import java.util.ArrayList;
 
 public class ListActivity extends AppCompatActivity {
@@ -39,7 +37,6 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         courseRV = findViewById(R.id.recyclerView);
-
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
 
@@ -50,17 +47,17 @@ public class ListActivity extends AppCompatActivity {
         latArray = new ArrayList<>();
         lonArray = new ArrayList<>();
         storeDataInArrays();
-        customAdapter = new CustomAdapter(ListActivity.this,this, fechaHoraArray, ubicacionArray, latArray, lonArray);
+        customAdapter = new CustomAdapter(this, fechaHoraArray, ubicacionArray, latArray, lonArray);
         courseRV.setAdapter(customAdapter);
         courseRV.setLayoutManager(new LinearLayoutManager(ListActivity.this));
 
     }
 
+    //Creamos un inflater
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.my_menu, menu);
-
         return true;
     }
 
@@ -68,6 +65,7 @@ public class ListActivity extends AppCompatActivity {
         confirmDialog();
     }
 
+    //El dialog para borrarlo
     private void confirmDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Borrar todo?");
@@ -78,7 +76,7 @@ public class ListActivity extends AppCompatActivity {
                 MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
                 myDB.deleteAllData();
                 //Refresh Activity
-                Intent intent = new Intent(ListActivity.this, MainActivityAPI.class);
+                Intent intent = new Intent(ListActivity.this, MainActivity.getInstance().getClass());
                 startActivity(intent);
                 finish();
             }
@@ -106,5 +104,4 @@ public class ListActivity extends AppCompatActivity {
             }
         }
     }
-
 }

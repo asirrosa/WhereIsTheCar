@@ -16,18 +16,14 @@ import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.jovanovic.stefan.sqlitetutorial.R;
-
 import java.util.ArrayList;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHolder> {
 
     private Context context;
-    private Activity activity;
     private ArrayList fechaHoraArray, ubicacionArray, latArray, lonArray;
 
-    CustomAdapter(Activity activity, Context context, ArrayList fechaHoraArray, ArrayList ubicacionArray, ArrayList latArray, ArrayList lonArray){
-        this.activity = activity;
+    CustomAdapter(Context context, ArrayList fechaHoraArray, ArrayList ubicacionArray, ArrayList latArray, ArrayList lonArray){
         this.context = context;
         this.fechaHoraArray = fechaHoraArray;
         this.ubicacionArray = ubicacionArray;
@@ -58,7 +54,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-
         TextView aparcamiento_ubicacion, aparcamiento_fecha_hora, aparcamiento_lat, aparcamiento_lon;
         LinearLayout mainLayout;
         CardView cardView;
@@ -75,6 +70,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //Para que cada vez que clickes en un item te mande a la ubicación de google maps
                     Uri mapUri = Uri.parse("geo:0,0?q="+aparcamiento_lat.getText()+","+aparcamiento_lon.getText()+"(Aparcamiento)");
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
                     mapIntent.setPackage("com.google.android.apps.maps");

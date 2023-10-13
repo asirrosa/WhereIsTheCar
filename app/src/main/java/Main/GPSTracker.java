@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -18,31 +20,26 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.ProgressBar;
 
-/**
- * Create this Class from tutorial :
- * http://www.androidhive.info/2012/07/android-gps-location-manager-tutorial
- *
- * For Geocoder read this : http://stackoverflow.com/questions/472313/android-reverse-geocoding-getfromlocation
- *
- */
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 public class GPSTracker extends Service implements LocationListener {
 
-    // Get Class Name
     private static String TAG = GPSTracker.class.getName();
 
     private final Context mContext;
 
-    // flag for GPS Status
+    // flag para el status del GPS
     boolean isGPSEnabled = false;
 
-    // flag for network status
+    // flag para el status de la red
     boolean isNetworkEnabled = false;
 
-    // flag for GPS Tracking is enabled
+    // flag que dice si se ha conseguido obtener las coordenadas ya sea por GPS o internet
     boolean isGPSTrackingEnabled = false;
-
 
     Location location;
     double latitude;
@@ -63,87 +60,67 @@ public class GPSTracker extends Service implements LocationListener {
     // Store LocationManager.GPS_PROVIDER or LocationManager.NETWORK_PROVIDER information
     private String provider_info;
 
+    //La clase constructor
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
     }
 
     /**
-     * Try to get my current location by GPS or Network Provider
+     * Metodo para conseguir la ubicación
      */
     public void getLocation() {
 
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
 
-            //getting GPS status
+            //Devuelve el status del GPS y si hay conexión debido a que en caso de no tener conexion a internet tira del gps solamente y viceversa
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-            //getting network status
             isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-            // Try to get location if you GPS Service is enabled
+            // Conseguir la ubicación en caso de que el GPS este activado
             if (isGPSEnabled) {
                 this.isGPSTrackingEnabled = true;
-
-                Log.d(TAG, "Application use GPS Service");
-
-                /*
-                 * This provider determines location using
-                 * satellites. Depending on conditions, this provider may take a while to return
-                 * a location fix.
-                 */
-
+                Log.d(TAG, "La aplicación ha utilizado en servicio GPS");
                 provider_info = LocationManager.GPS_PROVIDER;
 
-            } else if (isNetworkEnabled) { // Try to get location if you Network Service is enabled
+            } else if (isNetworkEnabled) {
                 this.isGPSTrackingEnabled = true;
-
-                Log.d(TAG, "Application use Network State to get GPS coordinates");
-
-                /*
-                 * This provider determines location based on
-                 * availability of cell tower and WiFi access points. Results are retrieved
-                 * by means of a network lookup.
-                 */
+                Log.d(TAG, "La apliacción ha utilizado la conexión a Internet para devolver las coordenadas del GPS");
                 provider_info = LocationManager.NETWORK_PROVIDER;
 
             }
-
-            // Application can use GPS or Network Provider
             if (!provider_info.isEmpty()) {
-                locationManager.requestLocationUpdates(
-                        provider_info,
-                        MIN_TIME_BW_UPDATES,
-                        MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                        this
-                );
+                //te consigue la ultima ubicación
+                //razon del error: basicamente esto se suele hacer en la clase que tiene el layout, no obstante al utilizar otra clase
+                //te pide que checkees por si el usuario le ha dado permisos o no, aun asi eso ya lo hago desde el main
 
-                if (locationManager != null) {
-                    location = locationManager.getLastKnownLocation(provider_info);
-                    if (location != null){
-                        updateGPSCoordinates();
-                    }
+                //La primera linea sirve para que el gps se actualice, sino en caso de que el usuario justo haya encendido el gps, nos pondrá
+                //que el gps sigue apagado
+                locationManager.requestLocationUpdates(provider_info,MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                location = locationManager.getLastKnownLocation(provider_info);
+                if (location != null) {
+                    actualizarCoordenadas();
                 }
             }
-        }
-        catch (Exception e)
-        {
-            //e.printStackTrace();
-            Log.e(TAG, "Impossible to connect to LocationManager", e);
+        } catch (Exception e) {
+            Log.e(TAG, "No se ha podido conectar al gestor de la ubicación", e);
         }
     }
 
     /**
-     * Update GPSTracker latitude and longitude
+     * Metodo para actualizar los valores de latitud y longitud
      */
-    public void updateGPSCoordinates() {
+    public void actualizarCoordenadas() {
         if (location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
         }
     }
 
+    /**
+     * Metodo para comprobar si el gps ha empezado a funcionar
+     */
     public boolean funcionaGPS(){
         boolean resul = false;
         if(locationManager.getLastKnownLocation(provider_info) != null){
@@ -152,6 +129,9 @@ public class GPSTracker extends Service implements LocationListener {
         return resul;
     }
 
+    /**
+     * Metodo para crear un loop infinito llamando a funcionaGPS()
+     */
     public void esperarGPS(){
         while(true){
             if(funcionaGPS())
@@ -160,53 +140,8 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     /**
-     * GPSTracker latitude getter and setter
-     * @return latitude
+     * Metodo para mostrar el dialog que te dice si quieres activar el gps
      */
-    public double getLatitude() {
-        if (location != null) {
-            latitude = location.getLatitude();
-        }
-
-        return latitude;
-    }
-
-    /**
-     * GPSTracker longitude getter and setter
-     * @return
-     */
-    public double getLongitude() {
-        if (location != null) {
-            longitude = location.getLongitude();
-        }
-
-        return longitude;
-    }
-
-    /**
-     * GPSTracker isGPSTrackingEnabled getter.
-     * Check GPS/wifi is enabled
-     */
-    public boolean getIsGPSTrackingEnabled() {
-
-        return this.isGPSTrackingEnabled;
-    }
-
-    /**
-     * Stop using GPS listener
-     * Calling this method will stop using GPS in your app
-     */
-    public void stopUsingGPS() {
-        if (locationManager != null) {
-            locationManager.removeUpdates(GPSTracker.this);
-        }
-    }
-
-    /**
-     * Function to show settings alert dialog
-     */
-
-
     public void showSettingsAlert(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
         alertDialogBuilder.setMessage("El gps esta desactivado quieres activarlo?");
@@ -217,7 +152,6 @@ public class GPSTracker extends Service implements LocationListener {
             }
 
         });
-
         alertDialogBuilder.setNegativeButton("Cancelar",
                 new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int id){
@@ -228,119 +162,31 @@ public class GPSTracker extends Service implements LocationListener {
         alert.show();
     }
 
-
     /**
-     * Get list of address by latitude and longitude
-     * @return null or List<Address>
+     * Metodo para mostrar el dialog que te dice si quieres activar el gps
      */
-    public List<Address> getGeocoderAddress(Context context) {
-        if (location != null) {
-
-            Geocoder geocoder = new Geocoder(context, Locale.ENGLISH);
-
-            try {
-                /**
-                 * Geocoder.getFromLocation - Returns an array of Addresses
-                 * that are known to describe the area immediately surrounding the given latitude and longitude.
-                 */
-                List<Address> addresses = geocoder.getFromLocation(latitude, longitude, this.geocoderMaxResults);
-
-                return addresses;
-            } catch (IOException e) {
-                //e.printStackTrace();
-                Log.e(TAG, "Impossible to connect to Geocoder", e);
-            }
-        }
-
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    /**
-     * Try to get AddressLine
-     * @return null or addressLine
-     */
-    public String getAddressLine(Context context) {
-        List<Address> addresses = getGeocoderAddress(context);
-
-        if (addresses != null && addresses.size() > 0) {
-            Address address = addresses.get(0);
-            String addressLine = address.getAddressLine(0);
-
-            return addressLine;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Try to get Locality
-     * @return null or locality
-     */
-    public String getLocality(Context context) {
-        List<Address> addresses = getGeocoderAddress(context);
-
-        if (addresses != null && addresses.size() > 0) {
-            Address address = addresses.get(0);
-            String locality = address.getLocality();
-
-            return locality;
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Try to get Postal Code
-     * @return null or postalCode
-     */
-    public String getPostalCode(Context context) {
-        List<Address> addresses = getGeocoderAddress(context);
-
-        if (addresses != null && addresses.size() > 0) {
-            Address address = addresses.get(0);
-            String postalCode = address.getPostalCode();
-
-            return postalCode;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Try to get CountryName
-     * @return null or postalCode
-     */
-    public String getCountryName(Context context) {
-        List<Address> addresses = getGeocoderAddress(context);
-        if (addresses != null && addresses.size() > 0) {
-            Address address = addresses.get(0);
-            String countryName = address.getCountryName();
-
-            return countryName;
-        } else {
-            return null;
-        }
     }
 
     @Override
     public void onLocationChanged(Location location) {
+
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void onProviderEnabled(String s) {
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-    }
+    public void onProviderDisabled(String s) {
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

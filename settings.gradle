@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name='SqliteTutorial'
+rootProject.name='WhereIsTheCar'
