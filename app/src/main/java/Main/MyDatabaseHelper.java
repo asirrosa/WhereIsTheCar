@@ -26,6 +26,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         this.context = context;
     }
 
+    /**
+     * Metodo para crear la base de datos con sus columnas
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         String query = "CREATE TABLE " + TABLE_NAME +
@@ -42,6 +45,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Metodo para añadir un nuevo aparcamiento a la base de datos
+     */
     void addAparcamiento(String dateTime, String location, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -54,6 +60,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Metodo para leer todos los aparcamientos guardados
+     */
     Cursor readAllData(){
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + COLUMN_ID + " DESC" ;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -64,6 +73,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    /**
+     * Metodo para borrar todas las entradas de la base de datos
+     */
     void deleteAllData(){
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME);

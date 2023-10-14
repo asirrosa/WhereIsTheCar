@@ -41,6 +41,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
+    /**
+     * Metodo para meterle los valores de los arrays al holder
+     */
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
         holder.aparcamiento_fecha_hora.setText(String.valueOf(fechaHoraArray.get(position)));
         holder.aparcamiento_ubicacion.setText(String.valueOf(ubicacionArray.get(position)));
@@ -53,6 +56,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         return fechaHoraArray.size();
     }
 
+    /**
+     * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse algun aparcamiento guardado
+     */
     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView aparcamiento_ubicacion, aparcamiento_fecha_hora, aparcamiento_lat, aparcamiento_lon;
         LinearLayout mainLayout;

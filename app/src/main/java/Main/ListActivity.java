@@ -32,6 +32,9 @@ public class ListActivity extends AppCompatActivity {
     ImageView empty_imageview;
     TextView no_data;
 
+    /**
+     * Metodo onCreate que rellena el layout con los diferentes aparcamientos guardados
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +56,9 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
-    //Creamos un inflater
+    /**
+     * Metodo para crear el inflater con el menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -65,7 +70,9 @@ public class ListActivity extends AppCompatActivity {
         confirmDialog();
     }
 
-    //El dialog para borrarlo
+    /**
+     * Metodo para la funcionalidad de borrar los aparcamientos
+     */
     private void confirmDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Borrar todo?");
@@ -90,6 +97,9 @@ public class ListActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    /**
+     * Metodo para crear los arrays con diferentes valores
+     */
     private void storeDataInArrays(){
         Cursor cursor = myDB.readAllData();
         if(cursor.getCount() == 0){
