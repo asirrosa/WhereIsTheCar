@@ -59,7 +59,6 @@ public class GPSTracker extends Service implements LocationListener {
     protected LocationManager locationManager;
 
     // Store LocationManager.GPS_PROVIDER or LocationManager.NETWORK_PROVIDER information
-    private String provider_info;
 
     //La clase constructor
     public GPSTracker(Context context) {
@@ -84,25 +83,21 @@ public class GPSTracker extends Service implements LocationListener {
             if (isGPSEnabled) {
                 this.isGPSTrackingEnabled = true;
                 Log.d(TAG, "La aplicación tiene activado el servicio GPS");
-                provider_info = LocationManager.GPS_PROVIDER;
 
-            } else if (isNetworkEnabled) {
-                this.isGPSTrackingEnabled = true;
-                Log.d(TAG, "La aplicación tiene conexión a Internet");
-                provider_info = LocationManager.NETWORK_PROVIDER;
-            }
-            if (!provider_info.isEmpty()) {
                 //te consigue la ultima ubicación
                 //razon del error: basicamente esto se suele hacer en la clase que tiene el layout, no obstante al utilizar otra clase
                 //te pide que checkees por si el usuario le ha dado permisos o no, aun asi eso ya lo hago desde el main
 
                 //La primera linea sirve para que el gps se actualice, sino en caso de que el usuario justo haya encendido el gps, nos pondrá
                 //que el gps sigue apagado
-                locationManager.requestLocationUpdates(provider_info,MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                location = locationManager.getLastKnownLocation(provider_info);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if (location != null) {
                     actualizarCoordenadas();
                 }
+            }
+            else if (isNetworkEnabled) {
+                Log.d(TAG, "La aplicación tiene conexión a Internet");
             }
         } catch (Exception e) {
             Log.e(TAG, "No se ha podido conectar al gestor de la ubicación", e);
@@ -124,7 +119,7 @@ public class GPSTracker extends Service implements LocationListener {
      */
     public boolean funcionaGPS(){
         boolean resul = false;
-        if(locationManager.getLastKnownLocation(provider_info) != null){
+        if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
             resul = true;
         }
         return resul;

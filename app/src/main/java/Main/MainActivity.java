@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
                             location = df.format(gps.latitude) + ", " + df.format(gps.longitude);
                             guardarEnDB();
                         }
-
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
