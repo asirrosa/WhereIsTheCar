@@ -4,6 +4,8 @@ package Main;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -31,8 +33,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -127,10 +132,16 @@ public class MainActivity extends AppCompatActivity {
 
                     //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
                     try {
-                        apiGeo();
+                        if(gps.isNetworkEnabled) {
+                            apiGeo();
+                        }
+                        else{
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            location = df.format(gps.latitude) + ", " + df.format(gps.longitude);
+                            guardarEnDB();
+                        }
+
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -147,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
     public void apiGeo() throws IOException, InterruptedException {
-        String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid=<API>";
+        String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid=1725788a5fa982f5a33a407898764e84";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String res) {

@@ -16,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -73,22 +74,22 @@ public class GPSTracker extends Service implements LocationListener {
 
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+            ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             //Devuelve el status del GPS y si hay conexión debido a que en caso de no tener conexion a internet tira del gps solamente y viceversa
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            isNetworkEnabled = connectivityManager.getActiveNetworkInfo() != null;
 
             // Conseguir la ubicación en caso de que el GPS este activado
             if (isGPSEnabled) {
                 this.isGPSTrackingEnabled = true;
-                Log.d(TAG, "La aplicación ha utilizado en servicio GPS");
+                Log.d(TAG, "La aplicación tiene activado el servicio GPS");
                 provider_info = LocationManager.GPS_PROVIDER;
 
             } else if (isNetworkEnabled) {
                 this.isGPSTrackingEnabled = true;
-                Log.d(TAG, "La apliacción ha utilizado la conexión a Internet para devolver las coordenadas del GPS");
+                Log.d(TAG, "La aplicación tiene conexión a Internet");
                 provider_info = LocationManager.NETWORK_PROVIDER;
-
             }
             if (!provider_info.isEmpty()) {
                 //te consigue la ultima ubicación
