@@ -2,24 +2,28 @@ package Main;
 
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.InputType;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
@@ -35,8 +39,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,16 +55,18 @@ public class MainActivity extends AppCompatActivity {
     Button btnGuardar;
 
     //variables para conseguir la latitud y la longitud
-    private String location,dateTime;
-    private double lat,lon;
+    private String address;
+    private LocalDateTime startDateTime;
+    private double latitude,longitude;
 
     //Singleton
     private static MainActivity main;
 
-    public MainActivity(){}
+    public MainActivity() {
+    }
 
-    public static MainActivity getInstance(){
-        if(main == null){
+    public static MainActivity getInstance() {
+        if (main == null) {
             main = new MainActivity();
         }
         return main;
@@ -87,18 +93,15 @@ public class MainActivity extends AppCompatActivity {
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
 
-        btnGuardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                txtAlert.setVisibility(TextView.GONE);
-                actualizacionesLayout(ProgressBar.VISIBLE,R.drawable.button_background_cargar,false);
-                try {
-                    añadirAparcamiento();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        btnGuardar.setOnClickListener(view -> {
+            txtAlert.setVisibility(TextView.GONE);
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
+            try {
+                añadirAparcamiento();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -107,38 +110,43 @@ public class MainActivity extends AppCompatActivity {
      * Metodo para añadir un aparcamiento despues de darle al boton, se hacen diferentes comprobaciones
      */
     public void añadirAparcamiento() throws IOException, InterruptedException {
-
-        //En primer lugar se comprueba que la aplicacion tenga permisos necesarios
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
-        }
-        else {
-            //Posteriormente se realizaran las comprobaciones necesarias
             GPSTracker gps = new GPSTracker(this);
-            if (gps.isGPSTrackingEnabled) {
+            //En primer lugar miras si el servicio esta habilitado
+            if(gps.isGPSEnabled){
+                //Luego compruebas que se active el gps es decir esperar un poco a que se active
                 if (!gps.funcionaGPS()) {
                     //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
                     SubCargar cargar = new SubCargar();
                     cargar.execute(gps);
                 } else {
-                    lat = gps.latitude;
-                    lon = gps.longitude;
+                    latitude = gps.location.getLatitude();
+                    longitude = gps.location.getLongitude();
 
                     //PARA CONSEGUIR LA FECHA HORA ACTUAL
-                    Date date = new Date();
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    dateTime = formatter.format(date);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startDateTime = LocalDateTime.now();
+                    }
 
                     //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
                     try {
-                        if(gps.isNetworkEnabled) {
+                        if (gps.isNetworkEnabled) {
                             apiGeo();
-                        }
-                        else{
-                            DecimalFormat df = new DecimalFormat("#.##");
-                            location = df.format(gps.latitude) + ", " + df.format(gps.longitude);
-                            guardarEnDB();
+                        } else {
+                            AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
+                            myDialog.setTitle("Sin conexión. Escribe el nombre del aparcamiento");
+                            final EditText input = new EditText(this);
+                            input.setInputType(InputType.TYPE_CLASS_TEXT);
+                            myDialog.setView(input);
+                            myDialog.setPositiveButton("OK", (dialog, which) -> {
+                                address = input.getText().toString();
+                                guardarEnDB();
+                            });
+                            myDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+                                txtAlert.setVisibility(TextView.INVISIBLE);
+                                dialog.cancel();
+                            });
+                            myDialog.show();
                         }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -146,29 +154,24 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 gps.showSettingsAlert();
-                actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
+                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
                 txtAlert.setVisibility(TextView.INVISIBLE);
                 txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
             }
         }
-    }
 
     /**
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
-    public void apiGeo() throws IOException, InterruptedException {
-        String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid=1725788a5fa982f5a33a407898764e84";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String res) {
-                try {
-                    JSONObject jsonObject = new JSONObject(res);
-                    location = jsonObject.getString("name");
-                    //PARA GUARDAR EL NUEVO APARCAMIENTO EN LA BASE DE DATOS DEL MOVIL
-                    guardarEnDB();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    public void apiGeo() throws IOException {
+        String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=1725788a5fa982f5a33a407898764e84";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
+            try {
+                JSONObject jsonObject = new JSONObject(res);
+                address = jsonObject.getString("name");
+                guardarEnDB();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }, new Response.ErrorListener(){
             @Override
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void guardarEnDB(){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-        myDB.addAparcamiento(dateTime,location,lat,lon);
+        myDB.addAparcamiento(startDateTime,address,latitude,longitude);
         actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         txtAlert.setVisibility(TextView.VISIBLE);
     }
@@ -194,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Metodo para actualizar el layout principal, se utiliza para ver que algo esta cargando, se ha cargado...
      */
-    private void actualizacionesLayout(int visibility, int drawable, boolean guardar){
+    public void actualizacionesLayout(int visibility, int drawable, boolean guardar){
         progressBar.setVisibility(visibility);
         btnGuardar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
         btnGuardar.setEnabled(guardar);
@@ -206,13 +209,7 @@ public class MainActivity extends AppCompatActivity {
     public void listaAparcamientos(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
-        view.postDelayed(new Runnable(){
-            @Override
-            public void run()
-            {
-                txtAlert.setVisibility(TextView.INVISIBLE);
-            }
-        }, 100);
+        view.postDelayed(() -> txtAlert.setVisibility(TextView.INVISIBLE), 100);
     }
 
     /**

@@ -1,5 +1,7 @@
 package Main;
 
+import static android.content.Context.LOCATION_SERVICE;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 
-public class GPSTracker extends Service implements LocationListener {
+public class GPSTracker implements LocationListener{
 
     private static String TAG = GPSTracker.class.getName();
 
@@ -39,28 +41,10 @@ public class GPSTracker extends Service implements LocationListener {
     // flag para el status de la red
     boolean isNetworkEnabled = false;
 
-    // flag que dice si se ha conseguido obtener las coordenadas ya sea por GPS o internet
-    boolean isGPSTrackingEnabled = false;
-
-    Location location;
-    double latitude;
-    double longitude;
-
-    // How many Geocoder should return our GPSTracker
-    int geocoderMaxResults = 1;
-
-    // The minimum distance to change updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
-
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
-
     // Declaring a Location Manager
     protected LocationManager locationManager;
+    Location location;
 
-    // Store LocationManager.GPS_PROVIDER or LocationManager.NETWORK_PROVIDER information
-
-    //La clase constructor
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
@@ -70,47 +54,35 @@ public class GPSTracker extends Service implements LocationListener {
      * Metodo para conseguir la ubicación
      */
     public void getLocation() {
-
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            //Devuelve el status del GPS y si hay conexión debido a que en caso de no tener conexion a internet tira del gps solamente y viceversa
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             isNetworkEnabled = connectivityManager.getActiveNetworkInfo() != null;
 
-            // Conseguir la ubicación en caso de que el GPS este activado
-            if (isGPSEnabled) {
-                this.isGPSTrackingEnabled = true;
-                Log.d(TAG, "La aplicación tiene activado el servicio GPS");
-
-                //te consigue la ultima ubicación
-                //razon del error: basicamente esto se suele hacer en la clase que tiene el layout, no obstante al utilizar otra clase
-                //te pide que checkees por si el usuario le ha dado permisos o no, aun asi eso ya lo hago desde el main
-
-                //La primera linea sirve para que el gps se actualice, sino en caso de que el usuario justo haya encendido el gps, nos pondrá
-                //que el gps sigue apagado
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (location != null) {
-                    actualizarCoordenadas();
+            if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            } else {
+                // Conseguir la ubicación en caso de que el GPS este activado
+                if (isGPSEnabled) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
+                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
             }
-            else if (isNetworkEnabled) {
-                Log.d(TAG, "La aplicación tiene conexión a Internet");
-            }
         } catch (Exception e) {
-            Log.e(TAG, "No se ha podido conectar al gestor de la ubicación", e);
+            e.printStackTrace();
         }
     }
 
     /**
-     * Metodo para actualizar los valores de latitud y longitud
+     * Metodo para crear un loop infinito llamando a funcionaGPS()
      */
-    public void actualizarCoordenadas() {
-        if (location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+    public void esperarGPS() {
+        while (true) {
+            if (funcionaGPS())
+                break;
         }
     }
 
@@ -118,22 +90,20 @@ public class GPSTracker extends Service implements LocationListener {
      * Metodo para comprobar si el gps ha empezado a funcionar
      */
     public boolean funcionaGPS(){
-        boolean resul = false;
-        if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
-            resul = true;
+        boolean result = false;
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         }
-        return resul;
+        else{
+            if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
+                result = true;
+            }
+        }
+        return result;
     }
 
-    /**
-     * Metodo para crear un loop infinito llamando a funcionaGPS()
-     */
-    public void esperarGPS(){
-        while(true){
-            if(funcionaGPS())
-                break;
-        }
-    }
 
     /**
      * Metodo para mostrar el dialog que te dice si quieres activar el gps
@@ -158,15 +128,7 @@ public class GPSTracker extends Service implements LocationListener {
         alert.show();
     }
 
-    /**
-     * Metodo para mostrar el dialog que te dice si quieres activar el gps
-     */
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
+    //Metodos propios de LocationListener
     @Override
     public void onLocationChanged(Location location) {
 
@@ -179,6 +141,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onProviderEnabled(String s) {
+
     }
 
     @Override

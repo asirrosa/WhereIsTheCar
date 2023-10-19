@@ -28,9 +28,8 @@
                 android:textColor="#000"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/aparcamiento_fecha_hora"
-                app:layout_constraintHorizontal_bias="0.372"
+                app:layout_constraintHorizontal_bias="0.307"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,7 +42,7 @@
                 android:text="Fecha/hora"
                 android:textColor="#000"
                 android:textSize="20sp"
-                android:textStyle="italic"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

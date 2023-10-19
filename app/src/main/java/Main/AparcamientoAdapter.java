@@ -1,6 +1,5 @@
 package Main;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,12 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHolder> {
+public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapter.MyViewHolder> {
 
     private Context context;
-    private ArrayList fechaHoraArray, ubicacionArray, latArray, lonArray;
+    private ArrayList<String> fechaHoraArray, ubicacionArray, latArray, lonArray;
 
-    CustomAdapter(Context context, ArrayList fechaHoraArray, ArrayList ubicacionArray, ArrayList latArray, ArrayList lonArray){
+    AparcamientoAdapter(Context context, ArrayList fechaHoraArray, ArrayList ubicacionArray, ArrayList latArray, ArrayList lonArray){
         this.context = context;
         this.fechaHoraArray = fechaHoraArray;
         this.ubicacionArray = ubicacionArray;

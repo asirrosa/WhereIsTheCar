@@ -13,22 +13,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class ListActivity extends AppCompatActivity {
 
     RecyclerView courseRV;
-    Button add_button;
-
     MyDatabaseHelper myDB;
     ArrayList<String> ubicacionArray, fechaHoraArray;
-
     ArrayList<Double> latArray, lonArray;
-    CustomAdapter customAdapter;
+    AparcamientoAdapter customAdapter;
     ImageView empty_imageview;
     TextView no_data;
 
@@ -50,7 +48,7 @@ public class ListActivity extends AppCompatActivity {
         latArray = new ArrayList<>();
         lonArray = new ArrayList<>();
         storeDataInArrays();
-        customAdapter = new CustomAdapter(this, fechaHoraArray, ubicacionArray, latArray, lonArray);
+        customAdapter = new AparcamientoAdapter(this, fechaHoraArray, ubicacionArray, latArray, lonArray);
         courseRV.setAdapter(customAdapter);
         courseRV.setLayoutManager(new LinearLayoutManager(ListActivity.this));
 
@@ -107,11 +105,76 @@ public class ListActivity extends AppCompatActivity {
             no_data.setVisibility(View.VISIBLE);
         }else{
             while (cursor.moveToNext()){
-                fechaHoraArray.add(cursor.getString(1));
+                LocalDateTime startDateTime = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    startDateTime = LocalDateTime.parse(cursor.getString(1));
+                }
+                fechaHoraArray.add(calculateTimeDiff(startDateTime));
                 ubicacionArray.add(cursor.getString(2));
                 latArray.add(cursor.getDouble(3));
                 lonArray.add(cursor.getDouble(4));
             }
         }
+    }
+
+    private String calculateTimeDiff(LocalDateTime startDateTime){
+        String result = "";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDateTime endDateTime = LocalDateTime.now();
+            LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);
+
+            long years = startDateTime.until(endDateTime, ChronoUnit.YEARS);
+            tempDateTime = tempDateTime.plusYears(years);
+            long months = tempDateTime.until(endDateTime, ChronoUnit.MONTHS);
+            tempDateTime = tempDateTime.plusMonths(months);
+            long days = tempDateTime.until(endDateTime, ChronoUnit.DAYS);
+            tempDateTime = tempDateTime.plusDays(days);
+            long hours = tempDateTime.until(endDateTime, ChronoUnit.HOURS);
+            tempDateTime = tempDateTime.plusHours(hours);
+            long minutes = tempDateTime.until(endDateTime, ChronoUnit.MINUTES);
+
+            if(years == 0){
+                if(months == 0){
+                    if(days == 0){
+                        if(hours == 0){
+                            if(minutes == 0){
+                                result = "Hace unos instantes.";
+                            }
+                            else if (minutes == 1){
+                                result = "Hace 1 minuto.";
+                            }
+                            else{
+                                result = "Hace "+minutes+" minutos.";
+                            }
+                        }
+                        else if(hours == 1){
+                            result = "Hace 1 hora.";
+                        }
+                        else{
+                            result = "Hace "+hours+" horas.";
+                        }
+                    }
+                    else if(days == 1){
+                        result = "Hace 1 día.";
+                    }
+                    else{
+                        result = "Hace "+days+" días.";
+                    }
+                }
+                else if (months == 1){
+                    result = "Hace 1 mes.";
+                }
+                else{
+                    result = "Hace "+months+" meses.";
+                }
+            }
+            else if(years == 1){
+                result = "Hace 1 año.";
+            }
+            else {
+                result = "Hace "+years+" años.";
+            }
+        }
+        return result;
     }
 }
