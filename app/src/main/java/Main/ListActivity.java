@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.time.LocalDateTime;
@@ -61,6 +61,22 @@ public class ListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.my_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String text) {
+                customAdapter.getFilter().filter(text);
+                return false;
+            }
+        });
         return true;
     }
 
@@ -75,22 +91,16 @@ public class ListActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Borrar todo?");
         builder.setMessage("Estas seguro de que quieres borrar todo?");
-        builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
-                myDB.deleteAllData();
-                //Refresh Activity
-                Intent intent = new Intent(ListActivity.this, MainActivity.getInstance().getClass());
-                startActivity(intent);
-                finish();
-            }
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
+            myDB.deleteAllData();
+            //Refresh Activity
+            Intent intent = new Intent(getApplicationContext(), MainActivity.getInstance().getClass());
+            startActivity(intent);
+            finish();
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
         });
         builder.create().show();
     }
@@ -138,41 +148,41 @@ public class ListActivity extends AppCompatActivity {
                     if(days == 0){
                         if(hours == 0){
                             if(minutes == 0){
-                                result = "Hace unos instantes.";
+                                result = "Hace unos instantes";
                             }
                             else if (minutes == 1){
-                                result = "Hace 1 minuto.";
+                                result = "Hace 1 minuto";
                             }
                             else{
-                                result = "Hace "+minutes+" minutos.";
+                                result = "Hace "+minutes+" minutos";
                             }
                         }
                         else if(hours == 1){
-                            result = "Hace 1 hora.";
+                            result = "Hace 1 hora";
                         }
                         else{
-                            result = "Hace "+hours+" horas.";
+                            result = "Hace "+hours+" horas";
                         }
                     }
                     else if(days == 1){
-                        result = "Hace 1 día.";
+                        result = "Hace 1 día";
                     }
                     else{
-                        result = "Hace "+days+" días.";
+                        result = "Hace "+days+" días";
                     }
                 }
                 else if (months == 1){
-                    result = "Hace 1 mes.";
+                    result = "Hace 1 mes";
                 }
                 else{
-                    result = "Hace "+months+" meses.";
+                    result = "Hace "+months+" meses";
                 }
             }
             else if(years == 1){
-                result = "Hace 1 año.";
+                result = "Hace 1 año";
             }
             else {
-                result = "Hace "+years+" años.";
+                result = "Hace "+years+" años";
             }
         }
         return result;

@@ -7,6 +7,8 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapter.MyViewHolder> {
+public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapter.MyViewHolder> implements Filterable {
 
     private Context context;
     private ArrayList<String> fechaHoraArray, ubicacionArray, latArray, lonArray;
@@ -29,6 +31,42 @@ public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapte
         this.latArray = latArray;
         this.lonArray = lonArray;
     }
+
+    @Override
+    public Filter getFilter() {
+        return exampleFilter;
+    }
+
+    private Filter exampleFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<ExampleItem> filteredList = new ArrayList<>();
+
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(exampleListFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for (ExampleItem item : exampleListFull) {
+                    if (item.getText2().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            exampleList.clear();
+            exampleList.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     @NonNull
     @Override
@@ -72,15 +110,12 @@ public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapte
 
             mainLayout = itemView.findViewById(R.id.mainLayout);
             cardView = itemView.findViewById(R.id.cardView);
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Para que cada vez que clickes en un item te mande a la ubicación de google maps
-                    Uri mapUri = Uri.parse("geo:0,0?q="+aparcamiento_lat.getText()+","+aparcamiento_lon.getText()+"(Aparcamiento)");
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    context.startActivity(mapIntent);
-                }
+            cardView.setOnClickListener(view -> {
+                //Para que cada vez que clickes en un item te mande a la ubicación de google maps
+                Uri mapUri = Uri.parse("geo:0,0?q="+aparcamiento_lat.getText()+","+aparcamiento_lon.getText()+"(Aparcamiento "+ aparcamiento_ubicacion.getText()+")");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                context.startActivity(mapIntent);
             });
         }
     }

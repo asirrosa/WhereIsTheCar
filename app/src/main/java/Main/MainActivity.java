@@ -146,6 +146,11 @@ public class MainActivity extends AppCompatActivity {
                                 txtAlert.setVisibility(TextView.INVISIBLE);
                                 dialog.cancel();
                             });
+                            myDialog.setOnDismissListener(dialog -> {
+                                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+                                txtAlert.setVisibility(TextView.INVISIBLE);
+                                dialog.cancel();
+                            });
                             myDialog.show();
                         }
                     } catch (IOException e) {
