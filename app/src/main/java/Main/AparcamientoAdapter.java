@@ -18,90 +18,23 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
-public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapter.MyViewHolder> implements Filterable {
+public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapter.AparcamientoViewHolder> implements Filterable {
 
     private Context context;
-    private ArrayList<String> fechaHoraArray, ubicacionArray, latArray, lonArray;
+    public ArrayList<AparcamientoItem> aparcamientoList;
+    public ArrayList<AparcamientoItem> aparcamientoListFull;
 
-    AparcamientoAdapter(Context context, ArrayList fechaHoraArray, ArrayList ubicacionArray, ArrayList latArray, ArrayList lonArray){
-        this.context = context;
-        this.fechaHoraArray = fechaHoraArray;
-        this.ubicacionArray = ubicacionArray;
-        this.latArray = latArray;
-        this.lonArray = lonArray;
-    }
-
-    @Override
-    public Filter getFilter() {
-        return exampleFilter;
-    }
-
-    private Filter exampleFilter = new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            List<ExampleItem> filteredList = new ArrayList<>();
-
-            if (constraint == null || constraint.length() == 0) {
-                filteredList.addAll(exampleListFull);
-            } else {
-                String filterPattern = constraint.toString().toLowerCase().trim();
-
-                for (ExampleItem item : exampleListFull) {
-                    if (item.getText2().toLowerCase().contains(filterPattern)) {
-                        filteredList.add(item);
-                    }
-                }
-            }
-
-            FilterResults results = new FilterResults();
-            results.values = filteredList;
-
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            exampleList.clear();
-            exampleList.addAll((List) results.values);
-            notifyDataSetChanged();
-        }
-    };
-
-    @NonNull
-    @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.aparcamiento_layout, parent, false);
-        return new MyViewHolder(view);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    /**
-     * Metodo para meterle los valores de los arrays al holder
-     */
-    public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
-        holder.aparcamiento_fecha_hora.setText(String.valueOf(fechaHoraArray.get(position)));
-        holder.aparcamiento_ubicacion.setText(String.valueOf(ubicacionArray.get(position)));
-        holder.aparcamiento_lat.setText(String.valueOf(latArray.get(position)));
-        holder.aparcamiento_lon.setText(String.valueOf(lonArray.get(position)));
-    }
-
-    @Override
-    public int getItemCount() {
-        return fechaHoraArray.size();
-    }
-
-    /**
-     * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse algun aparcamiento guardado
-     */
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    public class AparcamientoViewHolder extends RecyclerView.ViewHolder {
         TextView aparcamiento_ubicacion, aparcamiento_fecha_hora, aparcamiento_lat, aparcamiento_lon;
         LinearLayout mainLayout;
         CardView cardView;
 
-        MyViewHolder(@NonNull View itemView) {
+        /**
+         * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse algun aparcamiento guardado
+         */
+        AparcamientoViewHolder(View itemView) {
             super(itemView);
             aparcamiento_fecha_hora = itemView.findViewById(R.id.aparcamiento_fecha_hora);
             aparcamiento_ubicacion = itemView.findViewById(R.id.aparcamiento_ubicacion);
@@ -119,4 +52,72 @@ public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapte
             });
         }
     }
+
+    public AparcamientoAdapter(Context context, ArrayList<AparcamientoItem> aparcamientoList){
+        this.aparcamientoList = aparcamientoList;
+        this.aparcamientoListFull = new ArrayList<>();
+        this.context = context;
+    }
+
+    @NonNull
+    @Override
+    public AparcamientoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.aparcamiento_layout, parent, false);
+        return new AparcamientoViewHolder(view);
+    }
+
+    /**
+     * Metodo para meterle los valores de los arrays al holder
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onBindViewHolder(@NonNull final AparcamientoViewHolder holder, final int position) {
+        AparcamientoItem aparcamientoItem = aparcamientoList.get(position);
+        holder.aparcamiento_fecha_hora.setText(String.valueOf(aparcamientoItem.getFechaHora()));
+        holder.aparcamiento_ubicacion.setText(String.valueOf(aparcamientoItem.getUbicacion()));
+        holder.aparcamiento_lat.setText(String.valueOf(aparcamientoItem.getLat()));
+        holder.aparcamiento_lon.setText(String.valueOf(aparcamientoItem.getLon()));
+    }
+
+    @Override
+    public int getItemCount() {
+        return aparcamientoList.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return aparcamientoFilter;
+    }
+
+    private Filter aparcamientoFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            ArrayList<AparcamientoItem> filteredList = new ArrayList<>();
+
+            if (charSequence.toString().isEmpty()) {
+                filteredList.addAll(aparcamientoListFull);
+            } else {
+                for (AparcamientoItem aparcamientoItem : aparcamientoListFull) {
+                    if (aparcamientoItem.getUbicacion().toLowerCase().contains(charSequence.toString().toLowerCase())) {
+                        filteredList.add(aparcamientoItem);
+                    }
+                }
+            }
+            FilterResults filterResults = new FilterResults();
+            filterResults.values = filteredList;
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults filterResults) {
+            aparcamientoList.clear();
+            aparcamientoList.addAll((Collection<? extends AparcamientoItem>) filterResults.values);
+            notifyDataSetChanged();
+        }
+    };
+
+
+
+
 }

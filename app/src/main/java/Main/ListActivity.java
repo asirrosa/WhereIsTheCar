@@ -13,21 +13,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SearchView;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class ListActivity extends AppCompatActivity {
 
     RecyclerView courseRV;
     MyDatabaseHelper myDB;
-    ArrayList<String> ubicacionArray, fechaHoraArray;
-    ArrayList<Double> latArray, lonArray;
-    AparcamientoAdapter customAdapter;
     ImageView empty_imageview;
+    AparcamientoAdapter aparcamientoAdapter;
     TextView no_data;
 
     /**
@@ -43,15 +42,9 @@ public class ListActivity extends AppCompatActivity {
 
         //A PARTIR DE AQUI SIRVE PARA RELLENAR LA LISTA CON LOS APARCAMIENTOS GUARDADOS
         myDB = new MyDatabaseHelper(ListActivity.this);
-        ubicacionArray = new ArrayList<>();
-        fechaHoraArray = new ArrayList<>();
-        latArray = new ArrayList<>();
-        lonArray = new ArrayList<>();
         storeDataInArrays();
-        customAdapter = new AparcamientoAdapter(this, fechaHoraArray, ubicacionArray, latArray, lonArray);
-        courseRV.setAdapter(customAdapter);
+        courseRV.setAdapter(aparcamientoAdapter);
         courseRV.setLayoutManager(new LinearLayoutManager(ListActivity.this));
-
     }
 
     /**
@@ -67,13 +60,12 @@ public class ListActivity extends AppCompatActivity {
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
             @Override
-            public boolean onQueryTextSubmit(String s) {
+            public boolean onQueryTextSubmit(String text) {
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String text) {
-                customAdapter.getFilter().filter(text);
+                aparcamientoAdapter.getFilter().filter(text);
                 return false;
             }
         });
@@ -114,15 +106,16 @@ public class ListActivity extends AppCompatActivity {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
         }else{
+            ArrayList<AparcamientoItem> aparcamientoList = new ArrayList<>();
+            aparcamientoAdapter = new AparcamientoAdapter(this,aparcamientoList);
             while (cursor.moveToNext()){
                 LocalDateTime startDateTime = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     startDateTime = LocalDateTime.parse(cursor.getString(1));
                 }
-                fechaHoraArray.add(calculateTimeDiff(startDateTime));
-                ubicacionArray.add(cursor.getString(2));
-                latArray.add(cursor.getDouble(3));
-                lonArray.add(cursor.getDouble(4));
+                AparcamientoItem aparcamientoItem = new AparcamientoItem(calculateTimeDiff(startDateTime),cursor.getString(2),cursor.getDouble(3),cursor.getDouble(4));
+                aparcamientoAdapter.aparcamientoList.add(aparcamientoItem);
+                aparcamientoAdapter.aparcamientoListFull.add(aparcamientoItem);
             }
         }
     }

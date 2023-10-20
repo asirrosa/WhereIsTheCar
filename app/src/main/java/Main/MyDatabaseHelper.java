@@ -25,7 +25,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_NAME = "aparcamiento";
     private static final String COLUMN_ID = "aparcamiento_id";
-    private static final String COLUMN_ADDRESS = "aparcamiento_ubicacion";
+    private static final String COLUMN_UBICACION = "aparcamiento_ubicacion";
     private static final String COLUMN_DATE_TIME = "aparcamiento_fecha_hora";
     private static final String COLUMN_LAT = "aparcamiento_lat";
     private static final String COLUMN_LON = "aparcamiento_lon";
@@ -43,7 +43,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         String query = "CREATE TABLE " + TABLE_NAME +
                         " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_DATE_TIME + " DATETIME, " +
-                        COLUMN_ADDRESS + " TEXT, " +
+                        COLUMN_UBICACION + " TEXT, " +
                         COLUMN_LAT + " REAL, " +
                         COLUMN_LON + " REAL);";
         db.execSQL(query);
@@ -60,7 +60,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     public void addAparcamiento(LocalDateTime startDateTime, String location, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(COLUMN_ADDRESS,location);
+        cv.put(COLUMN_UBICACION,location);
         cv.put(COLUMN_DATE_TIME,startDateTime.toString());
         cv.put(COLUMN_LAT, lat);
         cv.put(COLUMN_LON, lon);
