@@ -1,18 +1,10 @@
 package Main;
 
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
@@ -23,25 +15,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -96,79 +80,73 @@ public class MainActivity extends AppCompatActivity {
         btnGuardar.setOnClickListener(view -> {
             txtAlert.setVisibility(TextView.GONE);
             actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
-            try {
-                añadirAparcamiento();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            añadirAparcamiento();
         });
     }
 
     /**
      * Metodo para añadir un aparcamiento despues de darle al boton, se hacen diferentes comprobaciones
      */
-    public void añadirAparcamiento() throws IOException, InterruptedException {
-            GPSTracker gps = new GPSTracker(this);
-            //En primer lugar miras si el servicio esta habilitado
-            if(gps.isGPSEnabled){
-                //Luego compruebas que se active el gps es decir esperar un poco a que se active
-                if (!gps.funcionaGPS()) {
-                    //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
-                    SubCargar cargar = new SubCargar();
-                    cargar.execute(gps);
-                } else {
-                    latitude = gps.location.getLatitude();
-                    longitude = gps.location.getLongitude();
-
-                    //PARA CONSEGUIR LA FECHA HORA ACTUAL
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startDateTime = LocalDateTime.now();
-                    }
-
-                    //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
-                    try {
-                        if (gps.isNetworkEnabled) {
-                            apiGeo();
-                        } else {
-                            AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
-                            myDialog.setTitle("Sin conexión. Escribe el nombre del aparcamiento");
-                            final EditText input = new EditText(this);
-                            input.setInputType(InputType.TYPE_CLASS_TEXT);
-                            myDialog.setView(input);
-                            myDialog.setPositiveButton("OK", (dialog, which) -> {
-                                address = input.getText().toString();
-                                guardarEnDB();
-                            });
-                            myDialog.setNegativeButton("Cancel", (dialog, which) -> {
-                                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-                                txtAlert.setVisibility(TextView.INVISIBLE);
-                                dialog.cancel();
-                            });
-                            myDialog.setOnDismissListener(dialog -> {
-                                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-                                txtAlert.setVisibility(TextView.INVISIBLE);
-                                dialog.cancel();
-                            });
-                            myDialog.show();
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+    public void añadirAparcamiento() {
+        GPSTracker gps = new GPSTracker(this);
+        //En primer lugar miras si el servicio esta habilitado
+        if (gps.isGPSEnabled) {
+            //Luego compruebas que se active el gps es decir esperar un poco a que se active
+            if (!gps.funcionaGPS()) {
+                //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
+                SubCargar cargar = new SubCargar();
+                cargar.execute(gps);
             } else {
-                gps.showSettingsAlert();
-                actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-                txtAlert.setVisibility(TextView.INVISIBLE);
-                txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
+                latitude = gps.location.getLatitude();
+                longitude = gps.location.getLongitude();
+
+                //PARA CONSEGUIR LA FECHA HORA ACTUAL
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startDateTime = LocalDateTime.now();
+                }
+
+                //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
+                if (gps.isNetworkEnabled) {
+                    apiGeo();
+                } else {
+                    sinConexion();
+                }
             }
+        } else {
+            gps.showSettingsAlert();
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            txtAlert.setVisibility(TextView.INVISIBLE);
+            txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
         }
+    }
+
+    private void sinConexion(){
+        AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
+        myDialog.setTitle("Sin conexión. Escribe el nombre del aparcamiento");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        myDialog.setView(input);
+        myDialog.setPositiveButton("OK", (dialog, which) -> {
+            address = input.getText().toString();
+            guardarEnDB();
+        });
+        myDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            txtAlert.setVisibility(TextView.INVISIBLE);
+            dialog.cancel();
+        });
+        myDialog.setOnDismissListener(dialog -> {
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            txtAlert.setVisibility(TextView.INVISIBLE);
+            dialog.cancel();
+        });
+        myDialog.show();
+    }
 
     /**
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
-    public void apiGeo() throws IOException {
+    public void apiGeo() {
         String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=1725788a5fa982f5a33a407898764e84";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
             try {
@@ -178,12 +156,11 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }, new Response.ErrorListener(){
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Comprueba la conexión a internet", Toast.LENGTH_SHORT).show();
-                actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
-            }
+        }, error -> {
+            Toast.makeText(getApplicationContext(), "No se puede conseguir la dirección.", Toast.LENGTH_SHORT).show();
+            actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
+            txtAlert.setVisibility(TextView.INVISIBLE);
+            sinConexion();
         });
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         requestQueue.add(stringRequest);

@@ -1,7 +1,5 @@
 package Main;
 
-import java.util.List;
-
 public class AparcamientoItem {
     private String fechaHora;
     private String ubicacion;
