@@ -20,14 +20,4 @@ public class CustomException extends Exception {
             MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
         }
     }
-
-    public CustomException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
-
-    public CustomException(String message, Throwable cause) {
-        super(message, cause);
-        // TODO Auto-generated constructor stub
-    }
 }
