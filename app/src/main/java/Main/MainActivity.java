@@ -2,6 +2,8 @@ package Main;
 
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,15 +19,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
     //boton para guardar la ubicacion
     Button btnGuardar;
 
-    //variables para conseguir la latitud y la longitud
-    private String address;
     private LocalDateTime startDateTime;
     private double latitude,longitude;
 
@@ -80,14 +75,18 @@ public class MainActivity extends AppCompatActivity {
         btnGuardar.setOnClickListener(view -> {
             txtAlert.setVisibility(TextView.GONE);
             actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
-            añadirAparcamiento();
+            try {
+                añadirAparcamiento();
+            } catch (CustomException e) {
+                e.printStackTrace();
+            }
         });
     }
 
     /**
      * Metodo para añadir un aparcamiento despues de darle al boton, se hacen diferentes comprobaciones
      */
-    public void añadirAparcamiento() {
+    public void añadirAparcamiento() throws CustomException {
         GPSTracker gps = new GPSTracker(this);
         //En primer lugar miras si el servicio esta habilitado
         if (gps.isGPSEnabled) {
@@ -104,10 +103,9 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startDateTime = LocalDateTime.now();
                 }
-
                 //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
                 if (gps.isNetworkEnabled) {
-                    apiGeo();
+                    conConexion();
                 } else {
                     sinConexion();
                 }
@@ -122,13 +120,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void sinConexion(){
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
-        myDialog.setTitle("Sin conexión. Escribe el nombre del aparcamiento");
+        myDialog.setTitle("Modo sin conexión. Escribe el nombre del aparcamiento.");
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         myDialog.setView(input);
         myDialog.setPositiveButton("OK", (dialog, which) -> {
-            address = input.getText().toString();
-            guardarEnDB();
+            String address = input.getText().toString();
+            guardarEnDB(address);
         });
         myDialog.setNegativeButton("Cancel", (dialog, which) -> {
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
@@ -146,30 +144,30 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
-    public void apiGeo() {
-        String tempUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=1725788a5fa982f5a33a407898764e84";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
-            try {
-                JSONObject jsonObject = new JSONObject(res);
-                address = jsonObject.getString("name");
-                guardarEnDB();
-            } catch (JSONException e) {
-                e.printStackTrace();
+    public void conConexion() throws CustomException {
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            if (geocoder != null) {
+                List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
+                if (list.size() > 0) {
+                    String address = list.get(0).getLocality();
+                    guardarEnDB(address);
+                } else {
+                    sinConexion();
+                }
+            } else {
+                throw new CustomException(geocoder);
             }
-        }, error -> {
-            Toast.makeText(getApplicationContext(), "No se puede conseguir la dirección.", Toast.LENGTH_SHORT).show();
-            actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
-            txtAlert.setVisibility(TextView.INVISIBLE);
-            sinConexion();
-        });
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestQueue.add(stringRequest);
+        } catch (CustomException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new CustomException(e);
+        }
     }
-
-    /**
+        /**
      * Metodo para guardar el nuevo aparcamiento en la base de datos
      */
-    private void guardarEnDB(){
+    private void guardarEnDB(String address){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
         myDB.addAparcamiento(startDateTime,address,latitude,longitude);
         actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
