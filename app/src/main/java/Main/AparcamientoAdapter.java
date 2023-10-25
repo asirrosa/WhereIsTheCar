@@ -68,7 +68,6 @@ public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapte
     /**
      * Metodo para meterle los valores de los arrays al holder
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(@NonNull final AparcamientoViewHolder holder, final int position) {
         AparcamientoItem aparcamientoItem = aparcamientoList.get(position);

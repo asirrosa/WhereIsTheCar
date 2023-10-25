@@ -37,9 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     private LocalDateTime startDateTime;
     private double latitude,longitude;
+    GPSTracker gps;
 
     //Singleton
-    private static MainActivity main;
+    private static MainActivity main = null;
 
     public MainActivity() {
     }
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         //texto que muestra mensajes para el usuario
         txtAlert = findViewById(R.id.txtAlert);
-        txtAlert.setVisibility(TextView.GONE);
+        txtAlert.setVisibility(TextView.INVISIBLE);
 
         //barra de carga
         progressBar = findViewById(R.id.progressBar);
@@ -71,9 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
-
         btnGuardar.setOnClickListener(view -> {
-            txtAlert.setVisibility(TextView.GONE);
             actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
             try {
                 añadirAparcamiento();
@@ -87,9 +86,12 @@ public class MainActivity extends AppCompatActivity {
      * Metodo para añadir un aparcamiento despues de darle al boton, se hacen diferentes comprobaciones
      */
     public void añadirAparcamiento() throws CustomException {
-        GPSTracker gps = new GPSTracker(this);
+        main = this;
+        gps = new GPSTracker(this);
+        txtAlert.setVisibility(TextView.INVISIBLE);
+        txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
         //En primer lugar miras si el servicio esta habilitado
-        if (gps.isGPSEnabled) {
+        if (gps.isGPSEnabled && gps.isGPSPermissionEnabled) {
             //Luego compruebas que se active el gps es decir esperar un poco a que se active
             if (!gps.funcionaGPS()) {
                 //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
@@ -98,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 latitude = gps.location.getLatitude();
                 longitude = gps.location.getLongitude();
-
-                //PARA CONSEGUIR LA FECHA HORA ACTUAL
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startDateTime = LocalDateTime.now();
                 }
@@ -110,34 +110,33 @@ public class MainActivity extends AppCompatActivity {
                     sinConexion();
                 }
             }
-        } else {
+        } else if(!gps.isGPSEnabled){
             gps.showSettingsAlert();
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-            txtAlert.setVisibility(TextView.INVISIBLE);
-            txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
+        }
+        else if(!gps.isGPSPermissionEnabled){
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         }
     }
 
     private void sinConexion(){
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
         myDialog.setTitle("Modo sin conexión. Escribe el nombre del aparcamiento.");
+        txtAlert.setVisibility(TextView.INVISIBLE);
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         myDialog.setView(input);
         myDialog.setPositiveButton("OK", (dialog, which) -> {
             String address = input.getText().toString();
             guardarEnDB(address);
+            txtAlert.setVisibility(TextView.VISIBLE);
         });
         myDialog.setNegativeButton("Cancel", (dialog, which) -> {
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
             dialog.cancel();
         });
-        myDialog.setOnDismissListener(dialog -> {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-            txtAlert.setVisibility(TextView.INVISIBLE);
-            dialog.cancel();
-        });
+        myDialog.setCancelable(false);
         myDialog.show();
     }
 
@@ -146,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void conConexion() throws CustomException {
         try {
+            actualizacionesLayout(ProgressBar.VISIBLE,R.drawable.button_background_cargar,false);
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             if (geocoder != null) {
                 List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);

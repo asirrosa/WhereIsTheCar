@@ -11,13 +11,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.ProgressBar;
 
 import androidx.core.app.ActivityCompat;
 
-public class GPSTracker implements LocationListener{
+public class GPSTracker implements LocationListener {
 
     private static String TAG = GPSTracker.class.getName();
 
@@ -25,6 +26,7 @@ public class GPSTracker implements LocationListener{
 
     // flag para el status del GPS
     boolean isGPSEnabled = false;
+    boolean isGPSPermissionEnabled = false;
 
     // flag para el status de la red
     boolean isNetworkEnabled = false;
@@ -47,24 +49,23 @@ public class GPSTracker implements LocationListener{
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            if(locationManager != null && connectivityManager != null) {
+            if (locationManager != null && connectivityManager != null) {
                 isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                 isNetworkEnabled = connectivityManager.getActiveNetworkInfo() != null;
 
                 if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
                 } else {
+                    isGPSPermissionEnabled = true;
                     // Conseguir la ubicación en caso de que el GPS este activado
                     if (isGPSEnabled) {
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     }
                 }
-            }
-            else{
-                throw new CustomException(locationManager,connectivityManager);
+            } else {
+                throw new CustomException(locationManager, connectivityManager);
             }
         } catch (CustomException e) {
             e.printStackTrace();
@@ -78,23 +79,21 @@ public class GPSTracker implements LocationListener{
         while (true) {
             if (funcionaGPS())
                 break;
+            getLocation();
         }
     }
 
     /**
      * Metodo para comprobar si el gps ha empezado a funcionar
      */
-    public boolean funcionaGPS(){
+    public boolean funcionaGPS() {
         boolean result = false;
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-        }
-        else{
-            if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
-                result = true;
-            }
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if(location != null){
+                    result = true;
+                }
         }
         return result;
     }

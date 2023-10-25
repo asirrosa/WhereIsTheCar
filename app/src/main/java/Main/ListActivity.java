@@ -2,6 +2,7 @@ package Main;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,11 +56,12 @@ public class ListActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String text) {
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String text) {
                 aparcamientoAdapter.getFilter().filter(text);
@@ -76,7 +78,7 @@ public class ListActivity extends AppCompatActivity {
     /**
      * Metodo para la funcionalidad de borrar los aparcamientos
      */
-    private void confirmDialog(){
+    private void confirmDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Borrar todo?");
         builder.setMessage("Estas seguro de que quieres borrar todo?");
@@ -97,30 +99,31 @@ public class ListActivity extends AppCompatActivity {
     /**
      * Metodo para crear los arrays con diferentes valores
      */
-    private void storeDataInArrays(){
+    private void storeDataInArrays() {
         Cursor cursor = myDB.readAllData();
-        if(cursor.getCount() == 0){
+        ArrayList<AparcamientoItem> aparcamientoList = new ArrayList<>();
+        aparcamientoAdapter = new AparcamientoAdapter(this, aparcamientoList);
+        if (cursor.getCount() == 0) {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
-        }else{
-            ArrayList<AparcamientoItem> aparcamientoList = new ArrayList<>();
-            aparcamientoAdapter = new AparcamientoAdapter(this,aparcamientoList);
-            while (cursor.moveToNext()){
+        } else {
+            while (cursor.moveToNext()) {
                 LocalDateTime startDateTime = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startDateTime = LocalDateTime.parse(cursor.getString(1));
                 }
-                AparcamientoItem aparcamientoItem = new AparcamientoItem(calculateTimeDiff(startDateTime),cursor.getString(2),cursor.getDouble(3),cursor.getDouble(4));
+                AparcamientoItem aparcamientoItem = new AparcamientoItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getDouble(3), cursor.getDouble(4));
                 aparcamientoAdapter.aparcamientoList.add(aparcamientoItem);
                 aparcamientoAdapter.aparcamientoListFull.add(aparcamientoItem);
             }
         }
     }
 
-    private String calculateTimeDiff(LocalDateTime startDateTime){
+    private String calculateTimeDiff(LocalDateTime startDateTime) {
         String result = "";
+        LocalDateTime endDateTime = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            LocalDateTime endDateTime = LocalDateTime.now();
+            endDateTime = LocalDateTime.now();
             LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);
 
             long years = startDateTime.until(endDateTime, ChronoUnit.YEARS);
@@ -133,48 +136,39 @@ public class ListActivity extends AppCompatActivity {
             tempDateTime = tempDateTime.plusHours(hours);
             long minutes = tempDateTime.until(endDateTime, ChronoUnit.MINUTES);
 
-            if(years == 0){
-                if(months == 0){
-                    if(days == 0){
-                        if(hours == 0){
-                            if(minutes == 0){
+            if (years == 0) {
+                if (months == 0) {
+                    if (days == 0) {
+                        if (hours == 0) {
+                            if (minutes == 0) {
                                 result = "Hace unos instantes";
-                            }
-                            else if (minutes == 1){
+                            } else if (minutes == 1) {
                                 result = "Hace 1 minuto";
+                            } else {
+                                result = "Hace " + minutes + " minutos";
                             }
-                            else{
-                                result = "Hace "+minutes+" minutos";
-                            }
-                        }
-                        else if(hours == 1){
+                        } else if (hours == 1) {
                             result = "Hace 1 hora";
+                        } else {
+                            result = "Hace " + hours + " horas";
                         }
-                        else{
-                            result = "Hace "+hours+" horas";
-                        }
-                    }
-                    else if(days == 1){
+                    } else if (days == 1) {
                         result = "Hace 1 día";
+                    } else {
+                        result = "Hace " + days + " días";
                     }
-                    else{
-                        result = "Hace "+days+" días";
-                    }
-                }
-                else if (months == 1){
+                } else if (months == 1) {
                     result = "Hace 1 mes";
+                } else {
+                    result = "Hace " + months + " meses";
                 }
-                else{
-                    result = "Hace "+months+" meses";
-                }
-            }
-            else if(years == 1){
+            } else if (years == 1) {
                 result = "Hace 1 año";
-            }
-            else {
-                result = "Hace "+years+" años";
+            } else {
+                result = "Hace " + years + " años";
             }
         }
-        return result;
+            return result;
     }
 }
+
