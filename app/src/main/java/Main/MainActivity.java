@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         if (gps.isGPSEnabled && gps.isGPSPermissionEnabled) {
             //Luego compruebas que se active el gps es decir esperar un poco a que se active
             if (!gps.funcionaGPS()) {
-                //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
                 SubCargarGPS cargar = new SubCargarGPS();
                 cargar.execute(gps);
             } else {
@@ -111,11 +110,10 @@ public class MainActivity extends AppCompatActivity {
                     sinConexion();
                 }
             }
-        } else if(!gps.isGPSEnabled){
+        } else if (!gps.isGPSEnabled) {
             gps.showSettingsAlert();
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
-        }
-        else if(!gps.isGPSPermissionEnabled){
+        } else if (!gps.isGPSPermissionEnabled) {
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         }
     }
