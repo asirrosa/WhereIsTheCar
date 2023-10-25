@@ -52,7 +52,6 @@ public class GPSTracker implements LocationListener {
             if (locationManager != null && connectivityManager != null) {
                 isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                 isNetworkEnabled = connectivityManager.getActiveNetworkInfo() != null;
-
                 if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
@@ -79,7 +78,8 @@ public class GPSTracker implements LocationListener {
         while (true) {
             if (funcionaGPS())
                 break;
-            getLocation();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
     }
 

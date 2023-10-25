@@ -1,6 +1,7 @@
 package Main;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
         btnGuardar.setOnClickListener(view -> {
-            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
             try {
                 añadirAparcamiento();
             } catch (CustomException e) {
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             //Luego compruebas que se active el gps es decir esperar un poco a que se active
             if (!gps.funcionaGPS()) {
                 //esto es el thread para que te mire si ya funciona el gps mientras te enseña el mensaje
-                SubCargar cargar = new SubCargar();
+                SubCargarGPS cargar = new SubCargarGPS();
                 cargar.execute(gps);
             } else {
                 latitude = gps.location.getLatitude();
@@ -143,9 +144,9 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
+    @SuppressLint("ResourceType")
     public void conConexion() throws CustomException {
         try {
-            actualizacionesLayout(ProgressBar.VISIBLE,R.drawable.button_background_cargar,false);
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             if (geocoder != null) {
                 List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         myDB.addAparcamiento(startDateTime,address,latitude,longitude);
         actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         txtAlert.setVisibility(TextView.VISIBLE);
+        Toast.makeText(getApplicationContext(), "Aparcamiento guardado", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -195,12 +197,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Metodo threads que sirve para esperar a que el gps se active
      */
-    private class SubCargar extends AsyncTask<GPSTracker,Void,Void>{
+    private class SubCargarGPS extends AsyncTask<GPSTracker,Void,Void> {
 
         //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
         @Override
         protected void onPreExecute() {
-            actualizacionesLayout(ProgressBar.VISIBLE,R.drawable.button_background_cargar,false);
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
             txtAlert.setVisibility(TextView.VISIBLE);
             txtAlert.setText("El gps esta arrancando...");
             super.onPreExecute();
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE,R.drawable.button_background,true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
             txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
