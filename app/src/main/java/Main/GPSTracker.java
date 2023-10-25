@@ -86,9 +86,10 @@ public class GPSTracker implements LocationListener {
      */
     public boolean funcionaGPS() {
         boolean result = false;
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        }
+        else{
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
             if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
                 result = true;
