@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         myDialog.setPositiveButton("OK", (dialog, which) -> {
             String address = input.getText().toString();
             guardarEnDB(address);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
             txtAlert.setVisibility(TextView.VISIBLE);
         });
         myDialog.setNegativeButton("Cancel", (dialog, which) -> {
@@ -146,11 +147,14 @@ public class MainActivity extends AppCompatActivity {
     public void conConexion() throws CustomException {
         try {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            SubCargarConConexion cargarConConexion = new SubCargarConConexion();
+            cargarConConexion.execute();
             if (geocoder != null) {
                 List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
                 if (list.size() > 0) {
                     String address = list.get(0).getLocality();
                     guardarEnDB(address);
+                    actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background_cargar, true);
                 } else {
                     sinConexion();
                 }
@@ -169,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
     private void guardarEnDB(String address){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
         myDB.addAparcamiento(startDateTime,address,latitude,longitude);
-        actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         txtAlert.setVisibility(TextView.VISIBLE);
         Toast.makeText(getApplicationContext(), "Aparcamiento guardado", Toast.LENGTH_SHORT).show();
     }
@@ -189,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     public void listaAparcamientos(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
+        actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         view.postDelayed(() -> txtAlert.setVisibility(TextView.INVISIBLE), 100);
     }
 
@@ -220,6 +224,38 @@ public class MainActivity extends AppCompatActivity {
             txtAlert.setVisibility(TextView.INVISIBLE);
             txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
+            super.onPostExecute(unused);
+        }
+
+    }
+
+    private class SubCargarConConexion extends AsyncTask<Void,Void,Void> {
+
+        //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
+        @Override
+        protected void onPreExecute() {
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
+            txtAlert.setVisibility(TextView.VISIBLE);
+            //txtAlert.setText("El gps esta arrancando...");
+            super.onPreExecute();
+        }
+
+        //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
+        //Despues de que el GPS se active se hace esto
+        @Override
+        protected void onPostExecute(Void unused) {
+            txtAlert.setVisibility(TextView.INVISIBLE);
+            txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
             super.onPostExecute(unused);
         }
 
