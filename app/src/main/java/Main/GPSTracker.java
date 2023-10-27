@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
@@ -53,12 +55,16 @@ public class GPSTracker implements LocationListener {
                 if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                    MainActivity.getInstance().txtAlert.setText("Por favor dale los permisos de ubicación a la aplicación");
+                    MainActivity.getInstance().txtAlert.setVisibility(TextView.VISIBLE);
                 } else {
                     isGPSPermissionEnabled = true;
                     // Conseguir la ubicación en caso de que el GPS este activado
                     if (isGPSEnabled) {
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
+                        MainActivity.getInstance().txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
                     }
                 }
             } else {

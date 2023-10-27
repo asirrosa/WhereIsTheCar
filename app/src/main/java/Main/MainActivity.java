@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity {
     public void añadirAparcamiento() throws CustomException {
         main = this;
         gps = new GPSTracker(this);
-        txtAlert.setVisibility(TextView.INVISIBLE);
-        txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
         //En primer lugar miras si el servicio esta habilitado
         if (gps.isGPSEnabled && gps.isGPSPermissionEnabled) {
             //Luego compruebas que se active el gps es decir esperar un poco a que se active
