@@ -20,8 +20,6 @@ import androidx.core.app.ActivityCompat;
 
 public class GPSTracker implements LocationListener {
 
-    private static String TAG = GPSTracker.class.getName();
-
     private final Context mContext;
 
     // flag para el status del GPS

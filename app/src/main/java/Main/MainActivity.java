@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     //boton para guardar la ubicacion
     Button btnGuardar;
+    Button btnLista;
 
     private LocalDateTime startDateTime;
     private double latitude,longitude;
@@ -81,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+
+        btnLista = findViewById(R.id.btnLista);
+        btnLista.setOnClickListener(view -> {
+            listaAparcamientos(view);
+        });
     }
 
     /**
@@ -112,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (!gps.isGPSEnabled) {
             gps.showSettingsAlert();
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
         } else if (!gps.isGPSPermissionEnabled) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
         }
     }
 
@@ -128,11 +134,11 @@ public class MainActivity extends AppCompatActivity {
         myDialog.setPositiveButton("OK", (dialog, which) -> {
             String address = input.getText().toString();
             guardarEnDB(address);
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
             txtAlert.setVisibility(TextView.VISIBLE);
         });
         myDialog.setNegativeButton("Cancel", (dialog, which) -> {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
             dialog.cancel();
         });
@@ -152,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
                 if (list.size() > 0) {
                     String address = list.get(0).getLocality();
                     guardarEnDB(address);
-                    actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background_cargar, true);
                 } else {
                     sinConexion();
                 }
@@ -172,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
         myDB.addAparcamiento(startDateTime,address,latitude,longitude);
         txtAlert.setVisibility(TextView.VISIBLE);
-        Toast.makeText(getApplicationContext(), "Aparcamiento guardado", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -190,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
     public void listaAparcamientos(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
-        actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
         view.postDelayed(() -> txtAlert.setVisibility(TextView.INVISIBLE), 100);
     }
 
@@ -218,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_background, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
             txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
