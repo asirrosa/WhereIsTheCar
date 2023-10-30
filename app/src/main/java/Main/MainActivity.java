@@ -24,9 +24,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     //texto para mostrar distintos mensajes en pantalla
     TextView txtAlert;
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //Para que al iniciar cargue el layout del inicio
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_layout);
 
         //texto que muestra mensajes para el usuario
         txtAlert = findViewById(R.id.txtAlert);
@@ -75,18 +74,29 @@ public class MainActivity extends AppCompatActivity {
 
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
-        btnGuardar.setOnClickListener(view -> {
-            try {
-                añadirAparcamiento();
-            } catch (CustomException e) {
-                e.printStackTrace();
-            }
-        });
+        //esta linea necesaria para que funcione el onClick
+        btnGuardar.setOnClickListener(this);
 
+        //El botón de la lista de aparcamientos
         btnLista = findViewById(R.id.btnLista);
-        btnLista.setOnClickListener(view -> {
-            listaAparcamientos(view);
-        });
+        btnLista.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view){
+        switch (view.getId()){
+            case R.id.btnGuardar:
+                try {
+                    añadirAparcamiento();
+                } catch (CustomException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case R.id.btnLista:
+                listaAparcamientos(view);
+                break;
+        }
     }
 
     /**

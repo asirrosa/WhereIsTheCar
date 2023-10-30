@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,13 +20,16 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
     RecyclerView courseRV;
     MyDatabaseHelper myDB;
     ImageView empty_imageview;
     AparcamientoAdapter aparcamientoAdapter;
     TextView no_data;
+    MenuItem itemSearch;
+    MenuItem itemDelete;
+    MenuItem itemAddLocation;
 
     /**
      * Metodo onCreate que rellena el layout con los diferentes aparcamientos guardados
@@ -53,35 +57,53 @@ public class ListActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.my_menu, menu);
 
-        MenuItem searchItem = menu.findItem(R.id.search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        itemSearch = menu.findItem(R.id.search);
+        itemSearch.setOnMenuItemClickListener(this);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String text) {
-                return false;
-            }
+        itemDelete = menu.findItem(R.id.delete_all);
+        itemDelete.setOnMenuItemClickListener(this);
 
-            @Override
-            public boolean onQueryTextChange(String text) {
-                aparcamientoAdapter.getFilter().filter(text);
-                return false;
-            }
-        });
+        itemAddLocation = menu.findItem(R.id.add_location);
+        itemAddLocation.setOnMenuItemClickListener(this);
         return true;
     }
 
-    public void deleteAll(MenuItem item) {
-        confirmDialog();
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.delete_all:
+                confirmDialogDeleteAll();
+                break;
+
+            case R.id.search:
+                SearchView searchView = (SearchView) menuItem.getActionView();
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String text) {
+                        return false;
+                    }
+                    @Override
+                    public boolean onQueryTextChange(String text) {
+                        aparcamientoAdapter.getFilter().filter(text);
+                        return false;
+                    }
+                });
+                break;
+
+            case R.id.add_location:
+                confirmDialogAddLocation();
+                break;
+        }
+        return false;
     }
 
     /**
      * Metodo para la funcionalidad de borrar los aparcamientos
      */
-    private void confirmDialog() {
+    private void confirmDialogDeleteAll() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Borrar todo?");
-        builder.setMessage("Estas seguro de que quieres borrar todo?");
+        builder.setTitle("¿Borrar todo?");
+        //builder.setMessage("¿Estas seguro de que quieres borrar todo?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
             myDB.deleteAllData();
@@ -89,6 +111,19 @@ public class ListActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), MainActivity.getInstance().getClass());
             startActivity(intent);
             finish();
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
+    }
+
+    private void confirmDialogAddLocation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("¿Añadir ubicacion manualmente?");
+        //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            //TODO
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             dialogInterface.cancel();
