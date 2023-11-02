@@ -34,7 +34,7 @@
         <activity
             android:name=".MapsActivity"
             android:exported="false"
-            android:label="@string/title_activity_maps" />
+            android:label="Añadir ubicación manualmente" />
         <activity
             android:name=".MainActivity"
             android:exported="true" >
