@@ -1,14 +1,13 @@
 package Main;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +16,6 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -40,7 +37,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<String> listaNombres = new ArrayList<>();
 
     int posicion;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +81,16 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
     public void llenarListaUbicaciones(){
         if(listaNombres.size() == 0){
-            Toast.makeText(getApplicationContext(), "No se ha encontrado ninguna ubiacion con ese nombre", Toast.LENGTH_SHORT).show();
+            txtInput.setHint("Escribe la ubicación deseada");
+            txtInput.setText("");
+            Toast.makeText(getApplicationContext(), "No se ha encontrado ninguna ubicación con ese nombre", Toast.LENGTH_SHORT).show();
         }
         else {
-            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, listaNombres);
             listaUbicacionesAPIManual.setVisibility(ListView.VISIBLE);
+            ArrayAdapter adapter = new ArrayAdapter(this,R.layout.manual_location_layout, R.id.txtView, listaNombres);
             listaUbicacionesAPIManual.setAdapter(adapter);
             listaUbicacionesAPIManual.setOnItemClickListener((parent, view, position, l) -> {
+                btnGuardarUbiManual.setEnabled(true);
                 btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.button_guardar_click,null));
                 posicion = position;
             });
@@ -99,27 +98,45 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void apiGeoCode() throws IOException, InterruptedException {
-        String tempUrl = "https://geocode.maps.co/search?q={"+txtInput.getText()+"}";
-        LocalDateTime startDateTime = LocalDateTime.now();
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
-            try {
-                JSONArray jsonArray = new JSONArray(res);
-                for(int i = 0;i<jsonArray.length();i++){
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    double lat = jsonObject.getDouble("lat");
-                    double lon = jsonObject.getDouble("lon");
-                    String address = jsonObject.getString("display_name");
-                    AparcamientoItem aparcamientoItem = new AparcamientoItem(startDateTime.toString(),address,lat,lon);
-                    listaAparcamientos.add(aparcamientoItem);
-                    listaNombres.add(address);
-                    llenarListaUbicaciones();
+        if(!txtInput.getText().toString().equals("")) {
+            String tempUrl = "https://geocode.maps.co/search?q={" + txtInput.getText() + "}";
+            LocalDateTime startDateTime = LocalDateTime.now();
+            listaAparcamientos = new ArrayList<>();
+            listaNombres = new ArrayList<>();
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
+                try {
+                    JSONArray jsonArray = new JSONArray(res);
+                    if(jsonArray.length() > 0) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            double lat = jsonObject.getDouble("lat");
+                            double lon = jsonObject.getDouble("lon");
+                            String address = jsonObject.getString("display_name");
+                            AparcamientoItem aparcamientoItem = new AparcamientoItem(startDateTime.toString(), address, lat, lon);
+                            listaAparcamientos.add(aparcamientoItem);
+                            listaNombres.add(address);
+                            llenarListaUbicaciones();
+                        }
+                    }
+                    else{
+                        txtInput.setText("");
+                        txtInput.setHint("Escribe la ubicación deseada");
+                        txtInput.setHintTextColor(Color.BLACK);
+                        Toast.makeText(getApplicationContext(), "No se ha encontrado ninguna ubicación con ese nombre", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }, error -> {});
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestQueue.add(stringRequest);
+            }, error -> {
+                txtInput.setHint("Por favor escribe algo");
+            });
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            requestQueue.add(stringRequest);
+        }
+        else{
+            txtInput.setHint("Por favor escribe algo");
+            txtInput.setHintTextColor(Color.RED);
+        }
     }
 
     public void guardarEnDB(AparcamientoItem aparcamientoItem){

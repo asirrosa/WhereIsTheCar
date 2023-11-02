@@ -29,15 +29,15 @@
         android:layout_height="56dp"
         android:background="@drawable/button_aparcamientos_click"
         android:text="Aparcamientos"
+        android:gravity="center"
+        android:layout_marginBottom="40dp"
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.928"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.949" />
+        app:layout_constraintEnd_toEndOf="parent"
+    />
 
     <Button
         android:id="@+id/btnGuardar"
