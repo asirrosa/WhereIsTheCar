@@ -1,6 +1,6 @@
 # ¿Donde esta el coche?
 ## Aplicación de android para guardar aparcamientos, al pulsar el botón se guarda la ubicación actual junto con una lista de los aparcamientos previamente guardados.
-Utiliza el servicio de ubicación predeterminado de android asi como una API de Google llamada Geocoder para obtener la dirección de donde estás haciendo uso de la latitud y la longitud. En caso de no tener conexión a Internet permite que el usuario guarde un pequeño texto para asignarle una dirección o un nombre significativo al aparcamiento.
+Utiliza el servicio de ubicación predeterminado de android asi como una API llamada [Geocoder](https://developer.android.com/reference/android/location/Geocoder) para obtener la dirección de donde estás haciendo uso de la latitud y la longitud. En caso de no tener conexión a Internet permite que el usuario guarde un pequeño texto para asignarle una dirección o un nombre significativo al aparcamiento. Además de esto para meter ubicaciones manualmente se hace uso de una API llamada [Geocoding](https://geocode.maps.co/).
 
 <br/><br/>
 <p align="center">
@@ -8,7 +8,7 @@ Utiliza el servicio de ubicación predeterminado de android asi como una API de 
 </p>
 
 <p align="center">
-  <img src="https://github.com/asirrosa/WhereIsTheCar/assets/143890605/08b6a4ba-4426-438f-8835-75e97e60fac4" width="400" height="800" />
+  <img src="https://github.com/asirrosa/WhereIsTheCar/assets/143890605/cf38bee8-c699-4ba4-bf90-72fac02a1e42" width="400" height="800" />
 </p>
 
 <br/><br/>
@@ -16,6 +16,13 @@ Utiliza el servicio de ubicación predeterminado de android asi como una API de 
   <ins>Pantalla con la lista de aparcamientos</ins>
 </p>
 <p align="center">
-  <img src="https://github.com/asirrosa/WhereIsTheCar/assets/143890605/d42c3a92-0f6b-4e2d-a6d0-1513940cb92d" width="400" height="800" />
+  <img src="https://github.com/asirrosa/WhereIsTheCar/assets/143890605/b8ed2e3b-936c-4faf-9659-e0d85a4f28f0" width="400" height="800" />
 </p>
 
+<br/><br/>
+<p align="center">
+  <ins>Pantalla para meter una ubicacion de manera manual</ins>
+</p>
+<p align="center">
+  <img src="https://github.com/asirrosa/WhereIsTheCar/assets/143890605/9a590105-57f8-42d8-b7cd-980b236b94ed" width="400" height="800" />
+</p>
