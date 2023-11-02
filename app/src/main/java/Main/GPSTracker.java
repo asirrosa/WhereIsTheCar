@@ -106,16 +106,17 @@ public class GPSTracker implements LocationListener {
      * Metodo para mostrar el dialog que te dice si quieres activar el gps
      */
     public void showSettingsAlert(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-        alertDialogBuilder.setMessage("El gps esta desactivado quieres activarlo?");
-        alertDialogBuilder.setPositiveButton("Ir a configuración y activarlo", (dialog, id) -> {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
+        //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             mContext.startActivity(intent);
         });
-        alertDialogBuilder.setNegativeButton("Cancelar",
-                (dialog, id) -> dialog.cancel());
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
     }
 
     //Metodos propios de LocationListener

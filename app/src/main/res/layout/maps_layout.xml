@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:elevation="10dp"
+        android:background="@drawable/white_border"
+        android:id="@+id/relLayout1">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/ic_magnify"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_magnify"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/txtInput"
+            android:layout_width="357dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/ic_magnify"
+            android:background="@null"
+            android:hint="Escribe la ubicación deseada"
+            android:imeOptions="actionSearch"
+            android:textColor="#000"
+            android:textSize="15sp" />
+
+
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:background="#2574f5"
+
+        android:layout_height="match_parent">
+
+
+        <Button
+            android:id="@+id/btnBuscarUbiManual"
+            android:layout_width="167dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="108dp"
+            android:background="@drawable/button_guardar_click"
+            android:text="Buscar"
+            android:textColor="#000000"
+            android:textSize="20sp"
+
+            android:textStyle="bold|italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.094"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <Button
+            android:id="@+id/btnGuardarUbiManual"
+            android:layout_width="167dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="108dp"
+            android:background="@drawable/button_guardar_click"
+            android:text="Guardar"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.901"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <ListView
+            android:id="@+id/listaUbicacionesAPIManual"
+            android:layout_width="364dp"
+            android:layout_height="317dp"
+            android:layout_marginTop="196dp"
+            android:layout_weight="100"
+            android:height="100dp"
+            android:background="@drawable/lista_ubicaciones_background"
+            android:divider="@color/quantum_black_text"
+            android:dividerHeight="1.5dp"
+            android:gravity="center"
+            android:maxHeight="100dp"
+            android:minWidth="100dp"
+            android:minHeight="100dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.489"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
+      <!--  <TextView
+            android:id="@+id/txtAlertApiManual"
+            android:layout_width="346dp"
+            android:layout_height="79dp"
+            android:layout_marginTop="520dp"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:text="Se ha guardado la ubi del aparcamiento!"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="#CDDC39"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.492"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />-->
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

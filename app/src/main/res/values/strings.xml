@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">¿Donde esta el coche?</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="maps_api_key">AIzaSyDmnhknVs6i4LxTjq49bzPZ3Zg8nU_Ii7Q</string>
 </resources>

@@ -8,7 +8,7 @@
     android:background="#2574f5"
     tools:context="Main.MainActivity">
 
-    <Button
+   <!-- <Button
         android:id="@+id/btnBuscar"
         android:layout_width="301dp"
         android:layout_height="87dp"
@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.151" />
+        app:layout_constraintVertical_bias="0.151" />-->
 
     <Button
         android:id="@+id/btnLista"
@@ -83,6 +83,6 @@
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnGuardar"
-        app:layout_constraintVertical_bias="0.448" />
+        app:layout_constraintVertical_bias="0.346" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,21 +4,28 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
@@ -65,6 +72,10 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
         itemAddLocation = menu.findItem(R.id.add_location);
         itemAddLocation.setOnMenuItemClickListener(this);
+
+        if(!geoCodeAPIOK()){
+            itemAddLocation.setVisible(false);
+        }
         return true;
     }
 
@@ -97,6 +108,17 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         return false;
     }
 
+    public boolean geoCodeAPIOK(){
+        AtomicBoolean result = new AtomicBoolean(true);
+        String tempUrl = "https://geocode.maps.co/search?q={world}";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {}, error -> {
+            result.set(false);
+        });
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+        return result.get();
+    }
+
     /**
      * Metodo para la funcionalidad de borrar los aparcamientos
      */
@@ -123,7 +145,9 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         builder.setTitle("¿Añadir ubicacion manualmente?");
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
-            //TODO
+            Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+            startActivity(intent);
+            finish();
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             dialogInterface.cancel();
@@ -156,7 +180,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
     private String calculateTimeDiff(LocalDateTime startDateTime) {
         String result = "";
-        LocalDateTime endDateTime = null;
+        LocalDateTime endDateTime;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             endDateTime = LocalDateTime.now();
             LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);

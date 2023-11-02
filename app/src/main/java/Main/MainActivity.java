@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /**
      * Metodo para guardar el nuevo aparcamiento en la base de datos
      */
-    private void guardarEnDB(String address){
+    public void guardarEnDB(String address){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
         myDB.addAparcamiento(startDateTime,address,latitude,longitude);
         txtAlert.setVisibility(TextView.VISIBLE);
