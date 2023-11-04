@@ -2,12 +2,20 @@ package Main;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,22 +34,26 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MapsActivity extends AppCompatActivity implements View.OnClickListener {
 
     Button btnBuscarUbiManual,btnGuardarUbiManual;
-    TextView txtInput;
+    AutoCompleteTextView txtInput;
     ListView listaUbicacionesAPIManual;
-
-    ArrayList<AparcamientoItem> listaAparcamientos = new ArrayList<>();
-    ArrayList<String> listaNombres = new ArrayList<>();
-
-    int posicion;
+    ProgressBar progressBar;
+    ArrayAdapter adapter;
+    HashMap<String,AparcamientoItem> hashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maps_layout);
+
+        progressBar = findViewById(R.id.progressBarLocations);
 
         btnBuscarUbiManual = findViewById(R.id.btnBuscarUbiManual);
         btnBuscarUbiManual.setOnClickListener(this);
@@ -49,28 +61,35 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
         btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.button_background_cargar,null));
-
-        txtInput = findViewById(R.id.txtInput);
+        btnGuardarUbiManual.setEnabled(false);
 
         listaUbicacionesAPIManual = findViewById(R.id.listaUbicacionesAPIManual);
         listaUbicacionesAPIManual.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, new ArrayList<>());
+        adapter.setNotifyOnChange(true);
+        txtInput = findViewById(R.id.txtInput);
+        txtInput.setAdapter(adapter);
+        txtInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(count > 0) {
+                    apiGeoCode();
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.btnBuscarUbiManual:
-                try {
-                    apiGeoCode();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-
             case R.id.btnGuardarUbiManual:
-                guardarEnDB(listaAparcamientos.get(posicion));
+                guardarEnDB(hashMap.get(txtInput));
                 Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, ListActivity.class);
                 startActivity(intent);
@@ -79,68 +98,71 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void llenarListaUbicaciones(){
-        if(listaNombres.size() == 0){
-            txtInput.setHint("Escribe la ubicación deseada");
-            txtInput.setText("");
-            Toast.makeText(getApplicationContext(), "No se ha encontrado ninguna ubicación con ese nombre", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            listaUbicacionesAPIManual.setVisibility(ListView.VISIBLE);
-            ArrayAdapter adapter = new ArrayAdapter(this,R.layout.manual_location_layout, R.id.txtView, listaNombres);
-            listaUbicacionesAPIManual.setAdapter(adapter);
-            listaUbicacionesAPIManual.setOnItemClickListener((parent, view, position, l) -> {
-                btnGuardarUbiManual.setEnabled(true);
-                btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.button_guardar_click,null));
-                posicion = position;
-            });
-        }
-    }
-
-    public void apiGeoCode() throws IOException, InterruptedException {
-        if(!txtInput.getText().toString().equals("")) {
-            String tempUrl = "https://geocode.maps.co/search?q={" + txtInput.getText() + "}";
+    public void apiGeoCode() {
+        if(!txtInput.getText().equals("")) {
+            String tempUrl = "https://api.geoapify.com/v1/geocode/autocomplete?text="+txtInput.getText()+"&apiKey="+getResources().getString(R.string.geoapify_api);
             LocalDateTime startDateTime = LocalDateTime.now();
-            listaAparcamientos = new ArrayList<>();
-            listaNombres = new ArrayList<>();
+            hashMap = new HashMap<>();
             StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
                 try {
-                    JSONArray jsonArray = new JSONArray(res);
+                    JSONObject jsonObject = new JSONObject(res);
+                    JSONArray jsonArray = jsonObject.getJSONArray("features");
                     if(jsonArray.length() > 0) {
                         for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            double lat = jsonObject.getDouble("lat");
-                            double lon = jsonObject.getDouble("lon");
-                            String address = jsonObject.getString("display_name");
+                            JSONObject mainObject = jsonArray.getJSONObject(i);
+                            JSONObject propertiesObject = mainObject.getJSONObject("properties");
+                            double lat = propertiesObject.getDouble("lat");
+                            double lon = propertiesObject.getDouble("lon");
+                            String address = propertiesObject.getString("formatted");
                             AparcamientoItem aparcamientoItem = new AparcamientoItem(startDateTime.toString(), address, lat, lon);
-                            listaAparcamientos.add(aparcamientoItem);
-                            listaNombres.add(address);
-                            llenarListaUbicaciones();
+                            hashMap.put(address, aparcamientoItem);
                         }
-                    }
-                    else{
-                        txtInput.setText("");
-                        txtInput.setHint("Escribe la ubicación deseada");
-                        txtInput.setHintTextColor(Color.BLACK);
-                        Toast.makeText(getApplicationContext(), "No se ha encontrado ninguna ubicación con ese nombre", Toast.LENGTH_SHORT).show();
+                        SubCargarListaLocations cargar = new SubCargarListaLocations();
+                        cargar.execute();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }, error -> {
-                txtInput.setHint("Por favor escribe algo");
-            });
+            }, error -> {});
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             requestQueue.add(stringRequest);
         }
-        else{
-            txtInput.setHint("Por favor escribe algo");
-            txtInput.setHintTextColor(Color.RED);
-        }
+    }
+
+    public void llenarLista(){
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, new ArrayList<>(hashMap.keySet()));
+        txtInput.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     public void guardarEnDB(AparcamientoItem aparcamientoItem){
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
         myDB.addAparcamiento(LocalDateTime.parse(aparcamientoItem.getFechaHora()),aparcamientoItem.getUbicacion(),aparcamientoItem.getLat(),aparcamientoItem.getLon());
+    }
+
+    private class SubCargarListaLocations extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            llenarLista();
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            super.onPostExecute(unused);
+        }
     }
 }

@@ -66,11 +66,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //texto que muestra mensajes para el usuario
         txtAlert = findViewById(R.id.txtAlert);
-        txtAlert.setVisibility(TextView.INVISIBLE);
 
         //barra de carga
         progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(ProgressBar.GONE);
 
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);

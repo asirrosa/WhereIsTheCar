@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">¿Donde esta el coche?</string>
+    <string name="geoapify_api">8209e73bb35d4549bfeb451b22b7deb7</string>
 </resources>
