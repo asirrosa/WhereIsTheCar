@@ -66,6 +66,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
+        btnGuardarUbiManual.setEnabled(false);
 
         //para mostrar el mapa
         mapView = findViewById(R.id.mapView);
@@ -83,7 +84,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         txtInput.setOnItemClickListener((parent, view, position, id) -> {
             btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.button_guardar_click, null));
-            btnGuardarUbiManual.setVisibility(Button.VISIBLE);
+            btnGuardarUbiManual.setEnabled(true);
             double lat = hashMapCopy.get(((AppCompatTextView) view).getText()).getLat();
             double lon = hashMapCopy.get(((AppCompatTextView) view).getText()).getLon();
 
@@ -122,6 +123,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.lupaFlecha:
                 txtInput.setText("");
                 lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_searchlocation, null));
+                btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.button_background_cargar, null));
                 break;
             case R.id.btnGuardarUbiManual:
                 guardarEnDB(hashMap.get(txtInput.getText().toString()));

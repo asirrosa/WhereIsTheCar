@@ -62,8 +62,7 @@
             android:layout_marginTop="100dp"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/button_guardar_click"
-            android:visibility="invisible"
+            android:background="@drawable/button_background_cargar"
             android:enabled="false"
             android:text="Guardar"
             android:textColor="#000000"
@@ -86,18 +85,3 @@
             tools:ignore="MissingConstraints" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
