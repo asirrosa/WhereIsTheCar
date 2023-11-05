@@ -1,86 +1,117 @@
 package Main;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Process;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
-import android.widget.TextView;
+
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.maps.MapView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class MapsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button btnBuscarUbiManual,btnGuardarUbiManual;
+    Button btnGuardarUbiManual;
     AutoCompleteTextView txtInput;
-    ListView listaUbicacionesAPIManual;
-    ProgressBar progressBar;
+    MapView mapView;
+    ProgressBar progressBarLocations;
     ArrayAdapter adapter;
-    HashMap<String,AparcamientoItem> hashMap;
+    ImageView lupaFlecha;
+    HashMap<String,AparcamientoItem> hashMap = new HashMap<>();
+    HashMap<String,AparcamientoItem> hashMapCopy = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //esta linea importante porque sino no inicializa el mapa
+        Mapbox.getInstance(this);
         setContentView(R.layout.maps_layout);
 
-        progressBar = findViewById(R.id.progressBarLocations);
+        lupaFlecha = findViewById(R.id.lupaFlecha);
+        lupaFlecha.setOnClickListener(this);
 
-        btnBuscarUbiManual = findViewById(R.id.btnBuscarUbiManual);
-        btnBuscarUbiManual.setOnClickListener(this);
+        progressBarLocations = findViewById(R.id.progressBarLocations);
 
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
-        btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.button_background_cargar,null));
-        btnGuardarUbiManual.setEnabled(false);
 
-        listaUbicacionesAPIManual = findViewById(R.id.listaUbicacionesAPIManual);
-        listaUbicacionesAPIManual.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        //para mostrar el mapa
+        mapView = findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        String url = "https://api.maptiler.com/maps/streets-v2/style.json?key="+getResources().getString(R.string.maptiles_api);
+        mapView.getMapAsync(mapboxMap -> {
+            mapboxMap.setStyle(url);
+            mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
+        });
 
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         adapter.setNotifyOnChange(true);
         txtInput = findViewById(R.id.txtInput);
         txtInput.setAdapter(adapter);
+
+        txtInput.setOnItemClickListener((parent, view, position, id) -> {
+            btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.button_guardar_click, null));
+            btnGuardarUbiManual.setVisibility(Button.VISIBLE);
+            double lat = hashMapCopy.get(((AppCompatTextView) view).getText()).getLat();
+            double lon = hashMapCopy.get(((AppCompatTextView) view).getText()).getLon();
+
+            mapView.getMapAsync(mapboxMap -> {
+                mapboxMap.setStyle(url);
+                mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(lat,lon)).zoom(15.0).build());
+            });
+
+            //cerrar el teclado
+            View teclado = this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(teclado.getWindowToken(), 0);
+            }
+        });
+
         txtInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(count > 0) {
-                    apiGeoCode();
-                }
+                lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_back, null));
             }
             @Override
             public void afterTextChanged(Editable s) {
+                if(s.length() > 0){
+                    apiGeoCode();
+                }
             }
         });
     }
@@ -88,8 +119,12 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()){
+            case R.id.lupaFlecha:
+                txtInput.setText("");
+                lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_searchlocation, null));
+                break;
             case R.id.btnGuardarUbiManual:
-                guardarEnDB(hashMap.get(txtInput));
+                guardarEnDB(hashMap.get(txtInput.getText().toString()));
                 Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, ListActivity.class);
                 startActivity(intent);
@@ -100,9 +135,10 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
     public void apiGeoCode() {
         if(!txtInput.getText().equals("")) {
-            String tempUrl = "https://api.geoapify.com/v1/geocode/autocomplete?text="+txtInput.getText()+"&apiKey="+getResources().getString(R.string.geoapify_api);
+            String tempUrl = "https://api.geoapify.com/v1/geocode/autocomplete?text="+txtInput.getText()+"?lang=es?&apiKey="+getResources().getString(R.string.geoapify_api);
             LocalDateTime startDateTime = LocalDateTime.now();
-            hashMap = new HashMap<>();
+            hashMapCopy = (HashMap<String, AparcamientoItem>) hashMap.clone();
+            hashMap.clear();
             StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
                 try {
                     JSONObject jsonObject = new JSONObject(res);
@@ -141,27 +177,21 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private class SubCargarListaLocations extends AsyncTask<Void,Void,Void> {
-
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            progressBarLocations.setVisibility(ProgressBar.VISIBLE);
             super.onPreExecute();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void unused) {
+            progressBarLocations.setVisibility(ProgressBar.INVISIBLE);
             llenarLista();
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
             super.onPostExecute(unused);
         }
     }
