@@ -44,7 +44,7 @@ public class AparcamientoAdapter extends RecyclerView.Adapter<AparcamientoAdapte
             cardView = itemView.findViewById(R.id.cardView);
             cardView.setOnClickListener(view -> {
                 //Para que cada vez que clickes en un item te mande a la ubicación de google maps
-                Uri mapUri = Uri.parse("geo:0,0?q="+aparcamiento_lat.getText()+","+aparcamiento_lon.getText()+"(Aparcamiento "+ aparcamiento_ubicacion.getText()+")");
+                Uri mapUri = Uri.parse("geo:0,0?q="+aparcamiento_lat.getText()+","+aparcamiento_lon.getText()+"(Aparcamiento: "+ aparcamiento_ubicacion.getText()+")");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 context.startActivity(mapIntent);
