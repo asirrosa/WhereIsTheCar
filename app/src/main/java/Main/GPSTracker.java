@@ -61,7 +61,7 @@ public class GPSTracker implements LocationListener {
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
-                        MainActivity.getInstance().txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
+                        MainActivity.getInstance().txtAlert.setText("Se ha guardado la ubi!");
                     }
                 }
             } else {

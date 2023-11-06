@@ -1,12 +1,12 @@
 package Main;
 
-public class AparcamientoItem {
+public class UbicacionItem {
     private String fechaHora;
     private String ubicacion;
     private Double lat;
     private Double lon;
 
-    public AparcamientoItem(String fechaHora, String ubicacion, Double lat, Double lon) {
+    public UbicacionItem(String fechaHora, String ubicacion, Double lat, Double lon) {
         this.fechaHora = fechaHora;
         this.ubicacion = ubicacion;
         this.lat = lat;

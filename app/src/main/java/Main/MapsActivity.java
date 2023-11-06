@@ -12,11 +12,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import android.widget.Toast;
 
@@ -35,11 +33,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -49,8 +45,8 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     ProgressBar progressBarLocations;
     ArrayAdapter adapter;
     ImageView lupaFlecha;
-    HashMap<String,AparcamientoItem> hashMap = new HashMap<>();
-    HashMap<String,AparcamientoItem> hashMapCopy = new HashMap<>();
+    HashMap<String, UbicacionItem> hashMap = new HashMap<>();
+    HashMap<String, UbicacionItem> hashMapCopy = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                 btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.button_background_cargar, null));
                 break;
             case R.id.btnGuardarUbiManual:
-                guardarEnDB(hashMap.get(txtInput.getText().toString()));
+                guardarEnDB(hashMapCopy.get(txtInput.getText().toString()));
                 Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, ListActivity.class);
                 startActivity(intent);
@@ -139,7 +135,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         if(!txtInput.getText().equals("")) {
             String tempUrl = "https://api.geoapify.com/v1/geocode/autocomplete?text="+txtInput.getText()+"?lang=es?&apiKey="+getResources().getString(R.string.geoapify_api);
             LocalDateTime startDateTime = LocalDateTime.now();
-            hashMapCopy = (HashMap<String, AparcamientoItem>) hashMap.clone();
+            hashMapCopy = (HashMap<String, UbicacionItem>) hashMap.clone();
             hashMap.clear();
             StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
                 try {
@@ -152,8 +148,8 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                             double lat = propertiesObject.getDouble("lat");
                             double lon = propertiesObject.getDouble("lon");
                             String address = propertiesObject.getString("formatted");
-                            AparcamientoItem aparcamientoItem = new AparcamientoItem(startDateTime.toString(), address, lat, lon);
-                            hashMap.put(address, aparcamientoItem);
+                            UbicacionItem ubicacionItem = new UbicacionItem(startDateTime.toString(), address, lat, lon);
+                            hashMap.put(address, ubicacionItem);
                         }
                         SubCargarListaLocations cargar = new SubCargarListaLocations();
                         cargar.execute();
@@ -173,9 +169,9 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         adapter.notifyDataSetChanged();
     }
 
-    public void guardarEnDB(AparcamientoItem aparcamientoItem){
+    public void guardarEnDB(UbicacionItem ubicacionItem){
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        myDB.addAparcamiento(LocalDateTime.parse(aparcamientoItem.getFechaHora()),aparcamientoItem.getUbicacion(),aparcamientoItem.getLat(),aparcamientoItem.getLon());
+        myDB.addUbicacion(LocalDateTime.parse(ubicacionItem.getFechaHora()), ubicacionItem.getUbicacion(), ubicacionItem.getLat(), ubicacionItem.getLon());
     }
 
     private class SubCargarListaLocations extends AsyncTask<Void,Void,Void> {

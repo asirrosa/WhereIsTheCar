@@ -13,12 +13,12 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private Context context;
     private static final String DATABASE_NAME = "WhereIsTheCar.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "aparcamiento";
-    private static final String COLUMN_ID = "aparcamiento_id";
-    private static final String COLUMN_UBICACION = "aparcamiento_ubicacion";
-    private static final String COLUMN_DATE_TIME = "aparcamiento_fecha_hora";
-    private static final String COLUMN_LAT = "aparcamiento_lat";
-    private static final String COLUMN_LON = "aparcamiento_lon";
+    private static final String TABLE_NAME = "ubicaciones";
+    private static final String COLUMN_ID = "ubicacion_id";
+    private static final String COLUMN_UBICACION = "ubicacion_nombre";
+    private static final String COLUMN_DATE_TIME = "ubicacion_fecha_hora";
+    private static final String COLUMN_LAT = "ubicacion_lat";
+    private static final String COLUMN_LON = "ubicacion_lon";
 
     MyDatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,9 +45,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Metodo para añadir un nuevo aparcamiento a la base de datos
+     * Metodo para añadir una nueva ubicacion a la base de datos
      */
-    public void addAparcamiento(LocalDateTime startDateTime, String location, double lat, double lon){
+    public void addUbicacion(LocalDateTime startDateTime, String location, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_UBICACION,location);
@@ -58,7 +58,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Metodo para leer todos los aparcamientos guardados
+     * Metodo para leer todos las ubicaciones guardadas
      */
     Cursor readAllData(){
         String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + COLUMN_ID + " DESC" ;

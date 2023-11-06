@@ -34,8 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ProgressBar progressBar;
 
     //boton para guardar la ubicacion
-    Button btnGuardar;
-    Button btnLista;
+    Button btnGuardar,btnLista,btnBuscar;
 
     private LocalDateTime startDateTime;
     private double latitude,longitude;
@@ -75,7 +74,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //esta linea necesaria para que funcione el onClick
         btnGuardar.setOnClickListener(this);
 
-        //El botón de la lista de aparcamientos
+        btnBuscar = findViewById(R.id.btnBuscar);
+        btnBuscar.setOnClickListener(this);
+
+        //El botón de la lista de ubicaciones
         btnLista = findViewById(R.id.btnLista);
         btnLista.setOnClickListener(this);
     }
@@ -83,24 +85,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view){
         switch (view.getId()){
+            case R.id.btnBuscar:
+
+                break;
+
             case R.id.btnGuardar:
                 try {
-                    añadirAparcamiento();
+                    añadirUbicacion();
                 } catch (CustomException e) {
                     e.printStackTrace();
                 }
                 break;
 
             case R.id.btnLista:
-                listaAparcamientos(view);
+                listaUbicaciones(view);
                 break;
         }
     }
 
     /**
-     * Metodo para añadir un aparcamiento despues de darle al boton, se hacen diferentes comprobaciones
+     * Metodo para añadir una ubicacion despues de darle al boton, se hacen diferentes comprobaciones
      */
-    public void añadirAparcamiento() throws CustomException {
+    public void añadirUbicacion() throws CustomException {
         main = this;
         gps = new GPSTracker(this);
         //En primer lugar miras si el servicio esta habilitado
@@ -132,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void sinConexion(){
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
-        myDialog.setTitle("Modo sin conexión. Escribe el nombre del aparcamiento.");
+        myDialog.setTitle("Modo sin conexión. Escribe el nombre de la ubicacion.");
         txtAlert.setVisibility(TextView.INVISIBLE);
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -177,11 +183,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
         /**
-     * Metodo para guardar el nuevo aparcamiento en la base de datos
+     * Metodo para guardar la nueva ubicacion en la base de datos
      */
     public void guardarEnDB(String address){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-        myDB.addAparcamiento(startDateTime,address,latitude,longitude);
+        myDB.addUbicacion(startDateTime,address,latitude,longitude);
         txtAlert.setVisibility(TextView.VISIBLE);
     }
 
@@ -195,9 +201,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * LLamada a otro layout donde se guardan la lista de todos los aparcamientos
+     * LLamada a otro layout donde se guardan la lista de todas las ubicaciones
      */
-    public void listaAparcamientos(View view){
+    public void listaUbicaciones(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
         view.postDelayed(() -> txtAlert.setVisibility(TextView.INVISIBLE), 100);
@@ -229,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPostExecute(Void unused) {
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
-            txtAlert.setText("Se ha guardado la ubi del aparcamiento!");
+            txtAlert.setText("Se ha guardado la ubi!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
             super.onPostExecute(unused);
         }

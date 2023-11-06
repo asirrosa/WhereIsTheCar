@@ -47,7 +47,7 @@
         </activity>
         <activity
             android:name=".ListActivity"
-            android:label="Aparcamientos"
+            android:label="Ubicaciones"
             android:parentActivityName=".MainActivity"
             tools:ignore="MissingClass" />
     </application>

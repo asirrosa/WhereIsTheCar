@@ -22,7 +22,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/aparcamiento_ubicacion"
+                android:id="@+id/ubicacion_nombre"
                 android:layout_width="170dp"
                 android:layout_height="50dp"
                 android:layout_marginLeft="4dp"
@@ -34,7 +34,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/aparcamiento_fecha_hora"
+                android:id="@+id/ubicacion_fecha_hora"
                 android:layout_width="170dp"
                 android:layout_height="50dp"
                 android:layout_marginVertical="4dp"
@@ -47,14 +47,14 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/aparcamiento_lat"
+                android:id="@+id/ubicacion_lat"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="gone"
                 tools:ignore="MissingConstraints" />
 
             <TextView
-                android:id="@+id/aparcamiento_lon"
+                android:id="@+id/ubicacion_lon"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="12dp"

@@ -32,14 +32,14 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     RecyclerView courseRV;
     MyDatabaseHelper myDB;
     ImageView empty_imageview;
-    AparcamientoAdapter aparcamientoAdapter;
+    UbicacionAdapter ubicacionAdapter;
     TextView no_data;
     MenuItem itemSearch;
     MenuItem itemDelete;
     MenuItem itemAddLocation;
 
     /**
-     * Metodo onCreate que rellena el layout con los diferentes aparcamientos guardados
+     * Metodo onCreate que rellena el layout con los diferentes ubicaciones guardadas
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +49,9 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
 
-        //A PARTIR DE AQUI SIRVE PARA RELLENAR LA LISTA CON LOS APARCAMIENTOS GUARDADOS
         myDB = new MyDatabaseHelper(ListActivity.this);
         storeDataInArrays();
-        courseRV.setAdapter(aparcamientoAdapter);
+        courseRV.setAdapter(ubicacionAdapter);
         courseRV.setLayoutManager(new LinearLayoutManager(ListActivity.this));
     }
 
@@ -95,7 +94,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     }
                     @Override
                     public boolean onQueryTextChange(String text) {
-                        aparcamientoAdapter.getFilter().filter(text);
+                        ubicacionAdapter.getFilter().filter(text);
                         return false;
                     }
                 });
@@ -120,7 +119,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     }
 
     /**
-     * Metodo para la funcionalidad de borrar los aparcamientos
+     * Metodo para la funcionalidad de borrar las ubicaciones
      */
     private void confirmDialogDeleteAll() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -160,8 +159,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
      */
     private void storeDataInArrays() {
         Cursor cursor = myDB.readAllData();
-        ArrayList<AparcamientoItem> aparcamientoList = new ArrayList<>();
-        aparcamientoAdapter = new AparcamientoAdapter(this, aparcamientoList);
+        ArrayList<UbicacionItem> ubicacionList = new ArrayList<>();
+        ubicacionAdapter = new UbicacionAdapter(this, ubicacionList);
         if (cursor.getCount() == 0) {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
@@ -171,9 +170,9 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startDateTime = LocalDateTime.parse(cursor.getString(1));
                 }
-                AparcamientoItem aparcamientoItem = new AparcamientoItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getDouble(3), cursor.getDouble(4));
-                aparcamientoAdapter.aparcamientoList.add(aparcamientoItem);
-                aparcamientoAdapter.aparcamientoListFull.add(aparcamientoItem);
+                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getDouble(3), cursor.getDouble(4));
+                ubicacionAdapter.ubicacionList.add(ubicacionItem);
+                ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }
         }
     }
