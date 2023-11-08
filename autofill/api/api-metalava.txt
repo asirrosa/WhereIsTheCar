@@ -1,0 +1,81 @@
+// Signature format: 3.0
+package com.mapbox.search.autofill {
+
+  public interface AddressAutofill {
+    method public default static com.mapbox.search.autofill.AddressAutofill create(String accessToken, com.mapbox.android.core.location.LocationEngine locationEngine = defaultLocationEngine());
+    method public default static final com.mapbox.search.autofill.AddressAutofill create(String accessToken);
+    method public suspend Object? select(com.mapbox.search.autofill.AddressAutofillSuggestion suggestion, kotlin.coroutines.Continuation<? super com.mapbox.bindgen.Expected<java.lang.Exception,com.mapbox.search.autofill.AddressAutofillResult>> p);
+    method public suspend Object? suggestions(com.mapbox.geojson.Point point, com.mapbox.search.autofill.AddressAutofillOptions options, kotlin.coroutines.Continuation<? super com.mapbox.bindgen.Expected<java.lang.Exception,java.util.List<com.mapbox.search.autofill.AddressAutofillSuggestion>>> p);
+    method public suspend Object? suggestions(com.mapbox.search.autofill.Query query, com.mapbox.search.autofill.AddressAutofillOptions options, kotlin.coroutines.Continuation<? super com.mapbox.bindgen.Expected<java.lang.Exception,java.util.List<com.mapbox.search.autofill.AddressAutofillSuggestion>>> p);
+    field public static final com.mapbox.search.autofill.AddressAutofill.Companion Companion;
+  }
+
+  public static final class AddressAutofill.Companion {
+    method public com.mapbox.search.autofill.AddressAutofill create(String accessToken, com.mapbox.android.core.location.LocationEngine locationEngine = defaultLocationEngine());
+    method public com.mapbox.search.autofill.AddressAutofill create(String accessToken);
+  }
+
+  @kotlinx.parcelize.Parcelize public final class AddressAutofillOptions implements android.os.Parcelable {
+    ctor public AddressAutofillOptions(java.util.List<com.mapbox.search.common.IsoCountryCode>? countries = null, com.mapbox.search.common.IsoLanguageCode? language = defaultLocaleLanguage());
+    ctor public AddressAutofillOptions(java.util.List<com.mapbox.search.common.IsoCountryCode>? countries = null);
+    method public java.util.List<com.mapbox.search.common.IsoCountryCode>? getCountries();
+    method public com.mapbox.search.common.IsoLanguageCode? getLanguage();
+    property public final java.util.List<com.mapbox.search.common.IsoCountryCode>? countries;
+    property public final com.mapbox.search.common.IsoLanguageCode? language;
+  }
+
+  @kotlinx.parcelize.Parcelize public final class AddressAutofillResult implements android.os.Parcelable {
+    method public com.mapbox.search.autofill.AddressComponents getAddress();
+    method public com.mapbox.search.autofill.AddressAutofillSuggestion getSuggestion();
+    property public final com.mapbox.search.autofill.AddressComponents address;
+    property public final com.mapbox.search.autofill.AddressAutofillSuggestion suggestion;
+  }
+
+  @kotlinx.parcelize.Parcelize public final class AddressAutofillSuggestion implements android.os.Parcelable {
+    method public com.mapbox.geojson.Point getCoordinate();
+    method public String getFormattedAddress();
+    method public String getName();
+    property public final com.mapbox.geojson.Point coordinate;
+    property public final String formattedAddress;
+    property public final String name;
+  }
+
+  @kotlinx.parcelize.Parcelize public final class AddressComponents implements android.os.Parcelable {
+    method public String? getCountry();
+    method public String? getCountryIso1();
+    method public String? getCountryIso2();
+    method public String? getDistrict();
+    method public String? getHouseNumber();
+    method public String? getLocality();
+    method public String? getNeighborhood();
+    method public String? getPlace();
+    method public String? getPostcode();
+    method public String? getRegion();
+    method public String? getStreet();
+    property public final String? country;
+    property public final String? countryIso1;
+    property public final String? countryIso2;
+    property public final String? district;
+    property public final String? houseNumber;
+    property public final String? locality;
+    property public final String? neighborhood;
+    property public final String? place;
+    property public final String? postcode;
+    property public final String? region;
+    property public final String? street;
+  }
+
+  public final class Query {
+    method public static com.mapbox.search.autofill.Query? create(String query);
+    method public String getQuery();
+    property public final String query;
+    field public static final com.mapbox.search.autofill.Query.Companion Companion;
+    field public static final int MIN_QUERY_LENGTH = 2; // 0x2
+  }
+
+  public static final class Query.Companion {
+    method public com.mapbox.search.autofill.Query? create(String query);
+  }
+
+}
+

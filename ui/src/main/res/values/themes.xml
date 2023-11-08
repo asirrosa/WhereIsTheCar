@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MapboxSearchSdk.Theme.Auto" parent="MapboxSearchSdk.Theme.Light"/>
+
+    <style name="MapboxSearchSdk.Theme.Light" parent="">
+        <item name="mapboxSearchSdkPrimaryTextColor">#343434</item>
+        <item name="mapboxSearchSdkPrimaryTextInactiveColor">#BCBCBF</item>
+        <item name="mapboxSearchSdkPrimaryAccentColor">#007AFF</item>
+        <item name="mapboxSearchSdkOnPrimaryAccentColor">#FFFFFF</item>
+        <item name="mapboxSearchSdkDistanceColor">#9FB3C6</item>
+        <item name="mapboxSearchSdkIconTintColor">#343434</item>
+        <item name="mapboxSearchSdkBackgroundColor">#FFFFFF</item>
+        <item name="mapboxSearchSdkBackgroundSecondaryColor">#F0F0F1</item>
+        <item name="mapboxSearchSdkPopulateArrowColor">#B2D7FF</item>
+        <item name="mapboxSearchSdkProgressColor">#007AFF</item>
+        <item name="mapboxSearchSdkErrorIconColor">#E5E5E5</item>
+    </style>
+
+    <style name="MapboxSearchSdk.Theme.Dark" parent="">
+        <item name="mapboxSearchSdkPrimaryTextColor">#FFFFFF</item>
+        <item name="mapboxSearchSdkPrimaryTextInactiveColor">#898A8D</item>
+        <item name="mapboxSearchSdkPrimaryAccentColor">#0A84FF</item>
+        <item name="mapboxSearchSdkOnPrimaryAccentColor">#FFFFFF</item>
+        <item name="mapboxSearchSdkDistanceColor">#9FB3C6</item>
+        <item name="mapboxSearchSdkIconTintColor">#FFFFFF</item>
+        <item name="mapboxSearchSdkBackgroundColor">#454545</item>
+        <item name="mapboxSearchSdkBackgroundSecondaryColor">#545454</item>
+        <item name="mapboxSearchSdkPopulateArrowColor">#656565</item>
+        <item name="mapboxSearchSdkProgressColor">#0A84FF</item>
+        <item name="mapboxSearchSdkErrorIconColor">#E5E5E5</item>
+    </style>
+
+</resources>

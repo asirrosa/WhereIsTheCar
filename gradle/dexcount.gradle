@@ -1,0 +1,8 @@
+// TODO unable to resolve class com.getkeepsafe.dexcount.OutputFormat
+// import com.getkeepsafe.dexcount.OutputFormat
+
+apply plugin: 'com.getkeepsafe.dexcount'
+
+dexcount {
+    //format = OutputFormat.JSON
+}

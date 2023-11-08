@@ -1,0 +1,16 @@
+<resources>
+
+    <color name="colorPrimary">#007AFF</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#9B9B9B</color>
+    <color name="windowBackground">#6E8BF7</color>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
+    </style>
+
+</resources>

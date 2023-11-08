@@ -1,0 +1,44 @@
+import me.champeau.gradle.japicmp.JapicmpTask
+
+apply plugin: 'java-library'
+apply plugin: 'me.champeau.gradle.japicmp'
+
+configurations {
+    baseline
+    latest
+}
+
+dependencies {
+    //noinspection GradleDependency
+    baseline("com.mapbox.search:mapbox-search-android:1.0.0-beta.24") {
+        transitive = false
+        force = true
+    }
+    /*
+    After AGP update default configuration returns empty files set
+
+    latest project(path: ':sdk', configuration: 'default')
+     */
+    latest("com.mapbox.search:mapbox-search-android:1.0.0-beta.25-SNAPSHOT") {
+        transitive = false
+        force = true
+    }
+}
+
+tasks.register("japicmp", JapicmpTask) {
+    oldClasspath = getJarClasses(project, configurations.baseline)
+    newClasspath = getJarClasses(project, configurations.latest)
+    onlyBinaryIncompatibleModified = true
+    failOnSourceIncompatibility = true
+    htmlOutputFile = file("$buildDir/reports/japi.html")
+    ignoreMissingClasses = true
+    includeSynthetic = true
+}
+
+def getJarClasses(project, configuration) {
+    return project.files(
+            project.zipTree(configuration.files.first())
+                .matching { include "classes.jar" }
+                .first()
+    )
+}

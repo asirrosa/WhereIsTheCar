@@ -1,0 +1,371 @@
+public final class com/mapbox/search/ui/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class com/mapbox/search/ui/adapter/autocomplete/PlaceAutocompleteUiAdapter {
+	public fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/autocomplete/PlaceAutocomplete;Lcom/mapbox/android/core/location/LocationEngine;)V
+	public synthetic fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/autocomplete/PlaceAutocomplete;Lcom/mapbox/android/core/location/LocationEngine;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addSearchListener (Lcom/mapbox/search/ui/adapter/autocomplete/PlaceAutocompleteUiAdapter$SearchListener;)V
+	public final fun removeSearchListener (Lcom/mapbox/search/ui/adapter/autocomplete/PlaceAutocompleteUiAdapter$SearchListener;)V
+	public final fun search (Ljava/lang/String;Lcom/mapbox/geojson/BoundingBox;Lcom/mapbox/geojson/Point;Lcom/mapbox/search/autocomplete/PlaceAutocompleteOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun search (Ljava/lang/String;Lcom/mapbox/geojson/BoundingBox;Lcom/mapbox/geojson/Point;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun search (Ljava/lang/String;Lcom/mapbox/geojson/BoundingBox;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun search (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun search$default (Lcom/mapbox/search/ui/adapter/autocomplete/PlaceAutocompleteUiAdapter;Ljava/lang/String;Lcom/mapbox/geojson/BoundingBox;Lcom/mapbox/geojson/Point;Lcom/mapbox/search/autocomplete/PlaceAutocompleteOptions;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/mapbox/search/ui/adapter/autocomplete/PlaceAutocompleteUiAdapter$SearchListener {
+	public abstract fun onError (Ljava/lang/Exception;)V
+	public abstract fun onPopulateQueryClick (Lcom/mapbox/search/autocomplete/PlaceAutocompleteSuggestion;)V
+	public abstract fun onSuggestionSelected (Lcom/mapbox/search/autocomplete/PlaceAutocompleteSuggestion;)V
+	public abstract fun onSuggestionsShown (Ljava/util/List;)V
+}
+
+public final class com/mapbox/search/ui/adapter/autofill/AddressAutofillUiAdapter {
+	public fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/autofill/AddressAutofill;Lcom/mapbox/android/core/location/LocationEngine;)V
+	public synthetic fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/autofill/AddressAutofill;Lcom/mapbox/android/core/location/LocationEngine;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addSearchListener (Lcom/mapbox/search/ui/adapter/autofill/AddressAutofillUiAdapter$SearchListener;)V
+	public final fun removeSearchListener (Lcom/mapbox/search/ui/adapter/autofill/AddressAutofillUiAdapter$SearchListener;)V
+	public final fun search (Lcom/mapbox/search/autofill/Query;Lcom/mapbox/search/autofill/AddressAutofillOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun search (Lcom/mapbox/search/autofill/Query;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun search$default (Lcom/mapbox/search/ui/adapter/autofill/AddressAutofillUiAdapter;Lcom/mapbox/search/autofill/Query;Lcom/mapbox/search/autofill/AddressAutofillOptions;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/mapbox/search/ui/adapter/autofill/AddressAutofillUiAdapter$SearchListener {
+	public abstract fun onError (Ljava/lang/Exception;)V
+	public abstract fun onSuggestionSelected (Lcom/mapbox/search/autofill/AddressAutofillSuggestion;)V
+	public abstract fun onSuggestionsShown (Ljava/util/List;)V
+}
+
+public final class com/mapbox/search/ui/adapter/engines/SearchEngineUiAdapter {
+	public fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/SearchEngine;Lcom/mapbox/search/offline/OfflineSearchEngine;Lcom/mapbox/android/core/location/LocationEngine;Lcom/mapbox/search/record/HistoryDataProvider;)V
+	public synthetic fun <init> (Lcom/mapbox/search/ui/view/SearchResultsView;Lcom/mapbox/search/SearchEngine;Lcom/mapbox/search/offline/OfflineSearchEngine;Lcom/mapbox/android/core/location/LocationEngine;Lcom/mapbox/search/record/HistoryDataProvider;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addSearchListener (Lcom/mapbox/search/ui/adapter/engines/SearchEngineUiAdapter$SearchListener;)V
+	public final fun getSearchMode ()Lcom/mapbox/search/ui/view/SearchMode;
+	public final fun removeSearchListener (Lcom/mapbox/search/ui/adapter/engines/SearchEngineUiAdapter$SearchListener;)V
+	public final fun search (Ljava/lang/String;)V
+	public final fun search (Ljava/lang/String;Lcom/mapbox/search/SearchOptions;)V
+	public static synthetic fun search$default (Lcom/mapbox/search/ui/adapter/engines/SearchEngineUiAdapter;Ljava/lang/String;Lcom/mapbox/search/SearchOptions;ILjava/lang/Object;)V
+	public final fun setSearchMode (Lcom/mapbox/search/ui/view/SearchMode;)V
+}
+
+public abstract interface class com/mapbox/search/ui/adapter/engines/SearchEngineUiAdapter$SearchListener {
+	public abstract fun onError (Ljava/lang/Exception;)V
+	public abstract fun onFeedbackItemClick (Lcom/mapbox/search/ResponseInfo;)V
+	public abstract fun onHistoryItemClick (Lcom/mapbox/search/record/HistoryRecord;)V
+	public abstract fun onOfflineSearchResultSelected (Lcom/mapbox/search/offline/OfflineSearchResult;Lcom/mapbox/search/offline/OfflineResponseInfo;)V
+	public abstract fun onOfflineSearchResultsShown (Ljava/util/List;Lcom/mapbox/search/offline/OfflineResponseInfo;)V
+	public abstract fun onPopulateQueryClick (Lcom/mapbox/search/result/SearchSuggestion;Lcom/mapbox/search/ResponseInfo;)V
+	public abstract fun onSearchResultSelected (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;)V
+	public abstract fun onSearchResultsShown (Lcom/mapbox/search/result/SearchSuggestion;Ljava/util/List;Lcom/mapbox/search/ResponseInfo;)V
+	public abstract fun onSuggestionSelected (Lcom/mapbox/search/result/SearchSuggestion;)Z
+	public abstract fun onSuggestionsShown (Ljava/util/List;Lcom/mapbox/search/ResponseInfo;)V
+}
+
+public final class com/mapbox/search/ui/view/CommonSearchViewConfiguration : android/os/Parcelable {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> ()V
+	public fun <init> (Lcom/mapbox/search/ui/view/DistanceUnitType;)V
+	public synthetic fun <init> (Lcom/mapbox/search/ui/view/DistanceUnitType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun describeContents ()I
+	public final fun getDistanceUnitType ()Lcom/mapbox/search/ui/view/DistanceUnitType;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/mapbox/search/ui/view/DistanceUnitType : java/lang/Enum {
+	public static final field IMPERIAL Lcom/mapbox/search/ui/view/DistanceUnitType;
+	public static final field METRIC Lcom/mapbox/search/ui/view/DistanceUnitType;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mapbox/search/ui/view/DistanceUnitType;
+	public static fun values ()[Lcom/mapbox/search/ui/view/DistanceUnitType;
+}
+
+public final class com/mapbox/search/ui/view/SearchMode : java/lang/Enum {
+	public static final field AUTO Lcom/mapbox/search/ui/view/SearchMode;
+	public static final field OFFLINE Lcom/mapbox/search/ui/view/SearchMode;
+	public static final field ONLINE Lcom/mapbox/search/ui/view/SearchMode;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mapbox/search/ui/view/SearchMode;
+	public static fun values ()[Lcom/mapbox/search/ui/view/SearchMode;
+}
+
+public abstract class com/mapbox/search/ui/view/SearchResultAdapterItem {
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$EmptyHistory : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/SearchResultAdapterItem$EmptyHistory;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$EmptySearchResults : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/SearchResultAdapterItem$EmptySearchResults;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$Error : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public fun <init> (Lcom/mapbox/search/ui/view/UiError;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getUiError ()Lcom/mapbox/search/ui/view/UiError;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$History : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public fun <init> (Lcom/mapbox/search/record/HistoryRecord;Z)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRecord ()Lcom/mapbox/search/record/HistoryRecord;
+	public fun hashCode ()I
+	public final fun isFavorite ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$Loading : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/SearchResultAdapterItem$Loading;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$MissingResultFeedback : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public fun <init> (Lcom/mapbox/search/ResponseInfo;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResponseInfo ()Lcom/mapbox/search/ResponseInfo;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$RecentSearchesHeader : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/SearchResultAdapterItem$RecentSearchesHeader;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultAdapterItem$Result : com/mapbox/search/ui/view/SearchResultAdapterItem {
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/Double;I)V
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/Double;ILjava/lang/Integer;)V
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/Double;ILjava/lang/Integer;Z)V
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/Double;ILjava/lang/Integer;ZLjava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/Double;ILjava/lang/Integer;ZLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDistanceMeters ()Ljava/lang/Double;
+	public final fun getDrawable ()I
+	public final fun getDrawableColor ()Ljava/lang/Integer;
+	public final fun getPayload ()Ljava/lang/Object;
+	public final fun getSubtitle ()Ljava/lang/CharSequence;
+	public final fun getTitle ()Ljava/lang/CharSequence;
+	public fun hashCode ()I
+	public final fun isPopulateQueryVisible ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mapbox/search/ui/view/SearchResultsView : androidx/recyclerview/widget/RecyclerView {
+	public fun <init> (Landroid/content/Context;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
+	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addActionListener (Lcom/mapbox/search/ui/view/SearchResultsView$ActionListener;)V
+	public final fun getAdapterItems ()Ljava/util/List;
+	public final fun initialize (Lcom/mapbox/search/ui/view/SearchResultsView$Configuration;)V
+	public final fun removeActionListener (Lcom/mapbox/search/ui/view/SearchResultsView$ActionListener;)V
+	public fun setAdapter (Landroidx/recyclerview/widget/RecyclerView$Adapter;)V
+	public final fun setAdapterItems (Ljava/util/List;)V
+	public fun setLayoutManager (Landroidx/recyclerview/widget/RecyclerView$LayoutManager;)V
+}
+
+public abstract interface class com/mapbox/search/ui/view/SearchResultsView$ActionListener {
+	public abstract fun onErrorItemClick (Lcom/mapbox/search/ui/view/SearchResultAdapterItem$Error;)V
+	public abstract fun onHistoryItemClick (Lcom/mapbox/search/ui/view/SearchResultAdapterItem$History;)V
+	public abstract fun onMissingResultFeedbackClick (Lcom/mapbox/search/ui/view/SearchResultAdapterItem$MissingResultFeedback;)V
+	public abstract fun onPopulateQueryClick (Lcom/mapbox/search/ui/view/SearchResultAdapterItem$Result;)V
+	public abstract fun onResultItemClick (Lcom/mapbox/search/ui/view/SearchResultAdapterItem$Result;)V
+}
+
+public final class com/mapbox/search/ui/view/SearchResultsView$Configuration {
+	public fun <init> (Lcom/mapbox/search/ui/view/CommonSearchViewConfiguration;)V
+	public final fun getCommonConfiguration ()Lcom/mapbox/search/ui/view/CommonSearchViewConfiguration;
+}
+
+public class com/mapbox/search/ui/view/SearchSdkFrameLayout : android/widget/FrameLayout {
+	public fun <init> (Landroid/content/Context;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;II)V
+	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getMaxWidth ()I
+	protected fun onMeasure (II)V
+	public fun setElevation (F)V
+	public final fun setMaxWidth (I)V
+}
+
+public abstract class com/mapbox/search/ui/view/UiError {
+	public static final field Companion Lcom/mapbox/search/ui/view/UiError$Companion;
+	public fun <init> ()V
+	public static final fun createFromException (Ljava/lang/Exception;)Lcom/mapbox/search/ui/view/UiError;
+}
+
+public final class com/mapbox/search/ui/view/UiError$ClientError : com/mapbox/search/ui/view/UiError {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/UiError$ClientError;
+}
+
+public final class com/mapbox/search/ui/view/UiError$Companion {
+	public final fun createFromException (Ljava/lang/Exception;)Lcom/mapbox/search/ui/view/UiError;
+}
+
+public final class com/mapbox/search/ui/view/UiError$NoInternetConnectionError : com/mapbox/search/ui/view/UiError {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/UiError$NoInternetConnectionError;
+}
+
+public final class com/mapbox/search/ui/view/UiError$ServerError : com/mapbox/search/ui/view/UiError {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/UiError$ServerError;
+}
+
+public final class com/mapbox/search/ui/view/UiError$UnknownError : com/mapbox/search/ui/view/UiError {
+	public static final field INSTANCE Lcom/mapbox/search/ui/view/UiError$UnknownError;
+}
+
+public abstract class com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback : android/os/Parcelable {
+	public fun <init> ()V
+}
+
+public final class com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback$FavoriteFeedback : com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> (Lcom/mapbox/search/record/FavoriteRecord;)V
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFavoriteRecord ()Lcom/mapbox/search/record/FavoriteRecord;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback$HistoryFeedback : com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> (Lcom/mapbox/search/record/HistoryRecord;)V
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHistoryRecord ()Lcom/mapbox/search/record/HistoryRecord;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback$SearchResultFeedback : com/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;)V
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResponseInfo ()Lcom/mapbox/search/ResponseInfo;
+	public final fun getSearchResult ()Lcom/mapbox/search/result/SearchResult;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/mapbox/search/ui/view/place/SearchPlace : android/os/Parcelable {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public static final field Companion Lcom/mapbox/search/ui/view/place/SearchPlace$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mapbox/search/result/SearchAddress;Ljava/util/List;Lcom/mapbox/search/record/IndexableRecord;Lcom/mapbox/geojson/Point;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Lcom/mapbox/search/SearchResultMetadata;Ljava/lang/Double;Lcom/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback;)V
+	public final synthetic fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mapbox/search/result/SearchAddress;Ljava/util/List;Lcom/mapbox/search/record/IndexableRecord;Lcom/mapbox/geojson/Point;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Lcom/mapbox/search/SearchResultMetadata;Ljava/lang/Double;Lcom/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static synthetic fun copy$default (Lcom/mapbox/search/ui/view/place/SearchPlace;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mapbox/search/result/SearchAddress;Ljava/util/List;Lcom/mapbox/search/record/IndexableRecord;Lcom/mapbox/geojson/Point;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Lcom/mapbox/search/SearchResultMetadata;Ljava/lang/Double;Lcom/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback;ILjava/lang/Object;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromIndexableRecord (Lcom/mapbox/search/record/IndexableRecord;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromOfflineSearchResult (Lcom/mapbox/search/offline/OfflineSearchResult;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromOfflineSearchResult (Lcom/mapbox/search/offline/OfflineSearchResult;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromPlaceAutocompleteResult (Lcom/mapbox/search/autocomplete/PlaceAutocompleteResult;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromPlaceAutocompleteResult (Lcom/mapbox/search/autocomplete/PlaceAutocompleteResult;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromSearchResult (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static final fun createFromSearchResult (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAddress ()Lcom/mapbox/search/result/SearchAddress;
+	public final fun getCategories ()Ljava/util/List;
+	public final fun getCoordinate ()Lcom/mapbox/geojson/Point;
+	public final fun getDescriptionText ()Ljava/lang/String;
+	public final fun getDistanceMeters ()Ljava/lang/Double;
+	public final fun getFeedback ()Lcom/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getMakiIcon ()Ljava/lang/String;
+	public final fun getMetadata ()Lcom/mapbox/search/SearchResultMetadata;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getRecord ()Lcom/mapbox/search/record/IndexableRecord;
+	public final fun getResultTypes ()Ljava/util/List;
+	public final fun getRoutablePoints ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/mapbox/search/ui/view/place/SearchPlace$Companion {
+	public final fun createFromIndexableRecord (Lcom/mapbox/search/record/IndexableRecord;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromOfflineSearchResult (Lcom/mapbox/search/offline/OfflineSearchResult;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromOfflineSearchResult (Lcom/mapbox/search/offline/OfflineSearchResult;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static synthetic fun createFromOfflineSearchResult$default (Lcom/mapbox/search/ui/view/place/SearchPlace$Companion;Lcom/mapbox/search/offline/OfflineSearchResult;Ljava/lang/Double;ILjava/lang/Object;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromPlaceAutocompleteResult (Lcom/mapbox/search/autocomplete/PlaceAutocompleteResult;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromPlaceAutocompleteResult (Lcom/mapbox/search/autocomplete/PlaceAutocompleteResult;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static synthetic fun createFromPlaceAutocompleteResult$default (Lcom/mapbox/search/ui/view/place/SearchPlace$Companion;Lcom/mapbox/search/autocomplete/PlaceAutocompleteResult;Ljava/lang/Double;ILjava/lang/Object;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromSearchResult (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public final fun createFromSearchResult (Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;Ljava/lang/Double;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+	public static synthetic fun createFromSearchResult$default (Lcom/mapbox/search/ui/view/place/SearchPlace$Companion;Lcom/mapbox/search/result/SearchResult;Lcom/mapbox/search/ResponseInfo;Ljava/lang/Double;ILjava/lang/Object;)Lcom/mapbox/search/ui/view/place/SearchPlace;
+}
+
+public final class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView : com/mapbox/search/ui/view/SearchSdkFrameLayout, androidx/coordinatorlayout/widget/CoordinatorLayout$AttachedBehavior {
+	public static final field Companion Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$Companion;
+	public static final field DRAGGING I
+	public static final field HIDDEN I
+	public static final field OPEN I
+	public static final field SETTLING I
+	public fun <init> (Landroid/content/Context;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;II)V
+	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addOnBottomSheetStateChangedListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnBottomSheetStateChangedListener;)V
+	public final fun addOnCloseClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnCloseClickListener;)V
+	public final fun addOnFeedbackClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnFeedbackClickListener;)V
+	public final fun addOnNavigateClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnNavigateClickListener;)V
+	public final fun addOnSearchPlaceAddedToFavoritesListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnSearchPlaceAddedToFavoritesListener;)V
+	public final fun addOnShareClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnShareClickListener;)V
+	public fun getBehavior ()Landroidx/coordinatorlayout/widget/CoordinatorLayout$Behavior;
+	public final fun getState ()I
+	public final fun hide ()V
+	public final fun initialize (Lcom/mapbox/search/ui/view/CommonSearchViewConfiguration;)V
+	public final fun isFavoriteButtonVisible ()Z
+	public final fun isHidden ()Z
+	public final fun isNavigateButtonVisible ()Z
+	public final fun isShareButtonVisible ()Z
+	public final fun open (Lcom/mapbox/search/ui/view/place/SearchPlace;)V
+	public final fun removeOnBottomSheetStateChangedListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnBottomSheetStateChangedListener;)V
+	public final fun removeOnCloseClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnCloseClickListener;)V
+	public final fun removeOnFeedbackClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnFeedbackClickListener;)V
+	public final fun removeOnNavigateClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnNavigateClickListener;)V
+	public final fun removeOnSearchPlaceAddedToFavoritesListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnSearchPlaceAddedToFavoritesListener;)V
+	public final fun removeOnShareClickListener (Lcom/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnShareClickListener;)V
+	public final fun setFavoriteButtonVisible (Z)V
+	public final fun setNavigateButtonVisible (Z)V
+	public final fun setShareButtonVisible (Z)V
+	public final fun updateDistance (D)Z
+}
+
+public abstract interface annotation class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$BottomSheetState : java/lang/annotation/Annotation {
+}
+
+public final class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$Companion {
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnBottomSheetStateChangedListener {
+	public abstract fun onStateChanged (IZ)V
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnCloseClickListener {
+	public abstract fun onCloseClick ()V
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnFeedbackClickListener {
+	public abstract fun onFeedbackClick (Lcom/mapbox/search/ui/view/place/SearchPlace;Lcom/mapbox/search/ui/view/place/IncorrectSearchPlaceFeedback;)V
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnNavigateClickListener {
+	public abstract fun onNavigateClick (Lcom/mapbox/search/ui/view/place/SearchPlace;)V
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnSearchPlaceAddedToFavoritesListener {
+	public abstract fun onSearchPlaceAddedToFavorites (Lcom/mapbox/search/ui/view/place/SearchPlace;Lcom/mapbox/search/record/FavoriteRecord;)V
+}
+
+public abstract interface class com/mapbox/search/ui/view/place/SearchPlaceBottomSheetView$OnShareClickListener {
+	public abstract fun onShareClick (Lcom/mapbox/search/ui/view/place/SearchPlace;)V
+}
+

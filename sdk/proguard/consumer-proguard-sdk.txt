@@ -1,0 +1,4 @@
+# SDK Data Access Object classes
+-keepclassmembers,allowoptimization class * implements com.mapbox.search.utils.serialization.DataAccessObject {
+    <init>();
+}

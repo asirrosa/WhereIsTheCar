@@ -1,0 +1,400 @@
+// Signature format: 3.0
+package com.mapbox.search.ui.adapter.autocomplete {
+
+  public final class PlaceAutocompleteUiAdapter {
+    ctor public PlaceAutocompleteUiAdapter(com.mapbox.search.ui.view.SearchResultsView view, com.mapbox.search.autocomplete.PlaceAutocomplete placeAutocomplete, com.mapbox.android.core.location.LocationEngine locationEngine = defaultLocationEngine());
+    method public void addSearchListener(com.mapbox.search.ui.adapter.autocomplete.PlaceAutocompleteUiAdapter.SearchListener listener);
+    method public void removeSearchListener(com.mapbox.search.ui.adapter.autocomplete.PlaceAutocompleteUiAdapter.SearchListener listener);
+    method public suspend Object? search(String query, com.mapbox.geojson.BoundingBox? region = null, com.mapbox.geojson.Point? proximity = null, com.mapbox.search.autocomplete.PlaceAutocompleteOptions options = com.mapbox.search.autocomplete.PlaceAutocompleteOptions(), kotlin.coroutines.Continuation<? super kotlin.Unit> p = com.mapbox.search.autocomplete.PlaceAutocompleteOptions());
+    method public suspend Object? search(String query, com.mapbox.geojson.BoundingBox? region = null, com.mapbox.geojson.Point? proximity = null, kotlin.coroutines.Continuation<? super kotlin.Unit> continuation = com.mapbox.search.autocomplete.PlaceAutocompleteOptions());
+    method public suspend Object? search(String query, com.mapbox.geojson.BoundingBox? region = null, kotlin.coroutines.Continuation<? super kotlin.Unit> continuation = com.mapbox.search.autocomplete.PlaceAutocompleteOptions());
+    method public suspend Object? search(String query, kotlin.coroutines.Continuation<? super kotlin.Unit> continuation = com.mapbox.search.autocomplete.PlaceAutocompleteOptions());
+  }
+
+  public static interface PlaceAutocompleteUiAdapter.SearchListener {
+    method public void onError(Exception e);
+    method public void onPopulateQueryClick(com.mapbox.search.autocomplete.PlaceAutocompleteSuggestion suggestion);
+    method public void onSuggestionSelected(com.mapbox.search.autocomplete.PlaceAutocompleteSuggestion suggestion);
+    method public void onSuggestionsShown(java.util.List<com.mapbox.search.autocomplete.PlaceAutocompleteSuggestion> suggestions);
+  }
+
+}
+
+package com.mapbox.search.ui.adapter.autofill {
+
+  public final class AddressAutofillUiAdapter {
+    ctor public AddressAutofillUiAdapter(com.mapbox.search.ui.view.SearchResultsView view, com.mapbox.search.autofill.AddressAutofill addressAutofill, com.mapbox.android.core.location.LocationEngine locationEngine = defaultLocationEngine());
+    method public void addSearchListener(com.mapbox.search.ui.adapter.autofill.AddressAutofillUiAdapter.SearchListener listener);
+    method public void removeSearchListener(com.mapbox.search.ui.adapter.autofill.AddressAutofillUiAdapter.SearchListener listener);
+    method public suspend Object? search(com.mapbox.search.autofill.Query query, com.mapbox.search.autofill.AddressAutofillOptions options = com.mapbox.search.autofill.AddressAutofillOptions(), kotlin.coroutines.Continuation<? super kotlin.Unit> p = com.mapbox.search.autofill.AddressAutofillOptions());
+    method public suspend Object? search(com.mapbox.search.autofill.Query query, kotlin.coroutines.Continuation<? super kotlin.Unit> continuation = com.mapbox.search.autofill.AddressAutofillOptions());
+  }
+
+  public static interface AddressAutofillUiAdapter.SearchListener {
+    method public void onError(Exception e);
+    method public void onSuggestionSelected(com.mapbox.search.autofill.AddressAutofillSuggestion suggestion);
+    method public void onSuggestionsShown(java.util.List<com.mapbox.search.autofill.AddressAutofillSuggestion> suggestions);
+  }
+
+}
+
+package com.mapbox.search.ui.adapter.engines {
+
+  public final class SearchEngineUiAdapter {
+    ctor public SearchEngineUiAdapter(com.mapbox.search.ui.view.SearchResultsView view, com.mapbox.search.SearchEngine searchEngine, com.mapbox.search.offline.OfflineSearchEngine offlineSearchEngine, com.mapbox.android.core.location.LocationEngine locationEngine = defaultLocationEngine(), com.mapbox.search.record.HistoryDataProvider historyDataProvider = ServiceProvider.INSTANCE.historyDataProvider());
+    method public void addSearchListener(com.mapbox.search.ui.adapter.engines.SearchEngineUiAdapter.SearchListener listener);
+    method public com.mapbox.search.ui.view.SearchMode getSearchMode();
+    method public void removeSearchListener(com.mapbox.search.ui.adapter.engines.SearchEngineUiAdapter.SearchListener listener);
+    method @UiThread public void search(String query, com.mapbox.search.SearchOptions options = GlobalViewPreferences.DEFAULT_SEARCH_OPTIONS);
+    method @UiThread public void search(String query);
+    method public void setSearchMode(com.mapbox.search.ui.view.SearchMode value);
+    property public final com.mapbox.search.ui.view.SearchMode searchMode;
+  }
+
+  public static interface SearchEngineUiAdapter.SearchListener {
+    method public void onError(Exception e);
+    method public void onFeedbackItemClick(com.mapbox.search.ResponseInfo responseInfo);
+    method public void onHistoryItemClick(com.mapbox.search.record.HistoryRecord historyRecord);
+    method public void onOfflineSearchResultSelected(com.mapbox.search.offline.OfflineSearchResult searchResult, com.mapbox.search.offline.OfflineResponseInfo responseInfo);
+    method public void onOfflineSearchResultsShown(java.util.List<com.mapbox.search.offline.OfflineSearchResult> results, com.mapbox.search.offline.OfflineResponseInfo responseInfo);
+    method public void onPopulateQueryClick(com.mapbox.search.result.SearchSuggestion suggestion, com.mapbox.search.ResponseInfo responseInfo);
+    method public void onSearchResultSelected(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo);
+    method public void onSearchResultsShown(com.mapbox.search.result.SearchSuggestion suggestion, java.util.List<com.mapbox.search.result.SearchResult> results, com.mapbox.search.ResponseInfo responseInfo);
+    method public boolean onSuggestionSelected(com.mapbox.search.result.SearchSuggestion searchSuggestion);
+    method public void onSuggestionsShown(java.util.List<com.mapbox.search.result.SearchSuggestion> suggestions, com.mapbox.search.ResponseInfo responseInfo);
+  }
+
+}
+
+package com.mapbox.search.ui.utils {
+
+  public final class ThemePatcherKt {
+  }
+
+}
+
+package com.mapbox.search.ui.utils.extenstion {
+
+  public final class AddressAutocompleteExtKt {
+  }
+
+  public final class BottomSheetBehaviorKt {
+  }
+
+  public final class ContextKt {
+  }
+
+  public final class DrawableKt {
+  }
+
+  public final class LocaleKt {
+  }
+
+  public final class TextViewKt {
+  }
+
+  public final class ViewKt {
+  }
+
+}
+
+package com.mapbox.search.ui.utils.offline {
+
+  public final class OfflineSearchAddressKt {
+  }
+
+  public final class OfflineSearchResultTypeKt {
+  }
+
+}
+
+package com.mapbox.search.ui.view {
+
+  @kotlinx.parcelize.Parcelize public final class CommonSearchViewConfiguration implements android.os.Parcelable {
+    ctor public CommonSearchViewConfiguration(com.mapbox.search.ui.view.DistanceUnitType distanceUnitType = DistanceUnitType.getFromLocale(Locale.getDefault()));
+    method public com.mapbox.search.ui.view.DistanceUnitType getDistanceUnitType();
+    property public final com.mapbox.search.ui.view.DistanceUnitType distanceUnitType;
+  }
+
+  public enum DistanceUnitType {
+    enum_constant public static final com.mapbox.search.ui.view.DistanceUnitType IMPERIAL;
+    enum_constant public static final com.mapbox.search.ui.view.DistanceUnitType METRIC;
+  }
+
+  public enum SearchMode {
+    enum_constant public static final com.mapbox.search.ui.view.SearchMode AUTO;
+    enum_constant public static final com.mapbox.search.ui.view.SearchMode OFFLINE;
+    enum_constant public static final com.mapbox.search.ui.view.SearchMode ONLINE;
+  }
+
+  public abstract class SearchResultAdapterItem {
+  }
+
+  public static final class SearchResultAdapterItem.EmptyHistory extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    field public static final com.mapbox.search.ui.view.SearchResultAdapterItem.EmptyHistory INSTANCE;
+  }
+
+  public static final class SearchResultAdapterItem.EmptySearchResults extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    field public static final com.mapbox.search.ui.view.SearchResultAdapterItem.EmptySearchResults INSTANCE;
+  }
+
+  public static final class SearchResultAdapterItem.Error extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    ctor public SearchResultAdapterItem.Error(com.mapbox.search.ui.view.UiError uiError);
+    method public com.mapbox.search.ui.view.UiError getUiError();
+    property public final com.mapbox.search.ui.view.UiError uiError;
+  }
+
+  public static final class SearchResultAdapterItem.History extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    ctor public SearchResultAdapterItem.History(com.mapbox.search.record.HistoryRecord record, boolean isFavorite);
+    method public com.mapbox.search.record.HistoryRecord getRecord();
+    method public boolean isFavorite();
+    property public final boolean isFavorite;
+    property public final com.mapbox.search.record.HistoryRecord record;
+  }
+
+  public static final class SearchResultAdapterItem.Loading extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    field public static final com.mapbox.search.ui.view.SearchResultAdapterItem.Loading INSTANCE;
+  }
+
+  public static final class SearchResultAdapterItem.MissingResultFeedback extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    ctor public SearchResultAdapterItem.MissingResultFeedback(com.mapbox.search.ResponseInfo responseInfo);
+    method public com.mapbox.search.ResponseInfo getResponseInfo();
+    property public final com.mapbox.search.ResponseInfo responseInfo;
+  }
+
+  public static final class SearchResultAdapterItem.RecentSearchesHeader extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    field public static final com.mapbox.search.ui.view.SearchResultAdapterItem.RecentSearchesHeader INSTANCE;
+  }
+
+  public static final class SearchResultAdapterItem.Result extends com.mapbox.search.ui.view.SearchResultAdapterItem {
+    ctor public SearchResultAdapterItem.Result(CharSequence title, CharSequence? subtitle, Double? distanceMeters, @DrawableRes int drawable, @ColorInt Integer? drawableColor = null, boolean isPopulateQueryVisible = false, Object? payload = null);
+    ctor public SearchResultAdapterItem.Result(CharSequence title, CharSequence? subtitle, Double? distanceMeters, @DrawableRes int drawable, @ColorInt Integer? drawableColor = null, boolean isPopulateQueryVisible = false);
+    ctor public SearchResultAdapterItem.Result(CharSequence title, CharSequence? subtitle, Double? distanceMeters, @DrawableRes int drawable, @ColorInt Integer? drawableColor = null);
+    ctor public SearchResultAdapterItem.Result(CharSequence title, CharSequence? subtitle, Double? distanceMeters, @DrawableRes int drawable);
+    method public Double? getDistanceMeters();
+    method public int getDrawable();
+    method public Integer? getDrawableColor();
+    method public Object? getPayload();
+    method public CharSequence? getSubtitle();
+    method public CharSequence getTitle();
+    method public boolean isPopulateQueryVisible();
+    property public final Double? distanceMeters;
+    property public final int drawable;
+    property public final Integer? drawableColor;
+    property public final boolean isPopulateQueryVisible;
+    property public final Object? payload;
+    property public final CharSequence? subtitle;
+    property public final CharSequence title;
+  }
+
+  public final class SearchResultsView extends androidx.recyclerview.widget.RecyclerView {
+    ctor public SearchResultsView(android.content.Context outerContext, android.util.AttributeSet? attrs = null, int defStyleAttr = 0);
+    ctor public SearchResultsView(android.content.Context outerContext, android.util.AttributeSet? attrs = null);
+    ctor public SearchResultsView(android.content.Context outerContext);
+    method public void addActionListener(com.mapbox.search.ui.view.SearchResultsView.ActionListener listener);
+    method public java.util.List<com.mapbox.search.ui.view.SearchResultAdapterItem> getAdapterItems();
+    method public void initialize(com.mapbox.search.ui.view.SearchResultsView.Configuration configuration);
+    method public void removeActionListener(com.mapbox.search.ui.view.SearchResultsView.ActionListener listener);
+    method public void setAdapterItems(java.util.List<? extends com.mapbox.search.ui.view.SearchResultAdapterItem> items);
+    property public final java.util.List<com.mapbox.search.ui.view.SearchResultAdapterItem> adapterItems;
+  }
+
+  public static interface SearchResultsView.ActionListener {
+    method public void onErrorItemClick(com.mapbox.search.ui.view.SearchResultAdapterItem.Error item);
+    method public void onHistoryItemClick(com.mapbox.search.ui.view.SearchResultAdapterItem.History item);
+    method public void onMissingResultFeedbackClick(com.mapbox.search.ui.view.SearchResultAdapterItem.MissingResultFeedback item);
+    method public void onPopulateQueryClick(com.mapbox.search.ui.view.SearchResultAdapterItem.Result item);
+    method public void onResultItemClick(com.mapbox.search.ui.view.SearchResultAdapterItem.Result item);
+  }
+
+  public static final class SearchResultsView.Configuration {
+    ctor public SearchResultsView.Configuration(com.mapbox.search.ui.view.CommonSearchViewConfiguration commonConfiguration);
+    method public com.mapbox.search.ui.view.CommonSearchViewConfiguration getCommonConfiguration();
+    property public final com.mapbox.search.ui.view.CommonSearchViewConfiguration commonConfiguration;
+  }
+
+  public class SearchSdkFrameLayout extends android.widget.FrameLayout {
+    ctor public SearchSdkFrameLayout(android.content.Context context, android.util.AttributeSet? attrs = null, int defStyleAttr = 0, int defStyleRes = 0);
+    ctor public SearchSdkFrameLayout(android.content.Context context, android.util.AttributeSet? attrs = null, int defStyleAttr = 0);
+    ctor public SearchSdkFrameLayout(android.content.Context context, android.util.AttributeSet? attrs = null);
+    ctor public SearchSdkFrameLayout(android.content.Context context);
+    method public final int getMaxWidth();
+    method public final void setMaxWidth(int value);
+    property public final int maxWidth;
+  }
+
+  public abstract class UiError {
+    ctor public UiError();
+    method public static final com.mapbox.search.ui.view.UiError createFromException(Exception e);
+    field public static final com.mapbox.search.ui.view.UiError.Companion Companion;
+  }
+
+  public static final class UiError.ClientError extends com.mapbox.search.ui.view.UiError {
+    field public static final com.mapbox.search.ui.view.UiError.ClientError INSTANCE;
+  }
+
+  public static final class UiError.Companion {
+    method public com.mapbox.search.ui.view.UiError createFromException(Exception e);
+  }
+
+  public static final class UiError.NoInternetConnectionError extends com.mapbox.search.ui.view.UiError {
+    field public static final com.mapbox.search.ui.view.UiError.NoInternetConnectionError INSTANCE;
+  }
+
+  public static final class UiError.ServerError extends com.mapbox.search.ui.view.UiError {
+    field public static final com.mapbox.search.ui.view.UiError.ServerError INSTANCE;
+  }
+
+  public static final class UiError.UnknownError extends com.mapbox.search.ui.view.UiError {
+    field public static final com.mapbox.search.ui.view.UiError.UnknownError INSTANCE;
+  }
+
+}
+
+package com.mapbox.search.ui.view.place {
+
+  public abstract class IncorrectSearchPlaceFeedback implements android.os.Parcelable {
+    ctor public IncorrectSearchPlaceFeedback();
+  }
+
+  @kotlinx.parcelize.Parcelize public static final class IncorrectSearchPlaceFeedback.FavoriteFeedback extends com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback {
+    ctor public IncorrectSearchPlaceFeedback.FavoriteFeedback(com.mapbox.search.record.FavoriteRecord favoriteRecord);
+    method public com.mapbox.search.record.FavoriteRecord getFavoriteRecord();
+    property public final com.mapbox.search.record.FavoriteRecord favoriteRecord;
+  }
+
+  @kotlinx.parcelize.Parcelize public static final class IncorrectSearchPlaceFeedback.HistoryFeedback extends com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback {
+    ctor public IncorrectSearchPlaceFeedback.HistoryFeedback(com.mapbox.search.record.HistoryRecord historyRecord);
+    method public com.mapbox.search.record.HistoryRecord getHistoryRecord();
+    property public final com.mapbox.search.record.HistoryRecord historyRecord;
+  }
+
+  @kotlinx.parcelize.Parcelize public static final class IncorrectSearchPlaceFeedback.SearchResultFeedback extends com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback {
+    ctor public IncorrectSearchPlaceFeedback.SearchResultFeedback(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo);
+    method public com.mapbox.search.ResponseInfo getResponseInfo();
+    method public com.mapbox.search.result.SearchResult getSearchResult();
+    property public final com.mapbox.search.ResponseInfo responseInfo;
+    property public final com.mapbox.search.result.SearchResult searchResult;
+  }
+
+  @kotlinx.parcelize.Parcelize public final class SearchPlace implements android.os.Parcelable {
+    ctor public SearchPlace(String id, String name, String? descriptionText, com.mapbox.search.result.SearchAddress? address, java.util.List<? extends com.mapbox.search.result.SearchResultType> resultTypes, com.mapbox.search.record.IndexableRecord? record, com.mapbox.geojson.Point coordinate, java.util.List<com.mapbox.search.common.RoutablePoint>? routablePoints, java.util.List<java.lang.String>? categories, String? makiIcon, com.mapbox.search.SearchResultMetadata? metadata, Double? distanceMeters, com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback? feedback);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromIndexableRecord(com.mapbox.search.record.IndexableRecord record, Double? distanceMeters);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromOfflineSearchResult(com.mapbox.search.offline.OfflineSearchResult searchResult, Double? distanceMeters = searchResult.distanceMeters);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromOfflineSearchResult(com.mapbox.search.offline.OfflineSearchResult searchResult);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromPlaceAutocompleteResult(com.mapbox.search.autocomplete.PlaceAutocompleteResult result, Double? distanceMeters = com.mapbox.search.autocomplete.PlaceAutocompleteResult.distanceMeters);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromPlaceAutocompleteResult(com.mapbox.search.autocomplete.PlaceAutocompleteResult result);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromSearchResult(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo, Double? distanceMeters = com.mapbox.search.result.SearchResult.distanceMeters);
+    method public static com.mapbox.search.ui.view.place.SearchPlace createFromSearchResult(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo);
+    method public com.mapbox.search.result.SearchAddress? getAddress();
+    method public java.util.List<java.lang.String>? getCategories();
+    method public com.mapbox.geojson.Point getCoordinate();
+    method public String? getDescriptionText();
+    method public Double? getDistanceMeters();
+    method public com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback? getFeedback();
+    method public String getId();
+    method public String? getMakiIcon();
+    method public com.mapbox.search.SearchResultMetadata? getMetadata();
+    method public String getName();
+    method public com.mapbox.search.record.IndexableRecord? getRecord();
+    method public java.util.List<com.mapbox.search.result.SearchResultType> getResultTypes();
+    method public java.util.List<com.mapbox.search.common.RoutablePoint>? getRoutablePoints();
+    property public final com.mapbox.search.result.SearchAddress? address;
+    property public final java.util.List<java.lang.String>? categories;
+    property public final com.mapbox.geojson.Point coordinate;
+    property public final String? descriptionText;
+    property public final Double? distanceMeters;
+    property public final com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback? feedback;
+    property public final String id;
+    property public final String? makiIcon;
+    property public final com.mapbox.search.SearchResultMetadata? metadata;
+    property public final String name;
+    property public final com.mapbox.search.record.IndexableRecord? record;
+    property public final java.util.List<com.mapbox.search.result.SearchResultType> resultTypes;
+    property public final java.util.List<com.mapbox.search.common.RoutablePoint>? routablePoints;
+    field public static final com.mapbox.search.ui.view.place.SearchPlace.Companion Companion;
+  }
+
+  public static final class SearchPlace.Companion {
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromIndexableRecord(com.mapbox.search.record.IndexableRecord record, Double? distanceMeters);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromOfflineSearchResult(com.mapbox.search.offline.OfflineSearchResult searchResult, Double? distanceMeters = searchResult.distanceMeters);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromOfflineSearchResult(com.mapbox.search.offline.OfflineSearchResult searchResult);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromPlaceAutocompleteResult(com.mapbox.search.autocomplete.PlaceAutocompleteResult result, Double? distanceMeters = com.mapbox.search.autocomplete.PlaceAutocompleteResult.distanceMeters);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromPlaceAutocompleteResult(com.mapbox.search.autocomplete.PlaceAutocompleteResult result);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromSearchResult(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo, Double? distanceMeters = com.mapbox.search.result.SearchResult.distanceMeters);
+    method public com.mapbox.search.ui.view.place.SearchPlace createFromSearchResult(com.mapbox.search.result.SearchResult searchResult, com.mapbox.search.ResponseInfo responseInfo);
+  }
+
+  public final class SearchPlaceBottomSheetView extends com.mapbox.search.ui.view.SearchSdkFrameLayout implements androidx.coordinatorlayout.widget.CoordinatorLayout.AttachedBehavior {
+    ctor public SearchPlaceBottomSheetView(android.content.Context outerContext, android.util.AttributeSet? attrs = null, int defStyleAttr = 0, int defStyleRes = 0);
+    ctor public SearchPlaceBottomSheetView(android.content.Context outerContext, android.util.AttributeSet? attrs = null, int defStyleAttr = 0);
+    ctor public SearchPlaceBottomSheetView(android.content.Context outerContext, android.util.AttributeSet? attrs = null);
+    ctor public SearchPlaceBottomSheetView(android.content.Context outerContext);
+    method public void addOnBottomSheetStateChangedListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnBottomSheetStateChangedListener listener);
+    method public void addOnCloseClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnCloseClickListener listener);
+    method public void addOnFeedbackClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnFeedbackClickListener listener);
+    method public void addOnNavigateClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnNavigateClickListener listener);
+    method public void addOnSearchPlaceAddedToFavoritesListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnSearchPlaceAddedToFavoritesListener listener);
+    method public void addOnShareClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnShareClickListener listener);
+    method public androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior<?> getBehavior();
+    method @com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.BottomSheetState public int getState();
+    method public void hide();
+    method public void initialize(com.mapbox.search.ui.view.CommonSearchViewConfiguration commonSearchViewConfiguration);
+    method public boolean isFavoriteButtonVisible();
+    method public boolean isHidden();
+    method public boolean isNavigateButtonVisible();
+    method public boolean isShareButtonVisible();
+    method public void open(com.mapbox.search.ui.view.place.SearchPlace searchPlace);
+    method public void removeOnBottomSheetStateChangedListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnBottomSheetStateChangedListener listener);
+    method public void removeOnCloseClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnCloseClickListener listener);
+    method public void removeOnFeedbackClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnFeedbackClickListener listener);
+    method public void removeOnNavigateClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnNavigateClickListener listener);
+    method public void removeOnSearchPlaceAddedToFavoritesListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnSearchPlaceAddedToFavoritesListener listener);
+    method public void removeOnShareClickListener(com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OnShareClickListener listener);
+    method public void setFavoriteButtonVisible(boolean value);
+    method public void setNavigateButtonVisible(boolean value);
+    method public void setShareButtonVisible(boolean value);
+    method public boolean updateDistance(double distanceMeters);
+    property public final boolean isFavoriteButtonVisible;
+    property public final boolean isNavigateButtonVisible;
+    property public final boolean isShareButtonVisible;
+    property @com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.BottomSheetState public final int state;
+    field public static final com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.Companion Companion;
+    field public static final int DRAGGING = 3; // 0x3
+    field public static final int HIDDEN = 1; // 0x1
+    field public static final int OPEN = 2; // 0x2
+    field public static final int SETTLING = 4; // 0x4
+  }
+
+  @IntDef({com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.HIDDEN, com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.OPEN, com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.DRAGGING, com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.SETTLING}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public static @interface SearchPlaceBottomSheetView.BottomSheetState {
+  }
+
+  public static final class SearchPlaceBottomSheetView.Companion {
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnBottomSheetStateChangedListener {
+    method public void onStateChanged(@com.mapbox.search.ui.view.place.SearchPlaceBottomSheetView.BottomSheetState int newState, boolean fromUser);
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnCloseClickListener {
+    method public void onCloseClick();
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnFeedbackClickListener {
+    method public void onFeedbackClick(com.mapbox.search.ui.view.place.SearchPlace searchPlace, com.mapbox.search.ui.view.place.IncorrectSearchPlaceFeedback feedback);
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnNavigateClickListener {
+    method public void onNavigateClick(com.mapbox.search.ui.view.place.SearchPlace searchPlace);
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnSearchPlaceAddedToFavoritesListener {
+    method public void onSearchPlaceAddedToFavorites(com.mapbox.search.ui.view.place.SearchPlace searchPlace, com.mapbox.search.record.FavoriteRecord favorite);
+  }
+
+  public static fun interface SearchPlaceBottomSheetView.OnShareClickListener {
+    method public void onShareClick(com.mapbox.search.ui.view.place.SearchPlace searchPlace);
+  }
+
+}
+

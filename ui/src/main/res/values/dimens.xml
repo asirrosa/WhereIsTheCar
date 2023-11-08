@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="mapbox_search_sdk_dimen_1x">4dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_2x">8dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_3x">12dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_4x">16dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_5x">20dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_6x">24dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_7x">28dp</dimen>
+    <dimen name="mapbox_search_sdk_dimen_8x">32dp</dimen>
+
+    <dimen name="mapbox_search_sdk_extra_touch_area">12dp</dimen>
+    <dimen name="mapbox_search_sdk_button_extra_tap_area_edge_offset">6dp</dimen>
+
+    <dimen name="mapbox_search_sdk_primary_layout_offset">22dp</dimen>
+    <dimen name="mapbox_search_sdk_list_item_icon_horizontal_margin">10dp</dimen>
+    <dimen name="mapbox_search_sdk_list_item_height_complex_item">68dp</dimen>
+    <dimen name="mapbox_search_sdk_list_complex_item_top_margin">14dp</dimen>
+
+    <dimen name="mapbox_search_sdk_list_item_start_padding_with_start_icon_margin">32dp</dimen>
+
+    <dimen name="mapbox_search_sdk_search_view_margin_horizontal">16dp</dimen>
+    <dimen name="mapbox_search_sdk_search_view_max_width">380dp</dimen>
+    <dimen name="mapbox_search_sdk_search_view_margin_top">16dp</dimen>
+    <dimen name="mapbox_search_sdk_search_view_background_radius">8dp</dimen>
+
+    <dimen name="mapbox_search_sdk_search_history_item_name_margin_top">12dp</dimen>
+
+    <dimen name="mapbox_search_sdk_divider_height">1dp</dimen>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always|collapseActionView"
+        />
+
+    <item
+        android:id="@+id/add_location"
+        android:icon="@drawable/ic_add_location"
+        android:title="Add location"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/delete_all"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete All"
+        app:showAsAction="ifRoom"
+        />
+
+</menu>
