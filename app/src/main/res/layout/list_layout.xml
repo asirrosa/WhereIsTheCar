@@ -4,11 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="Main.ListActivity">
+    android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerUbicaciones"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:ignore="MissingConstraints"
@@ -29,7 +28,7 @@
             android:alpha="0.5"
             android:text="No hay ubicaciones."
             android:textSize="20sp"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/empty_imageview" />
@@ -40,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="230dp"
             android:alpha="0.5"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

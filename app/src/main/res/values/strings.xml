@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UbiManager</string>
     <string name="geoapify_api">8209e73bb35d4549bfeb451b22b7deb7</string>
-    <string name="maptiles_api">SARii5cAjICSk5ztI06K</string>
-    <string name="mapbox_api">sk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbGZqdTl5MmJraDJxcXByOHh5aWNvdyJ9.uW-l9chF1-sVWRJyh-WcSg</string>
+    <string name="mapbox_sdk_registry_token">sk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbzIzNzhuMjdndjJrbnZ3Zmh1NzNzMCJ9.qvbHSaqnE8Gi8rjubAu1kg</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbGFyaXA0MmJqNDJqbWVrbW16dW9meCJ9.sqdWDtlJnGBeBu9FyCK-mg</string>
+    <string name="mapbox_session_token">084124ce-b355-4f11-88bb-f58111908184</string>
 </resources>

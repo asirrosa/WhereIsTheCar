@@ -16,8 +16,8 @@
         card_view:cardUseCompatPadding="true">
 
         <LinearLayout
-            android:layout_width="411dp"
-            android:layout_height="76dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center">
 
@@ -26,7 +26,7 @@
                 android:layout_width="170dp"
                 android:layout_height="50dp"
                 android:layout_marginLeft="4dp"
-                android:layout_marginVertical="4dp"
+                android:layout_marginVertical="20dp"
                 android:gravity="center"
                 android:text="Ubicación"
                 android:textColor="#000"
@@ -45,7 +45,6 @@
                 android:textColor="#000"
                 android:textSize="20sp"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/ubicacion_lat"
                 android:layout_width="0dp"
@@ -57,10 +56,6 @@
                 android:id="@+id/ubicacion_lon"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginLeft="12dp"
-                android:layout_marginEnd="21dp"
-                android:layout_marginRight="21dp"
                 android:visibility="gone"
                 tools:ignore="MissingConstraints" />
         </LinearLayout>

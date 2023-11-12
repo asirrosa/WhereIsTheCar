@@ -22,6 +22,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
@@ -239,6 +240,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
             super.onPostExecute(unused);
         }
-
     }
 }

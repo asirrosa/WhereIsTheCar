@@ -59,7 +59,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     @Override
     public UbicacionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.ubicacion_layout, parent, false);
+        View view = inflater.inflate(R.layout.list_card_layout, parent, false);
         return new UbicacionViewHolder(view);
     }
 

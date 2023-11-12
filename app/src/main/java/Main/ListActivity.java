@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
-    RecyclerView courseRV;
+    RecyclerView recyclerUbicaciones;
     MyDatabaseHelper myDB;
     ImageView empty_imageview;
     UbicacionAdapter ubicacionAdapter;
@@ -44,15 +44,15 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
-        courseRV = findViewById(R.id.recyclerView);
+        setContentView(R.layout.list_layout);
+        recyclerUbicaciones = findViewById(R.id.recyclerUbicaciones);
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
 
         myDB = new MyDatabaseHelper(ListActivity.this);
         storeDataInArrays();
-        courseRV.setAdapter(ubicacionAdapter);
-        courseRV.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+        recyclerUbicaciones.setAdapter(ubicacionAdapter);
+        recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
     }
 
     /**
@@ -226,7 +226,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 result = "Hace " + years + " años";
             }
         }
-            return result;
+        return result;
     }
 }
 
