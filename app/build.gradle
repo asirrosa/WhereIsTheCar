@@ -5,7 +5,7 @@ android {
     compileSdkVersion 31
     namespace = "Main"
     defaultConfig {
-        applicationId "com.WhereIsTheCar"
+        applicationId "com.UbiManager"
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 1

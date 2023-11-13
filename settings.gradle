@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name='WhereIsTheCar'
+rootProject.name='UbiManager'
