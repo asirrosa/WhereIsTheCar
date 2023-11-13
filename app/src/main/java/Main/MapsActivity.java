@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
@@ -33,6 +35,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.geometry.LatLngQuad;
+import com.mapbox.mapboxsdk.geometry.LatLngSpan;
 import com.mapbox.mapboxsdk.maps.MapView;
 
 import org.json.JSONArray;
@@ -42,6 +46,7 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,9 +57,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     BusquedaAdapter busquedaAdapter;
     BusquedaItem busquedaItemGuardar;
     RecyclerView recyclerBusqueda;
-    ArrayAdapter adapter;
     ImageView lupaFlecha;
-    ImageView empty_imageview;
     TextView no_data;
 
     @Override
@@ -63,6 +66,8 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         //esta linea importante porque sino no inicializa el mapa
         Mapbox.getInstance(this);
         setContentView(R.layout.maps_layout);
+
+        no_data = findViewById(R.id.no_data);
 
         recyclerBusqueda = findViewById(R.id.recyclerBusqueda);
 
@@ -73,18 +78,15 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
-        btnGuardarUbiManual.setEnabled(false);
 
         //para mostrar el mapa
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-
         mapView.getMapAsync(mapboxMap -> {
+            mapboxMap.setStyle("https://api.maptiler.com/maps/streets-v2/style.json?key="+getString(R.string.maptiles_api_key));
             mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
         });
 
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, new ArrayList<>());
-        adapter.setNotifyOnChange(true);
         txtInput = findViewById(R.id.txtInput);
 
         txtInput.addTextChangedListener(new TextWatcher() {
@@ -92,13 +94,17 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                recyclerBusqueda.setVisibility(RecyclerView.VISIBLE);
                 lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_back, null));
+                btnGuardarUbiManual.setVisibility(Button.INVISIBLE);
+                suggestApiCall(s.toString());
+                SubCargarListaLocations cargar = new SubCargarListaLocations();
+                cargar.execute();
             }
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length() > 0){
-                    SubCargarListaLocations cargar = new SubCargarListaLocations();
-                    cargar.execute();
+                if(s.length() == 0){
+                    storeDataInArrays(false);
                 }
             }
         });
@@ -123,48 +129,60 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void storeDataInArrays() {
-        if (busquedaAdapter.busquedaList.size() == 0) {
-            empty_imageview.setVisibility(View.VISIBLE);
-            no_data.setVisibility(View.VISIBLE);
+    private void storeDataInArrays(boolean chivato) {
+        if (chivato == false) {
+            recyclerBusqueda.setVisibility(RecyclerView.INVISIBLE);
         } else {
             recyclerBusqueda.setAdapter(busquedaAdapter);
             recyclerBusqueda.setLayoutManager(new LinearLayoutManager(this));
         }
     }
 
-    public void suggestApiCall() {
-        String tempUrl = "https://api.mapbox.com/search/searchbox/v1/suggest?q=" + txtInput.getText() + "&language=es&session_token=" + getString(R.string.mapbox_session_token) + "&access_token=" + getString(R.string.mapbox_access_token);
+    public void suggestApiCall(String text) {
+        String tempUrl = "https://api.maptiler.com/geocoding/"+text+".json?autocomplete=true&limit=3&language=es&fuzzyMatch=true" +
+                "&key="+getString(R.string.maptiles_api_key);
         ArrayList<BusquedaItem> busquedaList = new ArrayList<>();
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
-            try {
-                JSONObject jsonObject = new JSONObject(res);
-                JSONArray suggestions = jsonObject.getJSONArray("suggestions");
-                String address;
-                if (suggestions.length() > 0) {
-                    for (int i = 0; i < suggestions.length(); i++) {
-                        JSONObject mainObject = suggestions.getJSONObject(i);
-                        if (mainObject.getString("full_address") == null) {
-                            address = mainObject.getString("place_formatted");
-                        } else {
-                            address = mainObject.getString("full_address");
+        no_data.setVisibility(TextView.INVISIBLE);
+        if(text.length() > 3) {
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
+                try {
+                    JSONObject mainObject = new JSONObject(res);
+                    JSONArray featuresArray = mainObject.getJSONArray("features");
+                    if (featuresArray.length() > 0) {
+                        for (int i = 0; i < featuresArray.length(); i++) {
+                            JSONObject iObject = featuresArray.getJSONObject(i);
+                            String placeName = iObject.getString("place_name_es");
+                            String name = "";
+                            String description = "";
+                            if(placeName.contains(",")){
+                                String[] array = iObject.getString("place_name_es").split(",",2);
+                                name = array[0];
+                                description = array[1];
+                            }
+                            else{
+                                name = placeName;
+                            }
+                            JSONObject geometryObject = iObject.getJSONObject("geometry");
+                            JSONArray coordinatesObject = geometryObject.getJSONArray("coordinates");
+                            Double lat = (Double) coordinatesObject.get(1);
+                            Double lon = (Double) coordinatesObject.get(0);
+                            BusquedaItem busquedaItem = new BusquedaItem(name, description, lat, lon);
+                            busquedaList.add(busquedaItem);
                         }
-                        String name = mainObject.getString("name");
-                        String mapboxId = mainObject.getString("mapbox_id");
-                        BusquedaItem busquedaItem = new BusquedaItem(name, address, mapboxId, 0.0, 0.0);
-                        busquedaList.add(busquedaItem);
                     }
-                    busquedaAdapter = new BusquedaAdapter(this,busquedaList);
-                    storeDataInArrays();
+                    else{
+                        no_data.setVisibility(TextView.VISIBLE);
+                    }
+                    busquedaAdapter = new BusquedaAdapter(this, busquedaList);
+                    storeDataInArrays(true);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }, error -> {
-        });
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestQueue.add(stringRequest);
-
+            }, error -> {
+            });
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            requestQueue.add(stringRequest);
+        }
     }
 
     public void guardarEnDB(){
@@ -174,16 +192,41 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         myDB.addUbicacion(startDateTime, busquedaItemGuardar.getNombre(), busquedaItemGuardar.getLat(), busquedaItemGuardar.getLon());
     }
 
+    public void cambiarMapa(String text, Double lat, Double lon){
+        //para cerrar el teclado
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        busquedaItemGuardar = new BusquedaItem(text,"",lat,lon);
+        recyclerBusqueda.setVisibility(RecyclerView.INVISIBLE);
+        btnGuardarUbiManual.setVisibility(Button.VISIBLE);
+        //esto falla por problemas con el conversor lat long 
+        mapView.getMapAsync(mapboxMap -> {
+            mapboxMap.setStyle("https://api.maptiler.com/maps/streets-v2/style.json?key="+getString(R.string.maptiles_api_key));
+            mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(lat,lon)).zoom(17).build());
+            mapboxMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, lon))
+                    .title(text));
+        });
+    }
+
     private class SubCargarListaLocations extends AsyncTask<Void,Void,Void> {
         @Override
         protected void onPreExecute() {
             progressBarLocations.setVisibility(ProgressBar.VISIBLE);
-            suggestApiCall();
             super.onPreExecute();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             return null;
         }
 

@@ -33,7 +33,7 @@ public class BusquedaAdapter extends RecyclerView.Adapter<BusquedaAdapter.Busque
     private MapsActivity mapsActivity;
 
     public class BusquedaViewHolder extends RecyclerView.ViewHolder {
-        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_mapboxId, ubicacion_lat, ubicacion_lon;
+        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_lat, ubicacion_lon;
         LinearLayout mainLayout;
         CardView cardView;
 
@@ -44,37 +44,17 @@ public class BusquedaAdapter extends RecyclerView.Adapter<BusquedaAdapter.Busque
             super(itemView);
             ubicacion_nombre = itemView.findViewById(R.id.ubicacion_nombre);
             ubicacion_descripcion = itemView.findViewById(R.id.ubicacion_descripcion);
-            ubicacion_mapboxId = itemView.findViewById(R.id.ubicacion_mapboxId);
             ubicacion_lat = itemView.findViewById(R.id.ubicacion_lat);
             ubicacion_lon = itemView.findViewById(R.id.ubicacion_lon);
 
             mainLayout = itemView.findViewById(R.id.mainLayout);
             cardView = itemView.findViewById(R.id.cardView);
-            cardView.setOnClickListener(view -> {
-                retrieveApiCall();
-            });
-        }
 
-        private void retrieveApiCall() {
-            String tempUrl = "https://api.mapbox.com/search/searchbox/v1/retrieve/"+ubicacion_mapboxId;
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
-                try {
-                    JSONObject jsonObject = new JSONObject(res);
-                    JSONArray suggestions = jsonObject.getJSONArray("features");
-                    JSONObject mainObject = suggestions.getJSONObject(0);
-                    JSONObject geometryObject = mainObject.getJSONObject("geometry");
-                    JSONArray coordinatesObject = geometryObject.getJSONArray("coordinates");
-                    Double lat = (Double) coordinatesObject.get(0);
-                    Double lon = (Double) coordinatesObject.get(1);
-                    BusquedaItem busquedaItem = new BusquedaItem(ubicacion_nombre.getText().toString(),
-                            ubicacion_descripcion.getText().toString(),ubicacion_mapboxId.getText().toString(), lat, lon);
-                    mapsActivity.busquedaItemGuardar = busquedaItem;
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }, error -> {});
-            RequestQueue requestQueue = Volley.newRequestQueue(mapsActivity);
-            requestQueue.add(stringRequest);
+            cardView.setOnClickListener(view -> {
+                mapsActivity.cambiarMapa(ubicacion_nombre.getText().toString(),
+                        Double.parseDouble(ubicacion_lat.getText().toString()),
+                        Double.parseDouble(ubicacion_lon.getText().toString()));
+            });
         }
     }
 
@@ -99,7 +79,6 @@ public class BusquedaAdapter extends RecyclerView.Adapter<BusquedaAdapter.Busque
         BusquedaItem busquedaItem = busquedaList.get(position);
         holder.ubicacion_nombre.setText(String.valueOf(busquedaItem.getNombre()));
         holder.ubicacion_descripcion.setText(String.valueOf(busquedaItem.getDescripcion()));
-        holder.ubicacion_mapboxId.setText(String.valueOf(busquedaItem.getMapboxId()));
         holder.ubicacion_lat.setText(String.valueOf(busquedaItem.getLat()));
         holder.ubicacion_lon.setText(String.valueOf(busquedaItem.getLon()));
     }
