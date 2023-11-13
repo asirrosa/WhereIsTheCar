@@ -2,9 +2,12 @@ package Main;
 
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -112,11 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gps = new GPSTracker(this);
         //En primer lugar miras si el servicio esta habilitado
         if (gps.isGPSEnabled && gps.isGPSPermissionEnabled) {
-            //Luego compruebas que se active el gps es decir esperar un poco a que se active
-            if (!gps.funcionaGPS()) {
-                SubCargarGPS cargar = new SubCargarGPS();
-                cargar.execute(gps);
-            } else {
+            if(gps.location != null) {
                 latitude = gps.location.getLatitude();
                 longitude = gps.location.getLongitude();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -128,6 +128,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     sinConexion();
                 }
+            }
+            else{
+                SubCargarGPS subCargarGPS = new SubCargarGPS();
+                subCargarGPS.execute();
             }
         } else if (!gps.isGPSEnabled) {
             gps.showSettingsAlert();
@@ -213,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Metodo threads que sirve para esperar a que el gps se active
      */
-    private class SubCargarGPS extends AsyncTask<GPSTracker,Void,Void> {
+    private class SubCargarGPS extends AsyncTask<Void,Void,Void> {
 
         //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
         @Override
@@ -226,8 +230,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
         @Override
-        protected Void doInBackground(GPSTracker... params) {
-            params[0].esperarGPS();
+        protected Void doInBackground(Void... params) {
+            while(true){
+                if(gps.location != null){
+                    break;
+                }
+            }
             return null;
         }
 

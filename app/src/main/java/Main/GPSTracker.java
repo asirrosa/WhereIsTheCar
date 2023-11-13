@@ -29,7 +29,7 @@ public class GPSTracker implements LocationListener {
     boolean isNetworkEnabled = false;
 
     // Declaring a Location Manager
-    private LocationManager locationManager;
+    public LocationManager locationManager;
     private ConnectivityManager connectivityManager;
     Location location;
 
@@ -73,33 +73,6 @@ public class GPSTracker implements LocationListener {
     }
 
     /**
-     * Metodo para crear un loop infinito llamando a funcionaGPS()
-     */
-    public void esperarGPS() {
-        while (true) {
-            if (funcionaGPS())
-                break;
-        }
-    }
-
-    /**
-     * Metodo para comprobar si el gps ha empezado a funcionar
-     */
-    public boolean funcionaGPS() {
-        boolean result = false;
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        }
-        else{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
-            if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    /**
      * Metodo para mostrar el dialog que te dice si quieres activar el gps
      */
     public void showSettingsAlert(){
@@ -118,7 +91,9 @@ public class GPSTracker implements LocationListener {
 
     //Metodos propios de LocationListener
     @Override
-    public void onLocationChanged(Location location) {}
+    public void onLocationChanged(Location location) {
+        this.location = location;
+    }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {}
     @Override
