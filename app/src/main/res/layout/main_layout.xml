@@ -17,11 +17,10 @@
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold|italic"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="@id/btnGuardar"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnGuardar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
         android:id="@+id/btnLista"
@@ -30,15 +29,14 @@
         android:background="@drawable/button_ubicacion_click"
         android:text="Ubicaciones"
         android:gravity="center"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtAlert"
-    />
+        app:layout_constraintTop_toBottomOf="@id/txtAlert" />
 
     <Button
         android:id="@+id/btnGuardar"
@@ -53,7 +51,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/btnNavegar" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/btnGuardar"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/txtAlert"
@@ -71,6 +82,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/btnLista"
         app:layout_constraintTop_toBottomOf="@+id/btnGuardar"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

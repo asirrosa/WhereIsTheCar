@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //boton para guardar la ubicacion
     Button btnGuardar,btnLista,btnBuscar;
-
+    ProgressBar progressBar;
     private LocalDateTime startDateTime;
     private double latitude,longitude;
     GPSTracker gps;
@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Para que al iniciar cargue el layout del inicio
         setContentView(R.layout.main_layout);
+
+        progressBar = findViewById(R.id.progressBar);
 
         //texto que muestra mensajes para el usuario
         txtAlert = findViewById(R.id.txtAlert);
@@ -205,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Metodo para actualizar el layout principal, se utiliza para ver que algo esta cargando, se ha cargado...
      */
     public void actualizacionesLayout(int visibility, int drawable, boolean guardar){
+        progressBar.setVisibility(visibility);
         btnGuardar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
         btnGuardar.setEnabled(guardar);
     }
