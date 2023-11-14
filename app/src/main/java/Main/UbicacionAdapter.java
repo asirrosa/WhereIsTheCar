@@ -91,7 +91,6 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             ArrayList<UbicacionItem> filteredList = new ArrayList<>();
-
             if (charSequence.toString().isEmpty()) {
                 filteredList.addAll(ubicacionListFull);
             } else {

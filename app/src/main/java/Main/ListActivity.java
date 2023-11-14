@@ -2,7 +2,6 @@ package Main;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,9 +60,9 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.my_menu, menu);
+        inflater.inflate(R.menu.list_menu, menu);
 
-        itemSearch = menu.findItem(R.id.search);
+        itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
 
         itemDelete = menu.findItem(R.id.delete_all);
@@ -85,7 +84,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 confirmDialogDeleteAll();
                 break;
 
-            case R.id.search:
+            case R.id.searchUbicaciones:
                 SearchView searchView = (SearchView) menuItem.getActionView();
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override

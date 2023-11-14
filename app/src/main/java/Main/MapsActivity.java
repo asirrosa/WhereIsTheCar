@@ -8,6 +8,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,16 +52,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class MapsActivity extends AppCompatActivity implements View.OnClickListener {
+public class MapsActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     Button btnGuardarUbiManual;
-    AutoCompleteTextView txtInput;
     MapView mapView;
     ProgressBar progressBarLocations;
     BusquedaAdapter busquedaAdapter;
     BusquedaItem busquedaItemGuardar;
     RecyclerView recyclerBusqueda;
-    ImageView lupaFlecha;
+    MenuItem itemSearch;
     TextView no_data;
 
     @Override
@@ -71,10 +74,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         recyclerBusqueda = findViewById(R.id.recyclerBusqueda);
 
-        lupaFlecha = findViewById(R.id.lupaFlecha);
-        lupaFlecha.setOnClickListener(this);
-
-        progressBarLocations = findViewById(R.id.progressBarLocations);
+        /*progressBarLocations = findViewById(R.id.progressBarLocations);*/
 
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
@@ -87,19 +87,12 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
         });
 
-        txtInput = findViewById(R.id.txtInput);
-
-        txtInput.addTextChangedListener(new TextWatcher() {
+        /*txtInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                recyclerBusqueda.setVisibility(RecyclerView.VISIBLE);
-                lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_back, null));
-                btnGuardarUbiManual.setVisibility(Button.INVISIBLE);
-                geocodingApiCall(s.toString());
-                SubCargarListaLocations cargar = new SubCargarListaLocations();
-                cargar.execute();
+
             }
             @Override
             public void afterTextChanged(Editable s) {
@@ -107,16 +100,30 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                     storeDataInArrays(false);
                 }
             }
-        });
+        });*/
+    }
+
+    /**
+     * Metodo para crear el inflater con el menu
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.maps_menu, menu);
+
+        itemSearch = menu.findItem(R.id.searchBusqueda);
+        itemSearch.setOnMenuItemClickListener(this);
+
+        return true;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.lupaFlecha:
+ /*           case R.id.lupaFlecha:
                 txtInput.setText("");
                 lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_searchlocation, null));
-                break;
+                break;*/
             case R.id.btnGuardarUbiManual:
                 //todo tengo que llamar a Busqueda adapter
                 guardarEnDB();
@@ -126,6 +133,35 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 break;
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.searchBusqueda:
+                SearchView searchView = (SearchView) menuItem.getActionView();
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String text) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String text) {
+                        if(text.equals("")){
+                            recyclerBusqueda.setVisibility(RecyclerView.INVISIBLE);
+                        }
+                        else{
+                            recyclerBusqueda.setVisibility(RecyclerView.VISIBLE);
+                        }
+                        btnGuardarUbiManual.setVisibility(Button.INVISIBLE);
+                        geocodingApiCall(text);
+                        return false;
+                    }
+                });
+                break;
+        }
+        return false;
     }
 
     private void storeDataInArrays(boolean chivato) {
@@ -138,11 +174,11 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void geocodingApiCall(String text) {
-        String tempUrl = "https://api.maptiler.com/geocoding/"+text+".json?autocomplete=true&limit=3&language=es&fuzzyMatch=true" +
+        String tempUrl = "https://api.maptiler.com/geocoding/"+text+".json?autocomplete=true&limit=5&language=es&fuzzyMatch=true" +
                 "&key="+getString(R.string.maptiles_api_key);
         ArrayList<BusquedaItem> busquedaList = new ArrayList<>();
         no_data.setVisibility(TextView.INVISIBLE);
-        if(text.length() > 3) {
+        if(text.length() > 2) {
             StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
                 try {
                     JSONObject mainObject = new JSONObject(res);
@@ -210,29 +246,5 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                     .position(new LatLng(lat, lon))
                     .title(nombre));
         });
-    }
-
-    private class SubCargarListaLocations extends AsyncTask<Void,Void,Void> {
-        @Override
-        protected void onPreExecute() {
-            progressBarLocations.setVisibility(ProgressBar.VISIBLE);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            progressBarLocations.setVisibility(ProgressBar.INVISIBLE);
-            super.onPostExecute(unused);
-        }
     }
 }
