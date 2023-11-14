@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 for (int i = 0; i < 1; i++) {
                     JSONObject iObject = featuresArray.getJSONObject(i);
                     String placeName = iObject.getString("place_name_es");
-                    String name = "";
+                    String name;
                     String description = "";
                     if (placeName.contains(",")) {
                         String[] array = iObject.getString("place_name_es").split(",", 2);

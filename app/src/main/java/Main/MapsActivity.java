@@ -177,8 +177,8 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                             }
                             JSONObject geometryObject = iObject.getJSONObject("geometry");
                             JSONArray coordinatesObject = geometryObject.getJSONArray("coordinates");
-                            Double lat = (Double) coordinatesObject.get(1);
                             Double lon = (Double) coordinatesObject.get(0);
+                            Double lat = (Double) coordinatesObject.get(1);
                             BusquedaItem busquedaItem = new BusquedaItem(name, description, lat, lon);
                             busquedaList.add(busquedaItem);
                         }

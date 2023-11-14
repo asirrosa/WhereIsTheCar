@@ -173,7 +173,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         } else {
             while (cursor.moveToNext()) {
                 LocalDateTime startDateTime = LocalDateTime.parse(cursor.getString(1));
-                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getString(3), cursor.getDouble(3), cursor.getDouble(4));
+                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getString(3), cursor.getDouble(4), cursor.getDouble(5));
                 ubicacionAdapter.ubicacionList.add(ubicacionItem);
                 ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }
