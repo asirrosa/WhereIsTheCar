@@ -18,33 +18,79 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center">
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:divider="?android:dividerVertical"
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="170dp"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:layout_marginVertical="4dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/ic_location" />
+
+                    <TextView
+                        android:id="@+id/ubicacion_nombre"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textAlignment="textStart"
+                        android:text="Nombre"
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:ignore="RtlCompat" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/ubicacion_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textAlignment="textStart"
+                    android:gravity="center"
+                    android:text="Descripción"
+                    android:textColor="#000"
+                    android:textSize="20sp"
+                    tools:ignore="RtlCompat" />
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/ubicacion_nombre"
-                android:layout_width="170dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginVertical="20dp"
-                android:gravity="center"
-                android:text="Ubicación"
-                android:textColor="#000"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:id="@+id/line"
+                style="?android:dividerVertical"
+                android:paddingTop="5dip"
+                android:gravity="center_vertical"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#000" />
 
             <TextView
                 android:id="@+id/ubicacion_fecha_hora"
-                android:layout_width="170dp"
+                android:layout_width="wrap_content"
                 android:layout_height="50dp"
+                android:textAlignment="textStart"
                 android:layout_marginVertical="4dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="4dp"
+                android:paddingHorizontal="10dp"
+                android:layout_marginHorizontal="4dp"
                 android:gravity="center"
                 android:text="Fecha/hora"
                 android:textColor="#000"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:ignore="RtlCompat" />
             <TextView
                 android:id="@+id/ubicacion_lat"
                 android:layout_width="0dp"

@@ -13,16 +13,11 @@ import java.util.List;
 
 public class CustomException extends Exception {
 
-    public CustomException(LocationManager locationManager, ConnectivityManager connectivityManager) {
+    public CustomException(LocationManager locationManager) {
         if(locationManager == null){
              Toast.makeText(MainActivity.getInstance(), "Comprueba el servicio GPS", Toast.LENGTH_SHORT).show();
              MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
              MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
-        }
-        else if(connectivityManager == null){
-            Toast.makeText(MainActivity.getInstance(), "Comprueba la conexión a Internet", Toast.LENGTH_SHORT).show();
-            MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
-            MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
         }
     }
     public CustomException(Geocoder geocoder){

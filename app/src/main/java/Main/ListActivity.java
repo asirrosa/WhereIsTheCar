@@ -166,11 +166,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             no_data.setVisibility(View.VISIBLE);
         } else {
             while (cursor.moveToNext()) {
-                LocalDateTime startDateTime = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startDateTime = LocalDateTime.parse(cursor.getString(1));
-                }
-                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getDouble(3), cursor.getDouble(4));
+                LocalDateTime startDateTime = LocalDateTime.parse(cursor.getString(1));
+                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getString(3), cursor.getDouble(3), cursor.getDouble(4));
                 ubicacionAdapter.ubicacionList.add(ubicacionItem);
                 ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }
@@ -180,52 +177,50 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     private String calculateTimeDiff(LocalDateTime startDateTime) {
         String result = "";
         LocalDateTime endDateTime;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            endDateTime = LocalDateTime.now();
-            LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);
+        endDateTime = LocalDateTime.now();
+        LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);
+        long years = startDateTime.until(endDateTime, ChronoUnit.YEARS);
+        tempDateTime = tempDateTime.plusYears(years);
+        long months = tempDateTime.until(endDateTime, ChronoUnit.MONTHS);
+        tempDateTime = tempDateTime.plusMonths(months);
+        long days = tempDateTime.until(endDateTime, ChronoUnit.DAYS);
+        tempDateTime = tempDateTime.plusDays(days);
+        long hours = tempDateTime.until(endDateTime, ChronoUnit.HOURS);
+        tempDateTime = tempDateTime.plusHours(hours);
+        long minutes = tempDateTime.until(endDateTime, ChronoUnit.MINUTES);
 
-            long years = startDateTime.until(endDateTime, ChronoUnit.YEARS);
-            tempDateTime = tempDateTime.plusYears(years);
-            long months = tempDateTime.until(endDateTime, ChronoUnit.MONTHS);
-            tempDateTime = tempDateTime.plusMonths(months);
-            long days = tempDateTime.until(endDateTime, ChronoUnit.DAYS);
-            tempDateTime = tempDateTime.plusDays(days);
-            long hours = tempDateTime.until(endDateTime, ChronoUnit.HOURS);
-            tempDateTime = tempDateTime.plusHours(hours);
-            long minutes = tempDateTime.until(endDateTime, ChronoUnit.MINUTES);
-
-            if (years == 0) {
-                if (months == 0) {
-                    if (days == 0) {
-                        if (hours == 0) {
-                            if (minutes == 0) {
-                                result = "Hace unos instantes";
-                            } else if (minutes == 1) {
-                                result = "Hace 1 minuto";
-                            } else {
-                                result = "Hace " + minutes + " minutos";
-                            }
-                        } else if (hours == 1) {
-                            result = "Hace 1 hora";
+        if (years == 0) {
+            if (months == 0) {
+                if (days == 0) {
+                    if (hours == 0) {
+                        if (minutes == 0) {
+                            result = "Hace unos instantes";
+                        } else if (minutes == 1) {
+                            result = "Hace 1 minuto";
                         } else {
-                            result = "Hace " + hours + " horas";
+                            result = "Hace " + minutes + " minutos";
                         }
-                    } else if (days == 1) {
-                        result = "Hace 1 día";
+                    } else if (hours == 1) {
+                        result = "Hace 1 hora";
                     } else {
-                        result = "Hace " + days + " días";
+                        result = "Hace " + hours + " horas";
                     }
-                } else if (months == 1) {
-                    result = "Hace 1 mes";
+                } else if (days == 1) {
+                    result = "Hace 1 día";
                 } else {
-                    result = "Hace " + months + " meses";
+                    result = "Hace " + days + " días";
                 }
-            } else if (years == 1) {
-                result = "Hace 1 año";
+            } else if (months == 1) {
+                result = "Hace 1 mes";
             } else {
-                result = "Hace " + years + " años";
+                result = "Hace " + months + " meses";
             }
+        } else if (years == 1) {
+            result = "Hace 1 año";
+        } else {
+            result = "Hace " + years + " años";
         }
+
         return result;
     }
 }

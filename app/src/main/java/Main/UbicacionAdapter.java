@@ -23,7 +23,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     public ArrayList<UbicacionItem> ubicacionListFull;
 
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
-        TextView ubicacion_nombre, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon;
+        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon;
         LinearLayout mainLayout;
         CardView cardView;
 
@@ -34,6 +34,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             super(itemView);
             ubicacion_fecha_hora = itemView.findViewById(R.id.ubicacion_fecha_hora);
             ubicacion_nombre = itemView.findViewById(R.id.ubicacion_nombre);
+            ubicacion_descripcion = itemView.findViewById(R.id.ubicacion_desc);
             ubicacion_lat = itemView.findViewById(R.id.ubicacion_lat);
             ubicacion_lon = itemView.findViewById(R.id.ubicacion_lon);
 
@@ -70,7 +71,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     public void onBindViewHolder(@NonNull final UbicacionViewHolder holder, final int position) {
         UbicacionItem ubicacionItem = ubicacionList.get(position);
         holder.ubicacion_fecha_hora.setText(String.valueOf(ubicacionItem.getFechaHora()));
-        holder.ubicacion_nombre.setText(String.valueOf(ubicacionItem.getUbicacion()));
+        holder.ubicacion_nombre.setText(String.valueOf(ubicacionItem.getNombre()));
+        holder.ubicacion_descripcion.setText(String.valueOf(ubicacionItem.getDescripcion()));
         holder.ubicacion_lat.setText(String.valueOf(ubicacionItem.getLat()));
         holder.ubicacion_lon.setText(String.valueOf(ubicacionItem.getLon()));
     }
@@ -94,7 +96,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                 filteredList.addAll(ubicacionListFull);
             } else {
                 for (UbicacionItem ubicacionItem : ubicacionListFull) {
-                    if (ubicacionItem.getUbicacion().toLowerCase().contains(charSequence.toString().toLowerCase())) {
+                    if (ubicacionItem.getNombre().toLowerCase().contains(charSequence.toString().toLowerCase()) ||
+                            ubicacionItem.getDescripcion().toLowerCase().contains(charSequence.toString().toLowerCase())) {
                         filteredList.add(ubicacionItem);
                     }
                 }

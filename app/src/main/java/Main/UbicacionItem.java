@@ -2,13 +2,15 @@ package Main;
 
 public class UbicacionItem {
     private String fechaHora;
-    private String ubicacion;
+    private String nombre;
+    private String descripcion;
     private Double lat;
     private Double lon;
 
-    public UbicacionItem(String fechaHora, String ubicacion, Double lat, Double lon) {
+    public UbicacionItem(String fechaHora, String nombre, String descripcion, Double lat, Double lon) {
         this.fechaHora = fechaHora;
-        this.ubicacion = ubicacion;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
         this.lat = lat;
         this.lon = lon;
     }
@@ -17,8 +19,12 @@ public class UbicacionItem {
         return fechaHora;
     }
 
-    public String getUbicacion() {
-        return ubicacion;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDescripcion(){
+        return descripcion;
     }
 
     public Double getLat() {

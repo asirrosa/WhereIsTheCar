@@ -6,7 +6,7 @@ android {
     namespace = "Main"
     defaultConfig {
         applicationId "com.UbiManager"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"

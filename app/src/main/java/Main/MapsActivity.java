@@ -97,7 +97,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                 recyclerBusqueda.setVisibility(RecyclerView.VISIBLE);
                 lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_back, null));
                 btnGuardarUbiManual.setVisibility(Button.INVISIBLE);
-                suggestApiCall(s.toString());
+                geocodingApiCall(s.toString());
                 SubCargarListaLocations cargar = new SubCargarListaLocations();
                 cargar.execute();
             }
@@ -116,7 +116,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.lupaFlecha:
                 txtInput.setText("");
                 lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_searchlocation, null));
-                btnGuardarUbiManual.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.button_background_cargar, null));
                 break;
             case R.id.btnGuardarUbiManual:
                 //todo tengo que llamar a Busqueda adapter
@@ -138,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void suggestApiCall(String text) {
+    private void geocodingApiCall(String text) {
         String tempUrl = "https://api.maptiler.com/geocoding/"+text+".json?autocomplete=true&limit=3&language=es&fuzzyMatch=true" +
                 "&key="+getString(R.string.maptiles_api_key);
         ArrayList<BusquedaItem> busquedaList = new ArrayList<>();
@@ -189,10 +188,10 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
         LocalDateTime startDateTime = LocalDateTime.now();
         //aqui tengo que añadir la latitud y la longitud
-        myDB.addUbicacion(startDateTime, busquedaItemGuardar.getNombre(), busquedaItemGuardar.getLat(), busquedaItemGuardar.getLon());
+        myDB.addUbicacion(startDateTime, busquedaItemGuardar.getNombre(), busquedaItemGuardar.getDescripcion(), busquedaItemGuardar.getLat(), busquedaItemGuardar.getLon());
     }
 
-    public void cambiarMapa(String text, Double lat, Double lon){
+    public void cambiarMapa(String nombre, String descripcion, Double lat, Double lon){
         //para cerrar el teclado
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -200,7 +199,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
-        busquedaItemGuardar = new BusquedaItem(text,"",lat,lon);
+        busquedaItemGuardar = new BusquedaItem(nombre,descripcion,lat,lon);
         recyclerBusqueda.setVisibility(RecyclerView.INVISIBLE);
         btnGuardarUbiManual.setVisibility(Button.VISIBLE);
         //esto falla por problemas con el conversor lat long 
@@ -209,7 +208,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(lat,lon)).zoom(17).build());
             mapboxMap.addMarker(new MarkerOptions()
                     .position(new LatLng(lat, lon))
-                    .title(text));
+                    .title(nombre));
         });
     }
 

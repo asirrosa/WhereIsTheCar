@@ -23,9 +23,20 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btnBuscar:
-
                 break;
 
             case R.id.btnGuardar:
@@ -115,15 +125,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         main = this;
         gps = new GPSTracker(this);
         //En primer lugar miras si el servicio esta habilitado
-        if (gps.isGPSEnabled && gps.isGPSPermissionEnabled) {
+        if (gps.isGPSAllowed && gps.isGPSEnabled) {
             if(gps.location != null) {
                 latitude = gps.location.getLatitude();
                 longitude = gps.location.getLongitude();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startDateTime = LocalDateTime.now();
-                }
+                startDateTime = LocalDateTime.now();
                 //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
-                if (gps.isNetworkEnabled) {
+                if (gps.isNetworkAvailable()) {
                     conConexion();
                 } else {
                     sinConexion();
@@ -133,66 +141,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 SubCargarGPS subCargarGPS = new SubCargarGPS();
                 subCargarGPS.execute();
             }
-        } else if (!gps.isGPSEnabled) {
+        } else if(!gps.isGPSEnabled){
             gps.showSettingsAlert();
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
-        } else if (!gps.isGPSPermissionEnabled) {
+        }
+        else{
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
         }
     }
 
-    private void sinConexion(){
-        AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
-        myDialog.setTitle("Modo sin conexión. Escribe el nombre de la ubicacion.");
-        txtAlert.setVisibility(TextView.INVISIBLE);
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        myDialog.setView(input);
-        myDialog.setPositiveButton("OK", (dialog, which) -> {
-            String address = input.getText().toString();
-            guardarEnDB(address);
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
-            txtAlert.setVisibility(TextView.VISIBLE);
-        });
-        myDialog.setNegativeButton("Cancel", (dialog, which) -> {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
-            txtAlert.setVisibility(TextView.INVISIBLE);
-            dialog.cancel();
-        });
-        myDialog.setCancelable(false);
-        myDialog.show();
+    public void sinConexion(){
+        SinConexionDialog exampleDialog = new SinConexionDialog();
+        exampleDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     /**
      * Metodo de llamada a la api en este caso de openweather para conseguir el nombre de la localidad donde se ha aparcado
      */
-    @SuppressLint("ResourceType")
-    public void conConexion() throws CustomException {
-        try {
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            if (geocoder != null) {
-                List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
-                if (list.size() > 0) {
-                    String address = list.get(0).getLocality();
-                    guardarEnDB(address);
-                } else {
-                    sinConexion();
-                }
-            } else {
-                throw new CustomException(geocoder);
-            }
-        } catch (CustomException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new CustomException(e);
-        }
+    public void conConexion() {
+        //lo hago de esta manera para que se vea bien que con conexion se hace esta llamada a la api
+        reverseGeocodingApiCall();
     }
-        /**
+
+    /**
+     * Metodo para conseguir el nombre de un sitio teniendo la longitud y la la latitud
+     */
+    public void reverseGeocodingApiCall() {
+        String tempUrl = "https://api.maptiler.com/geocoding/" + longitude + "," + latitude + ".json?language=es" +
+                "&key=" + getString(R.string.maptiles_api_key);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {
+            try {
+                JSONObject mainObject = new JSONObject(res);
+                JSONArray featuresArray = mainObject.getJSONArray("features");
+                for (int i = 0; i < 1; i++) {
+                    JSONObject iObject = featuresArray.getJSONObject(i);
+                    String placeName = iObject.getString("place_name_es");
+                    String name = "";
+                    String description = "";
+                    if (placeName.contains(",")) {
+                        String[] array = iObject.getString("place_name_es").split(",", 2);
+                        name = array[0];
+                        description = array[1];
+                    } else {
+                        name = placeName;
+                    }
+                    //para guardarlo en la base de datos
+                    guardarEnDB(name,description);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+            sinConexion();
+        });
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+    }
+
+    /**
      * Metodo para guardar la nueva ubicacion en la base de datos
      */
-    public void guardarEnDB(String address){
+    public void guardarEnDB(String nombre, String descripcion){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-        myDB.addUbicacion(startDateTime,address,latitude,longitude);
+        myDB.addUbicacion(startDateTime,nombre,descripcion,latitude,longitude);
         txtAlert.setVisibility(TextView.VISIBLE);
     }
 
@@ -231,10 +242,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
         @Override
         protected Void doInBackground(Void... params) {
-            while(true){
-                if(gps.location != null){
-                    break;
-                }
+            while(gps.location == null){
+                gps.getLocation();
             }
             return null;
         }

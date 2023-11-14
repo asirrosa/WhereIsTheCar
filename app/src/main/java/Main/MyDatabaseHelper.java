@@ -15,7 +15,8 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_NAME = "ubicaciones";
     private static final String COLUMN_ID = "ubicacion_id";
-    private static final String COLUMN_UBICACION = "ubicacion_nombre";
+    private static final String COLUMN_NOMBRE = "ubicacion_nombre";
+    private static final String COLUMN_DESCRIPCION = "ubicacion_descripción";
     private static final String COLUMN_DATE_TIME = "ubicacion_fecha_hora";
     private static final String COLUMN_LAT = "ubicacion_lat";
     private static final String COLUMN_LON = "ubicacion_lon";
@@ -33,7 +34,8 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         String query = "CREATE TABLE " + TABLE_NAME +
                         " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_DATE_TIME + " DATETIME, " +
-                        COLUMN_UBICACION + " TEXT, " +
+                        COLUMN_NOMBRE + " TEXT, " +
+                        COLUMN_DESCRIPCION + " TEXT, " +
                         COLUMN_LAT + " REAL, " +
                         COLUMN_LON + " REAL);";
         db.execSQL(query);
@@ -47,11 +49,12 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     /**
      * Metodo para añadir una nueva ubicacion a la base de datos
      */
-    public void addUbicacion(LocalDateTime startDateTime, String location, double lat, double lon){
+    public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(COLUMN_UBICACION,location);
-        cv.put(COLUMN_DATE_TIME,startDateTime.toString());
+        cv.put(COLUMN_NOMBRE,nombre);
+        cv.put(COLUMN_DESCRIPCION,descipcion);
+        cv.put(COLUMN_DATE_TIME,fechaHora.toString());
         cv.put(COLUMN_LAT, lat);
         cv.put(COLUMN_LON, lon);
         db.insert(TABLE_NAME,null, cv);

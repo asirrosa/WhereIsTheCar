@@ -10,8 +10,8 @@
 
     <Button
         android:id="@+id/btnBuscar"
-        android:layout_width="301dp"
-        android:layout_height="87dp"
+        android:layout_width="280dp"
+        android:layout_height="100dp"
         android:background="@drawable/button_guardar_click"
         android:text="Buscar ubicaciones"
         android:textColor="#000000"
@@ -41,8 +41,8 @@
 
     <Button
         android:id="@+id/btnGuardar"
-        android:layout_width="301dp"
-        android:layout_height="87dp"
+        android:layout_width="280dp"
+        android:layout_height="100dp"
         android:background="@drawable/button_guardar_click"
         android:text="Guardar ubi"
         android:textColor="#000000"

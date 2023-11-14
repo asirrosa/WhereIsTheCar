@@ -2,6 +2,8 @@ package Main;
 
 import static android.content.Context.LOCATION_SERVICE;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,6 +13,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.TextView;
@@ -23,14 +26,10 @@ public class GPSTracker implements LocationListener {
 
     // flag para el status del GPS
     boolean isGPSEnabled = false;
-    boolean isGPSPermissionEnabled = false;
-
     // flag para el status de la red
-    boolean isNetworkEnabled = false;
-
+    boolean isGPSAllowed = false;
     // Declaring a Location Manager
     public LocationManager locationManager;
-    private ConnectivityManager connectivityManager;
     Location location;
 
     public GPSTracker(Context context) {
@@ -44,20 +43,18 @@ public class GPSTracker implements LocationListener {
     public void getLocation() {
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            if (locationManager != null && connectivityManager != null) {
+            if (locationManager != null) {
                 isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                isNetworkEnabled = connectivityManager.getActiveNetworkInfo() != null;
                 if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                    ActivityCompat.requestPermissions(MainActivity.getInstance(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
                     MainActivity.getInstance().txtAlert.setText("Por favor dale los permisos de ubicación a la aplicación");
                     MainActivity.getInstance().txtAlert.setVisibility(TextView.VISIBLE);
                 } else {
-                    isGPSPermissionEnabled = true;
-                    // Conseguir la ubicación en caso de que el GPS este activado
+                    //cuando entra aqui ya sabemos que la aplicacion tiene permiso de gps
                     if (isGPSEnabled) {
+                        isGPSAllowed = true;
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this);
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
@@ -65,11 +62,17 @@ public class GPSTracker implements LocationListener {
                     }
                 }
             } else {
-                throw new CustomException(locationManager, connectivityManager);
+                throw new CustomException(locationManager);
             }
         } catch (CustomException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
@@ -91,9 +94,7 @@ public class GPSTracker implements LocationListener {
 
     //Metodos propios de LocationListener
     @Override
-    public void onLocationChanged(Location location) {
-        this.location = location;
-    }
+    public void onLocationChanged(Location location){}
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {}
     @Override

@@ -52,6 +52,7 @@ public class BusquedaAdapter extends RecyclerView.Adapter<BusquedaAdapter.Busque
 
             cardView.setOnClickListener(view -> {
                 mapsActivity.cambiarMapa(ubicacion_nombre.getText().toString(),
+                        ubicacion_descripcion.getText().toString(),
                         Double.parseDouble(ubicacion_lat.getText().toString()),
                         Double.parseDouble(ubicacion_lon.getText().toString()));
             });
