@@ -94,7 +94,9 @@ public class GPSTracker implements LocationListener {
 
     //Metodos propios de LocationListener
     @Override
-    public void onLocationChanged(Location location){}
+    public void onLocationChanged(Location location){
+        this.location = location;
+    }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {}
     @Override

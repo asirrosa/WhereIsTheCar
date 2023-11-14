@@ -1,7 +1,10 @@
 package Main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +23,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -70,10 +75,6 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
         itemAddLocation = menu.findItem(R.id.add_location);
         itemAddLocation.setOnMenuItemClickListener(this);
-
-        if(!geoCodeAPIOK()){
-            itemAddLocation.setVisible(false);
-        }
         return true;
     }
 
@@ -100,21 +101,28 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 break;
 
             case R.id.add_location:
-                confirmDialogAddLocation();
+                if(isNetworkAvailable()){
+                    confirmDialogAddLocation();
+                }
+                else{
+                    confirmDialogNoInternetNoApiRes();
+                }
                 break;
         }
         return false;
     }
 
-    public boolean geoCodeAPIOK(){
-        AtomicBoolean result = new AtomicBoolean(true);
-        String tempUrl = "https://geocode.maps.co/search?q={world}";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, tempUrl, res -> {}, error -> {
-            result.set(false);
-        });
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestQueue.add(stringRequest);
-        return result.get();
+    private void confirmDialogNoInternetNoApiRes() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Se necesita conexión a internet para esta funcionalidad");
+        builder.setPositiveButton("OK", (dialogInterface, i) -> {});
+        builder.create().show();
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
@@ -127,7 +135,6 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
             myDB.deleteAllData();
-            //Refresh Activity
             Intent intent = new Intent(getApplicationContext(), MainActivity.getInstance().getClass());
             startActivity(intent);
             finish();

@@ -56,7 +56,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
     Button btnGuardarUbiManual;
     MapView mapView;
-    ProgressBar progressBarLocations;
     BusquedaAdapter busquedaAdapter;
     BusquedaItem busquedaItemGuardar;
     RecyclerView recyclerBusqueda;
@@ -74,8 +73,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         recyclerBusqueda = findViewById(R.id.recyclerBusqueda);
 
-        /*progressBarLocations = findViewById(R.id.progressBarLocations);*/
-
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
 
@@ -86,21 +83,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
             mapboxMap.setStyle("https://api.maptiler.com/maps/streets-v2/style.json?key="+getString(R.string.maptiles_api_key));
             mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
         });
-
-        /*txtInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(s.length() == 0){
-                    storeDataInArrays(false);
-                }
-            }
-        });*/
     }
 
     /**
@@ -120,10 +102,6 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()){
- /*           case R.id.lupaFlecha:
-                txtInput.setText("");
-                lupaFlecha.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_searchlocation, null));
-                break;*/
             case R.id.btnGuardarUbiManual:
                 //todo tengo que llamar a Busqueda adapter
                 guardarEnDB();

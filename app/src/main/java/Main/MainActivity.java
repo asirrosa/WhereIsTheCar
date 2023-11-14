@@ -46,9 +46,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //texto para mostrar distintos mensajes en pantalla
     TextView txtAlert;
 
-    //circulo de carga
-    ProgressBar progressBar;
-
     //boton para guardar la ubicacion
     Button btnGuardar,btnLista,btnBuscar;
 
@@ -82,15 +79,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //texto que muestra mensajes para el usuario
         txtAlert = findViewById(R.id.txtAlert);
 
-        //barra de carga
-        progressBar = findViewById(R.id.progressBar);
-
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
         //esta linea necesaria para que funcione el onClick
         btnGuardar.setOnClickListener(this);
 
-        btnBuscar = findViewById(R.id.btnBuscar);
+        btnBuscar = findViewById(R.id.btnNavegar);
         btnBuscar.setOnClickListener(this);
 
         //El botón de la lista de ubicaciones
@@ -101,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view){
         switch (view.getId()){
-            case R.id.btnBuscar:
+            case R.id.btnNavegar:
                 break;
 
             case R.id.btnGuardar:
@@ -211,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Metodo para actualizar el layout principal, se utiliza para ver que algo esta cargando, se ha cargado...
      */
     public void actualizacionesLayout(int visibility, int drawable, boolean guardar){
-        progressBar.setVisibility(visibility);
         btnGuardar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
         btnGuardar.setEnabled(guardar);
     }
@@ -243,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected Void doInBackground(Void... params) {
             while(gps.location == null){
+                gps.onLocationChanged(gps.location);
                 gps.getLocation();
             }
             return null;
