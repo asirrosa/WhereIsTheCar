@@ -2,8 +2,6 @@ package Main;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +31,7 @@ public class SinConexionDialog extends AppCompatDialogFragment{
         builder.setView(view)
                 .setTitle("Modo Sin Conexión")
                 .setNegativeButton("cancel", (dialogInterface, i) -> {
-                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
+                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
                     MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
                 })
                 .setCancelable(false)

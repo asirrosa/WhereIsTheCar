@@ -28,6 +28,7 @@
         <activity
             android:name=".ListActivity"
             android:label="Ubicaciones"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
 

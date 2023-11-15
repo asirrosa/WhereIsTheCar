@@ -15,7 +15,7 @@
         android:id="@+id/recyclerBusqueda"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/white_border"
+        android:background="@drawable/white_background_autocomplete_suggestions"
         android:visibility="invisible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +45,7 @@
             android:layout_marginTop="100dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="40dp"
-            android:background="@drawable/button_guardar_click"
+            android:background="@drawable/button_main_click"
             android:gravity="center"
             android:text="Guardar"
             android:textColor="#000000"

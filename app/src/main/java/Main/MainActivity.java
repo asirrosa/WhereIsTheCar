@@ -1,25 +1,15 @@
 package Main;
 
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -32,14 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.sql.Time;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -139,10 +122,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if(!gps.isGPSEnabled){
             gps.showSettingsAlert();
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
         }
         else{
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
         }
     }
 
@@ -229,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
         @Override
         protected void onPreExecute() {
-            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_background_cargar, false);
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background, false);
             txtAlert.setVisibility(TextView.VISIBLE);
             txtAlert.setText("El gps esta arrancando...");
             super.onPreExecute();
@@ -248,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_guardar_click, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
             txtAlert.setVisibility(TextView.INVISIBLE);
             txtAlert.setText("Se ha guardado la ubi!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
