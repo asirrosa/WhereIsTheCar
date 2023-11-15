@@ -31,11 +31,17 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
-
         <activity
             android:name=".MapsActivity"
             android:label="Añadir ubicación manualmente"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".HelpActivity"
+            android:label="Ayuda"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

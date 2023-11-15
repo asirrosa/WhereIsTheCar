@@ -4,6 +4,9 @@ package Main;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -24,7 +27,7 @@ import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     //texto para mostrar distintos mensajes en pantalla
     TextView txtAlert;
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LocalDateTime startDateTime;
     private double latitude,longitude;
     GPSTracker gps;
+    MenuItem itemHelp;
 
     //Singleton
     private static MainActivity main = null;
@@ -78,6 +82,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        itemHelp = menu.findItem(R.id.help);
+        itemHelp.setOnMenuItemClickListener(this);
+
+        return true;
+    }
+
+    @Override
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btnNavegar:
@@ -95,6 +110,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 listaUbicaciones(view);
                 break;
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.help:
+                Intent intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                break;
+        }
+
+        return false;
     }
 
     /**

@@ -31,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -95,6 +96,22 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
 
         itemSearch = menu.findItem(R.id.searchBusqueda);
         itemSearch.setOnMenuItemClickListener(this);
+
+        itemSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                mapView.getMapAsync(mapboxMap -> {
+                    mapboxMap.setStyle("https://api.maptiler.com/maps/streets-v2/style.json?key="+getString(R.string.maptiles_api_key));
+                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
+                });
+                return true;
+            }
+        });
 
         return true;
     }
