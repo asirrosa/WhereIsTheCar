@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6D9773</color>
-    <color name="colorPrimaryDark">#0C3B2E</color>
-    <color name="colorAccent">#9bb567</color>
+
+    <!--LightMode-->
+    <color name="toolbarLight">#6D9773</color>
+    <color name="notificacionLight">#0C3B2E</color>
+    <color name="screenLight">#21845e</color>
+    <color name="primaryButtonLight">#dd6142</color>
+    <color name="secondaryButtonLight">#27cfe5</color>
+
+    <!--DarkMode-->
+    <color name="toolbarDark">#4616cc</color>
+    <color name="notificationsDark">#06064f</color>
+    <color name="screenDark">#3F51B5</color>
+    <color name="primaryButtonDark">#299b79</color>
+    <color name="secondaryButtonDark">#cc6d1a</color>
+
+    <!--OtherColors-->
+    <color name="yellow">#d8ce02</color>
     <color name="white">#FFFFFF</color>
-    <color name="textColor">#000000</color>
-    <color name="mainButton">#299b79</color>
+    <color name="black">#000000</color>
+    <color name="greyish">#302c2b</color>
+
+
 </resources>

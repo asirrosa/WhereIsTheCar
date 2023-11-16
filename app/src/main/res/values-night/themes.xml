@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Dark application theme. -->
+    <style name="Theme.DarkModeExample" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/toolbarDark</item>
+        <item name="colorPrimaryDark">@color/notificationsDark</item>
+        <item name="android:windowBackground">@color/screenDark</item>
+    </style>
+
+    <style name="MainButtonMain">
+        <item name="android:background">@drawable/button_main_click_dark</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="SecondaryButtonMain">
+        <item name="android:background">@drawable/button_secondary_click_dark</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="ProgressBarMain">
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateTint">@color/secondaryButtonDark</item>
+    </style>
+
+    <style name="TextViewMain">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">25dp</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="CardViewList">
+        <item name="android:backgroundTint">@color/black</item>
+    </style>
+
+    <style name="ImageViewList">
+        <item name="android:background">@drawable/ic_location_dark</item>
+    </style>
+
+    <style name="TextViewList">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Separator">
+        <item name="android:background">@color/white</item>
+    </style>
+
+</resources>

@@ -11,8 +11,8 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/CardViewList"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground"
         card_view:cardUseCompatPadding="true">
 
         <LinearLayout
@@ -39,18 +39,17 @@
                         android:id="@+id/imageView2"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:background="@drawable/ic_location" />
+                        style="@style/ImageViewList"/>
 
                     <TextView
                         android:id="@+id/ubicacion_nombre"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        style="@style/TextViewList"
                         android:textAlignment="textStart"
                         android:text="Nombre"
-                        android:textColor="#000"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
+
                         tools:ignore="RtlCompat" />
 
                 </LinearLayout>
@@ -58,24 +57,22 @@
                 <TextView
                     android:id="@+id/ubicacion_desc"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:textAlignment="textStart"
                     android:gravity="center"
                     android:text="Descripción"
-                    android:textColor="#000"
-                    android:textSize="20sp"
+                    style="@style/TextViewList"
                     tools:ignore="RtlCompat" />
 
             </LinearLayout>
 
             <TextView
                 android:id="@+id/line"
-                style="?android:dividerVertical"
                 android:paddingTop="5dip"
                 android:gravity="center_vertical"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#000" />
+                style="@style/Separator" />
 
             <TextView
                 android:id="@+id/ubicacion_fecha_hora"
@@ -87,9 +84,7 @@
                 android:layout_marginHorizontal="4dp"
                 android:gravity="center"
                 android:text="Fecha/hora"
-                android:textColor="#000"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                style="@style/TextViewList"
                 tools:ignore="RtlCompat" />
             <TextView
                 android:id="@+id/ubicacion_lat"
