@@ -8,18 +8,6 @@
     tools:context="Main.MainActivity">
 
     <Button
-        android:id="@+id/btnNavegar"
-        android:layout_width="280dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="50dp"
-        android:gravity="center"
-        android:text="Navegar"
-        style="@style/MainButtonMain"
-        app:layout_constraintBottom_toTopOf="@+id/btnGuardar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
         android:id="@+id/btnLista"
         android:layout_width="188dp"
         android:layout_height="56dp"
@@ -35,11 +23,10 @@
         android:id="@+id/btnGuardar"
         android:layout_width="280dp"
         android:layout_height="100dp"
-        android:layout_marginBottom="50dp"
         android:gravity="center"
         android:text="Guardar ubi"
         style="@style/MainButtonMain"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnLista"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

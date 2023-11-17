@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //texto para mostrar distintos mensajes en pantalla
     TextView txtAlert;
     //boton para guardar la ubicacion
-    Button btnGuardar,btnLista,btnBuscar;
+    Button btnGuardar,btnLista;
     ProgressBar progressBar;
     private LocalDateTime startDateTime;
     private double latitude,longitude;
@@ -74,9 +74,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //esta linea necesaria para que funcione el onClick
         btnGuardar.setOnClickListener(this);
 
-        btnBuscar = findViewById(R.id.btnNavegar);
-        btnBuscar.setOnClickListener(this);
-
         //El botón de la lista de ubicaciones
         btnLista = findViewById(R.id.btnLista);
         btnLista.setOnClickListener(this);
@@ -112,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view){
         switch (view.getId()){
-            case R.id.btnNavegar:
-                break;
-
             case R.id.btnGuardar:
                 try {
                     añadirUbicacion();
