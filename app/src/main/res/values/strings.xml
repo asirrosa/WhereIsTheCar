@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">UbiManager</string>
-
     <string name="mapbox_sdk_registry_token">sk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbzIzNzhuMjdndjJrbnZ3Zmh1NzNzMCJ9.qvbHSaqnE8Gi8rjubAu1kg</string>
     <string name="mapbox_access_token">pk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbGFyaXA0MmJqNDJqbWVrbW16dW9meCJ9.sqdWDtlJnGBeBu9FyCK-mg</string>
     <string name="maptiles_api_key">SARii5cAjICSk5ztI06K</string>
