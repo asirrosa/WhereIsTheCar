@@ -9,26 +9,12 @@ Utiliza el servicio de ubicación predeterminado de android asi como una API lla
 
 <br/><br/>
 <p align="center">
-  <ins>Pantalla principal de la aplicación</ins>
+  <ins>Capturas de la aplicación</ins>
 </p>
 
 <p align="center">
-  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/88f1e5c6-3e45-45e3-8b8c-f2a6021a03b6" width="400" height="800" />
+  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/88f1e5c6-3e45-45e3-8b8c-f2a6021a03b6" width="300" height="600" />
+  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/2ee79463-a4ed-4c77-a952-746efd4c1def" width="300" height="600" />
+   <img src="https://github.com/asirrosa/UbiManager/assets/143890605/84285466-bc12-49e3-a52e-1467b33b81a7" width="300" height="600" />
 </p>
 
-<br/><br/>
-<p align="center">
-  <ins>Pantalla con la lista de ubicaciones</ins>
-</p>
-<p align="center">
-  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/2ee79463-a4ed-4c77-a952-746efd4c1def" width="400" height="800" />
-</p>
-
-<br/><br/>
-<p align="center">
-  <ins>Pantalla para meter una ubicacion de manera manual</ins>
-</p>
-
-<p align="center">
-  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/84285466-bc12-49e3-a52e-1467b33b81a7" width="400" height="800" />
-</p>
