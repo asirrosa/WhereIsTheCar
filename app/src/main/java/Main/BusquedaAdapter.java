@@ -2,8 +2,10 @@ package Main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
@@ -55,6 +57,7 @@ public class BusquedaAdapter extends RecyclerView.Adapter<BusquedaAdapter.Busque
                         ubicacion_descripcion.getText().toString(),
                         Double.parseDouble(ubicacion_lat.getText().toString()),
                         Double.parseDouble(ubicacion_lon.getText().toString()));
+
             });
         }
     }

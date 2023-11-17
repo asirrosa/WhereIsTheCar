@@ -180,10 +180,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if(!gps.isGPSEnabled){
             gps.showSettingsAlert();
+            originalColors();
+        }
+        else{
+            originalColors();
+        }
+    }
+
+    private void originalColors(){
+        MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
+        if(myDB.notDarkMode()){
             actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
         }
         else{
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_dark, true);
         }
     }
 
@@ -270,7 +280,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
         @Override
         protected void onPreExecute() {
-            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_light, false);
+            MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
+            if(myDB.notDarkMode()){
+                actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_light, false);
+            }
+            else{
+                actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_dark, false);
+            }
             txtAlert.setVisibility(TextView.VISIBLE);
             txtAlert.setText("El gps esta arrancando...");
             super.onPreExecute();
@@ -289,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
+            originalColors();
             txtAlert.setVisibility(TextView.INVISIBLE);
             txtAlert.setText("Se ha guardado la ubi!");
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();

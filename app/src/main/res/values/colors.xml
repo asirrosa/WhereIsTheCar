@@ -20,6 +20,8 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="greyish">#302c2b</color>
+    <color name="greyLight">#a5a5a5</color>
+    <color name="greyDark">#424141</color>
 
 
 </resources>

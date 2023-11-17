@@ -36,8 +36,7 @@
         <item name="android:textStyle">italic</item>
     </style>
 
-    <style name="CardViewList">
-        <item name="android:backgroundTint">@color/white</item>
+    <style name="CardViewList">app:cardBackgroundColor="@color/greyDark"
     </style>
     
     <style name="ImageViewList">
