@@ -4,13 +4,10 @@
 </p>
 
 
-## Aplicación de android para guardar ubicaciones, al pulsar el botón se guarda la ubicación actual junto con una lista de las ubicaciones previamente guardadas.
-Utiliza el servicio de ubicación predeterminado de android asi como una API llamada [Geocoding](https://www.maptiler.com/cloud/geocoding/) para obtener la dirección de donde estás haciendo uso de la latitud y la longitud. En caso de no tener conexión a Internet permite que el usuario guarde un pequeño texto para asignarle una dirección o un nombre significativo a la ubicacion. Además de esto para meter ubicaciones manualmente se hace uso de una API llamada [Geocoding](https://www.maptiler.com/cloud/geocoding/) que devuelve las primeras 5 busquedas.
+## What Is UbiManager
+Well hello there, UbiManager is a simple Android app made using the [Geocoding API](https://www.maptiler.com/cloud/geocoding/) for saving locations. Currently the apps language is spanish, although in the future the idea is to implement more languages, if you find it interesting you can build the application yourself using [Android Studio](https://developer.android.com/studio), or if you want to implement some of the code in your app feel free to use it.
 
 <br/><br/>
-<p align="center">
-  <ins>Capturas de la aplicación</ins>
-</p>
 
 <p align="center">
   <img src="https://github.com/asirrosa/UbiManager/assets/143890605/88f1e5c6-3e45-45e3-8b8c-f2a6021a03b6" width="300" height="600" />
