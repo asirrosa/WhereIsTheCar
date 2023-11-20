@@ -70,15 +70,15 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
-        String addUbicacion = "INSERT INTO TABLE" + TABLE_NAME_UBICACION +
+        String addUbicacion = "INSERT INTO " + TABLE_NAME_UBICACION +
                 "(" + COLUMN_UBICACION_DATE_TIME + "," +
                 COLUMN_UBICACION_NOMBRE + "," +
                 COLUMN_UBICACION_DESCRIPCION + "," +
                 COLUMN_UBICACION_LAT + "," +
-                COLUMN_UBICACION_LON + ") VALUES" +
-                "(" + fechaHora.toString() + "," +
-                nombre + "," +
-                descipcion + "," +
+                COLUMN_UBICACION_LON + ") VALUES " +
+                "('" + fechaHora.toString() + "'," +
+                "'" + nombre + "'," +
+                "'" + descipcion + "'," +
                 lat + "," +
                 lon + ");";
 
@@ -126,9 +126,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void changeDarkMode(int value){
         SQLiteDatabase db = this.getWritableDatabase();
-        String changeDarkMode = "UPDATE" + TABLE_NAME_DARKMODE +
-                "SET" + COLUMN_DARKMODE_VALUE + "=" + value +
-                "WHERE" + COLUMN_DARKMODE_ID + "= 1;";
+        String changeDarkMode = "UPDATE " + TABLE_NAME_DARKMODE +
+                " SET " + COLUMN_DARKMODE_VALUE + "=" + value +
+                " WHERE " + COLUMN_DARKMODE_ID + "= 1;";
         db.execSQL(changeDarkMode);
     }
 }

@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -27,6 +28,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SearchView;
@@ -43,6 +45,8 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLngQuad;
 import com.mapbox.mapboxsdk.geometry.LatLngSpan;
 import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class MapsActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     Button btnGuardarUbiManual;
     MapView mapView;
@@ -66,24 +70,25 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //esta linea importante porque sino no inicializa el mapa
-        Mapbox.getInstance(getApplicationContext(),getString(R.string.mapbox_access_token));
+        Mapbox.getInstance(this,getString(R.string.mapbox_access_token));
         setContentView(R.layout.maps_layout);
-
         no_data = findViewById(R.id.no_data);
-
         recyclerBusqueda = findViewById(R.id.recyclerBusqueda);
-
         btnGuardarUbiManual = findViewById(R.id.btnGuardarUbiManual);
         btnGuardarUbiManual.setOnClickListener(this);
 
         //para mostrar el mapa
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(mapboxMap -> {
-            mapboxMap.setStyle("https://api.maptiler.com/maps/streets-v2/style.json?key="+getString(R.string.maptiles_api_key));
-            mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(40.416775,-3.703790)).zoom(3.5).build());
-        });
+        mapView.getMapAsync(this);
+        /*mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                        .target(new LatLng(40.416775,-3.703790))
+                        .zoom(3.5).build());
+            }
+        });*/
     }
 
     /**
@@ -241,5 +246,10 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
                     .position(new LatLng(lat, lon))
                     .title(nombre));
         });
+    }
+
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+
     }
 }
