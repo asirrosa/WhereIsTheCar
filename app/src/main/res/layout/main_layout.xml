@@ -20,6 +20,18 @@
         app:layout_constraintTop_toBottomOf="@id/txtAlert" />
 
     <Button
+        android:id="@+id/btnNavegar"
+        android:layout_width="280dp"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:text="Navegar"
+        style="@style/MainButtonMain"
+        app:layout_constraintBottom_toTopOf="@+id/btnGuardar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/btnGuardar"
         android:layout_width="280dp"
         android:layout_height="100dp"

@@ -54,9 +54,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(queryDarkMode);
 
         //le meto esto para que al principio el dark sea 0 es decir false
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_DARKMODE_VALUE, 0);
-        db.insert(TABLE_NAME_DARKMODE, null, cv);
+        String queryInicialDarkMode = "INSERT INTO TABLE" + TABLE_NAME_DARKMODE +
+                "(" + COLUMN_DARKMODE_VALUE + ") VALUES" + "(0);";
+        db.execSQL(queryInicialDarkMode);
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
@@ -70,13 +70,19 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_UBICACION_NOMBRE,nombre);
-        cv.put(COLUMN_UBICACION_DESCRIPCION,descipcion);
-        cv.put(COLUMN_UBICACION_DATE_TIME,fechaHora.toString());
-        cv.put(COLUMN_UBICACION_LAT, lat);
-        cv.put(COLUMN_UBICACION_LON, lon);
-        db.insert(TABLE_NAME_UBICACION,null, cv);
+        String addUbicacion = "INSERT INTO TABLE" + TABLE_NAME_UBICACION +
+                "(" + COLUMN_UBICACION_DATE_TIME + "," +
+                COLUMN_UBICACION_NOMBRE + "," +
+                COLUMN_UBICACION_DESCRIPCION + "," +
+                COLUMN_UBICACION_LAT + "," +
+                COLUMN_UBICACION_LON + ") VALUES" +
+                "(" + fechaHora.toString() + "," +
+                nombre + "," +
+                descipcion + "," +
+                lat + "," +
+                lon + ");";
+
+        db.execSQL(addUbicacion);
     }
 
     /**
@@ -120,8 +126,9 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void changeDarkMode(int value){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_DARKMODE_VALUE, value);
-        db.update(TABLE_NAME_DARKMODE, cv, COLUMN_DARKMODE_ID + " = 1;", null);
+        String changeDarkMode = "UPDATE" + TABLE_NAME_DARKMODE +
+                "SET" + COLUMN_DARKMODE_VALUE + "=" + value +
+                "WHERE" + COLUMN_DARKMODE_ID + "= 1;";
+        db.execSQL(changeDarkMode);
     }
 }

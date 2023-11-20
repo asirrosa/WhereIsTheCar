@@ -67,7 +67,7 @@ public class MapsActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //esta linea importante porque sino no inicializa el mapa
-        Mapbox.getInstance(this);
+        Mapbox.getInstance(getApplicationContext(),getString(R.string.mapbox_access_token));
         setContentView(R.layout.maps_layout);
 
         no_data = findViewById(R.id.no_data);

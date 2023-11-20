@@ -4,5 +4,5 @@
     <corners android:topLeftRadius="10dp"
         android:bottomRightRadius="10dp">
     </corners>
-    <stroke android:color="@color/common_google_signin_btn_text_dark_focused" android:width="4dp"></stroke>
+    <stroke android:color="@color/black" android:width="4dp"></stroke>
 </shape>

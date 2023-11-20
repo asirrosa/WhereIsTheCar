@@ -29,6 +29,12 @@
         </activity>
 
         <activity
+            android:name=".NavigationActivity"
+            android:label="Navigation"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".ListActivity"
             android:label="Ubicaciones"
             android:parentActivityName=".MainActivity"
@@ -38,6 +44,7 @@
             android:name=".MapsActivity"
             android:label="Añadir ubicación manualmente"
             android:screenOrientation="portrait" />
+
 
         <activity
             android:name=".HelpActivity"
