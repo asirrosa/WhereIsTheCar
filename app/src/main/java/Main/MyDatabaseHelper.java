@@ -54,8 +54,8 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(queryDarkMode);
 
         //le meto esto para que al principio el dark sea 0 es decir false
-        String queryInicialDarkMode = "INSERT INTO TABLE" + TABLE_NAME_DARKMODE +
-                "(" + COLUMN_DARKMODE_VALUE + ") VALUES" + "(0);";
+        String queryInicialDarkMode = "INSERT INTO " + TABLE_NAME_DARKMODE +
+                "(" + COLUMN_DARKMODE_VALUE + ") VALUES " + "(0);";
         db.execSQL(queryInicialDarkMode);
     }
     @Override

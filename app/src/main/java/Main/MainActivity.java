@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,16 +31,13 @@ import java.time.LocalDateTime;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
-    //texto para mostrar distintos mensajes en pantalla
-    TextView txtAlert;
     //boton para guardar la ubicacion
-    Button btnNavegar,btnGuardar,btnLista;
+    Button btnNavegar,btnGuardar;
+    FloatingActionButton btnLista;
     ProgressBar progressBar;
-    private LocalDateTime startDateTime;
     private double latitude,longitude;
     GPSTracker gps;
     MenuItem itemHelp;
-    MenuItem itemMode;
 
     //Singleton
     private static MainActivity main = null;
@@ -66,9 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         progressBar = findViewById(R.id.progressBar);
 
-        //texto que muestra mensajes para el usuario
-        txtAlert = findViewById(R.id.txtAlert);
-
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);
         //esta linea necesaria para que funcione el onClick
@@ -87,24 +82,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        itemMode = menu.findItem(R.id.mode);
-        itemMode.setOnMenuItemClickListener(this);
-
         itemHelp = menu.findItem(R.id.help);
         itemHelp.setOnMenuItemClickListener(this);
-
-        //darkmode
-        MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-        if(myDB.notDarkMode()){
-            itemMode.setIcon(R.drawable.ic_dark);
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            getDelegate().applyDayNight();
-        }
-        else{
-            itemMode.setIcon(R.drawable.ic_light);
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            getDelegate().applyDayNight();
-        }
 
         return true;
     }
@@ -133,21 +112,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.mode:
-                MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-                if(myDB.notDarkMode()){
-                    itemMode.setIcon(R.drawable.ic_light);
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    getDelegate().applyDayNight();
-                    myDB.changeDarkMode(1);
-                }
-                else{
-                    itemMode.setIcon(R.drawable.ic_dark);
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    getDelegate().applyDayNight();
-                    myDB.changeDarkMode(0);
-                }
-                break;
             case R.id.help:
                 Intent intent = new Intent(this, HelpActivity.class);
                 startActivity(intent);
@@ -167,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(gps.location != null) {
                 latitude = gps.location.getLatitude();
                 longitude = gps.location.getLongitude();
-                startDateTime = LocalDateTime.now();
                 //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
                 if (gps.isNetworkAvailable()) {
                     conConexion();
@@ -181,20 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if(!gps.isGPSEnabled){
             gps.showSettingsAlert();
-            originalColors();
-        }
-        else{
-            originalColors();
-        }
-    }
-
-    private void originalColors(){
-        MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-        if(myDB.notDarkMode()){
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
-        }
-        else{
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_dark, true);
         }
     }
 
@@ -251,8 +200,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void guardarEnDB(String nombre, String descripcion){
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
+        LocalDateTime startDateTime = LocalDateTime.now();
         myDB.addUbicacion(startDateTime,nombre,descripcion,latitude,longitude);
-        txtAlert.setVisibility(TextView.VISIBLE);
+        Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -270,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void listaUbicaciones(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
-        view.postDelayed(() -> txtAlert.setVisibility(TextView.INVISIBLE), 100);
     }
 
     /**
@@ -282,14 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-            if(myDB.notDarkMode()){
-                actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_light, false);
-            }
-            else{
-                actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_dark, false);
-            }
-            txtAlert.setVisibility(TextView.VISIBLE);
-            txtAlert.setText("El gps esta arrancando...");
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_dark, false);
             super.onPreExecute();
         }
 
@@ -306,9 +248,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            originalColors();
-            txtAlert.setVisibility(TextView.INVISIBLE);
-            txtAlert.setText("Se ha guardado la ubi!");
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
             super.onPostExecute(unused);
         }

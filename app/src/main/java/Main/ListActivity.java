@@ -150,7 +150,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         builder.setTitle("¿Añadir ubicacion manualmente?");
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
-            Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+            Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
             startActivity(intent);
             finish();
         });

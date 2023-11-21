@@ -41,10 +41,9 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".SearchActivity"
             android:label="Añadir ubicación manualmente"
             android:screenOrientation="portrait" />
-
 
         <activity
             android:name=".HelpActivity"

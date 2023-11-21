@@ -2,9 +2,9 @@
 <resources>
 
     <!--LightMode-->
-    <color name="toolbarLight">#6D9773</color>
-    <color name="notificacionLight">#0C3B2E</color>
-    <color name="screenLight">#21845e</color>
+    <color name="toolbarLight">#DB504A</color>
+    <color name="notificacionLight">#4F6D7A</color>
+    <color name="screenLight">#084C61</color>
     <color name="primaryButtonLight">#dd6142</color>
     <color name="secondaryButtonLight">#27cfe5</color>
 

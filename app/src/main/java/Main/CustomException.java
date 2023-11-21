@@ -14,7 +14,6 @@ public class CustomException extends Exception {
         if(locationManager == null){
              Toast.makeText(MainActivity.getInstance(), "Comprueba el servicio GPS", Toast.LENGTH_SHORT).show();
              MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
-             MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
         }
     }
     public CustomException(Geocoder geocoder){

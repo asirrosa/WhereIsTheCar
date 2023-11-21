@@ -21,6 +21,8 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -69,6 +71,13 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(59.31, 18.06))
+                .zoom(10)
+                .tilt(20)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {

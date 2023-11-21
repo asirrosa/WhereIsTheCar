@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,84 +9,71 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        style="@style/CardViewList"
+        android:layout_marginBottom="5dp"
         android:layout_width="match_parent"
-
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        card_view:cardUseCompatPadding="true">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:divider="?android:dividerVertical"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
+                <ImageView
+                    android:id="@+id/imageView2"
+                    style="@style/ImageViewList"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical" />
 
                 <LinearLayout
-                    android:layout_width="170dp"
-                    android:layout_height="50dp"
-                    android:orientation="horizontal"
-                    android:layout_marginVertical="4dp"
-                    android:gravity="center">
-
-                    <ImageView
-                        android:id="@+id/imageView2"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        style="@style/ImageViewList"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/ubicacion_nombre"
+                        style="@style/TextViewList"
+                        android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        style="@style/TextViewList"
-                        android:textAlignment="textStart"
-                        android:text="Nombre"
+                        android:text="Nombre" />
 
-                        tools:ignore="RtlCompat" />
+
+                    <TextView
+                        android:id="@+id/ubicacion_desc"
+                        style="@style/TextViewList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Descripción"
+                        android:textAlignment="textStart" />
 
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/ubicacion_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="textStart"
-                    android:gravity="center"
-                    android:text="Descripción"
-                    style="@style/TextViewList"
-                    tools:ignore="RtlCompat" />
 
             </LinearLayout>
 
             <TextView
                 android:id="@+id/line"
-                android:paddingTop="5dip"
-                android:gravity="center_vertical"
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                style="@style/Separator" />
+                style="@style/Separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:gravity="center_vertical" />
 
             <TextView
                 android:id="@+id/ubicacion_fecha_hora"
+                style="@style/TextViewList"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:textAlignment="textStart"
-                android:layout_marginVertical="4dp"
-                android:paddingHorizontal="10dp"
-                android:layout_marginHorizontal="4dp"
                 android:gravity="center"
+                android:paddingHorizontal="10dp"
                 android:text="Fecha/hora"
-                style="@style/TextViewList"
+                android:textAlignment="textStart"
                 tools:ignore="RtlCompat" />
+
             <TextView
                 android:id="@+id/ubicacion_lat"
                 android:layout_width="0dp"

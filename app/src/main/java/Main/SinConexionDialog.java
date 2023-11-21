@@ -32,7 +32,6 @@ public class SinConexionDialog extends AppCompatDialogFragment{
                 .setTitle("Modo Sin Conexión")
                 .setNegativeButton("cancel", (dialogInterface, i) -> {
                     MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
-                    MainActivity.getInstance().txtAlert.setVisibility(TextView.INVISIBLE);
                 })
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialogInterface, i) -> {
