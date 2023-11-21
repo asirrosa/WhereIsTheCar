@@ -22,11 +22,6 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_UBICACION_LAT = "ubicacion_lat";
     private static final String COLUMN_UBICACION_LON = "ubicacion_lon";
 
-    //tabla darkmode
-    private static final String TABLE_NAME_DARKMODE = "darkmode";
-    private static final String COLUMN_DARKMODE_ID = "dark_id";
-    private static final String COLUMN_DARKMODE_VALUE = "dark_value";
-
 
     MyDatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,22 +41,10 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_UBICACION_LON + " REAL);";
 
         db.execSQL(queryUbicacion);
-
-        String queryDarkMode = "CREATE TABLE " + TABLE_NAME_DARKMODE +
-                " (" + COLUMN_DARKMODE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_DARKMODE_VALUE + " BOOLEAN);";
-
-        db.execSQL(queryDarkMode);
-
-        //le meto esto para que al principio el dark sea 0 es decir false
-        String queryInicialDarkMode = "INSERT INTO " + TABLE_NAME_DARKMODE +
-                "(" + COLUMN_DARKMODE_VALUE + ") VALUES " + "(0);";
-        db.execSQL(queryInicialDarkMode);
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_UBICACION);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_DARKMODE);
         onCreate(db);
     }
 
@@ -104,31 +87,5 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     public void deleteAllData(){
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME_UBICACION);
-    }
-
-    public boolean notDarkMode(){
-        boolean result = false;
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_DARKMODE_VALUE + " FROM " + TABLE_NAME_DARKMODE + " WHERE " + COLUMN_DARKMODE_ID + " = 1;";
-        Cursor cursor = null;
-        if(db != null){
-            cursor = db.rawQuery(query, null);
-            cursor.moveToNext();
-            if(cursor.getInt(0) == 0){
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Metodo para cambiar el valor de la columna darkMode
-     */
-    public void changeDarkMode(int value){
-        SQLiteDatabase db = this.getWritableDatabase();
-        String changeDarkMode = "UPDATE " + TABLE_NAME_DARKMODE +
-                " SET " + COLUMN_DARKMODE_VALUE + "=" + value +
-                " WHERE " + COLUMN_DARKMODE_ID + "= 1;";
-        db.execSQL(changeDarkMode);
     }
 }

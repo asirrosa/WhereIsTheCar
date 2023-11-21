@@ -9,14 +9,12 @@
     </style>
 
     <style name="MainButtonMain">
-        <item name="android:background">@drawable/button_main_click_dark</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textSize">25dp</item>
     </style>
 
     <style name="SecondaryButtonMain">
-        <item name="android:background">@drawable/button_secondary_click_dark</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textSize">25dp</item>
@@ -39,7 +37,6 @@
     </style>
 
     <style name="ImageViewList">
-        <item name="android:background">@drawable/ic_location_dark</item>
     </style>
 
     <style name="TextViewList">
@@ -49,6 +46,10 @@
 
     <style name="Separator">
         <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="CardItem">
+        <item name="android:background">@drawable/item_click</item>
     </style>
 
 </resources>

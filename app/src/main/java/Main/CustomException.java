@@ -3,7 +3,6 @@ package Main;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ public class CustomException extends Exception {
     public CustomException(LocationManager locationManager) {
         if(locationManager == null){
              Toast.makeText(MainActivity.getInstance(), "Comprueba el servicio GPS", Toast.LENGTH_SHORT).show();
-             MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
+             MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
         }
     }
     public CustomException(Geocoder geocoder){

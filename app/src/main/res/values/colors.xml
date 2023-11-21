@@ -6,7 +6,7 @@
     <color name="notificacionLight">#4F6D7A</color>
     <color name="screenLight">#084C61</color>
     <color name="primaryButtonLight">#dd6142</color>
-    <color name="secondaryButtonLight">#27cfe5</color>
+    <color name="secondaryButtonLight">#CCAD8F</color>
 
     <!--DarkMode-->
     <color name="toolbarDark">#4616cc</color>

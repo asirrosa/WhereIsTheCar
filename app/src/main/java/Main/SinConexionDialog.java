@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -31,7 +30,7 @@ public class SinConexionDialog extends AppCompatDialogFragment{
         builder.setView(view)
                 .setTitle("Modo Sin Conexión")
                 .setNegativeButton("cancel", (dialogInterface, i) -> {
-                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
+                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
                 })
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialogInterface, i) -> {

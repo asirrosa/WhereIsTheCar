@@ -10,11 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
@@ -231,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
-            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background_dark, false);
+            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background, false);
             super.onPreExecute();
         }
 
@@ -248,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Despues de que el GPS se active se hace esto
         @Override
         protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click_light, true);
+            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
             Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
             super.onPostExecute(unused);
         }

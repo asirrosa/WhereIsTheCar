@@ -7,8 +7,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        style="@style/CardItem"
         android:layout_marginBottom="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -88,5 +89,5 @@
                 android:visibility="gone"
                 tools:ignore="MissingConstraints" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </RelativeLayout>
 </LinearLayout>

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -30,7 +31,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
         TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon;
         LinearLayout mainLayout;
-        CardView cardView;
+        RelativeLayout relativeLayout;
 
         /**
          * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse alguna ubicacion guardada
@@ -44,28 +45,13 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             ubicacion_lon = itemView.findViewById(R.id.ubicacion_lon);
 
             mainLayout = itemView.findViewById(R.id.mainLayout);
-            cardView = itemView.findViewById(R.id.cardView);
-            cardView.setOnClickListener(view -> {
+            relativeLayout = itemView.findViewById(R.id.relativeLayout);
+            relativeLayout.setOnClickListener(view -> {
                 //Para que cada vez que clickes en un item te mande a la ubicación de google maps
                 Uri mapUri = Uri.parse("geo:0,0?q="+ubicacion_lat.getText()+","+ubicacion_lon.getText()+"(Ubi: "+ ubicacion_nombre.getText()+")");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 context.startActivity(mapIntent);
-            });
-
-            cardView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if(event.getAction() == MotionEvent.ACTION_DOWN)
-                    {
-                        v.setBackgroundColor(Color.parseColor("#7c7c7c"));
-                    }
-                    if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                    {
-                        v.setBackgroundColor(Color.TRANSPARENT);
-                    }
-                    return false;
-                }
             });
         }
     }
