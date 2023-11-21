@@ -41,6 +41,8 @@ dependencies {
     //implementation 'org.maplibre.gl:android-sdk:9.5.2'
     //mapbox dependencies
     implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6'
-    //otras dependencias -- pruebas con mapbox
+    //mapbox places -- buscador de sitios
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-places-v9:0.12.0'
+    //mapbox 3D building -- te muestra sitios en 3D
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-building-v9:0.7.0'
 }

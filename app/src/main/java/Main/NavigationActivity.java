@@ -55,8 +55,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private static final String TAG="DirectionsActivity";
     private NavigationMapRoute navigationMapRoute;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
