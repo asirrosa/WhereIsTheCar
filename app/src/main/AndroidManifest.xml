@@ -42,7 +42,7 @@
 
         <activity
             android:name=".SearchActivity"
-            android:label="Añadir ubicación manualmente"
+            android:label="Añadir ubicación"
             android:screenOrientation="portrait" />
 
         <activity

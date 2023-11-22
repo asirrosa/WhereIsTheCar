@@ -20,6 +20,7 @@ public class HelpActivity extends AppCompatActivity{
         imageView.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), SanMamesActivity.class);
             startActivity(intent);
+            finish();
         });
     }
 }

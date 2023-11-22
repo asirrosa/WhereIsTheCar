@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,20 +38,16 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.time.LocalDateTime;
 
-/**
- * Use the places plugin to take advantage of Mapbox's location search ("geocoding") capabilities. The plugin
- * automatically makes geocoding requests, has built-in saved locations, includes location picker functionality,
- * and adds beautiful UI into your Android project.
- */
-public class SearchActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class SearchActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, MenuItem.OnMenuItemClickListener{
 
-    private static final int REQUEST_CODE_AUTOCOMPLETE = 1;
+    static final int REQUEST_CODE_AUTOCOMPLETE = 1;
     private MapView mapView;
     private MapboxMap mapboxMap;
     private String geojsonSourceLayerId = "geojsonSourceLayerId";
     private String symbolIconId = "symbolIconId";
     private UbicacionItem ubicacionItem;
-    private FloatingActionButton btnSave, btnSearch;
+    private FloatingActionButton btnSave;
+    private MenuItem itemSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +63,52 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        btnSearch = findViewById(R.id.fab_location_search);
         btnSave = findViewById(R.id.fab_location_save);
+        btnSave.setOnClickListener(this);
+    }
+
+    /**
+     * Metodo para crear el inflater con el menu
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_menu, menu);
+
+        itemSearch = menu.findItem(R.id.searchManual);
+        itemSearch.setOnMenuItemClickListener(this);
+
+        return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab_location_save:
+                guardarEnDB();
+                Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.searchManual:
+                Intent intent = new PlaceAutocomplete.IntentBuilder()
+                        .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))
+                        .placeOptions(PlaceOptions.builder()
+                                .backgroundColor(Color.parseColor("#EEEEEE"))
+                                .limit(10)
+                                .language("es")
+                                .build(PlaceOptions.MODE_CARDS))
+                        .build(SearchActivity.this);
+                startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -73,8 +117,6 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
-                initSearchFab();
-                initSaveFab();
                 // Add the symbol layer icon to map for future use
                 style.addImage(symbolIconId, BitmapFactory.decodeResource(
                         SearchActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
@@ -85,28 +127,6 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 // Set up a new symbol layer for displaying the searched location's feature coordinates
                 setupLayer(style);
             }
-        });
-    }
-
-    private void initSearchFab() {
-        btnSearch.setOnClickListener(view -> {
-            Intent intent = new PlaceAutocomplete.IntentBuilder()
-                    .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))
-                    .placeOptions(PlaceOptions.builder()
-                            .backgroundColor(Color.parseColor("#EEEEEE"))
-                            .limit(10)
-                            .build(PlaceOptions.MODE_CARDS))
-                    .build(SearchActivity.this);
-            startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
-        });
-    }
-
-    private void initSaveFab(){
-        btnSave.setOnClickListener(view -> {
-            guardarEnDB();
-            Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-            startActivity(intent);
-            finish();
         });
     }
 

@@ -4,9 +4,18 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
+import static Main.SearchActivity.REQUEST_CODE_AUTOCOMPLETE;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -14,11 +23,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -30,6 +42,8 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
+import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
@@ -43,7 +57,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NavigationActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener {
+public class NavigationActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener, MenuItem.OnMenuItemClickListener {
 
     private Button button;
 
@@ -54,6 +68,9 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private DirectionsRoute currentRoute;
     private static final String TAG="DirectionsActivity";
     private NavigationMapRoute navigationMapRoute;
+    private MenuItem itemSearch;
+    private String geojsonSourceLayerId = "geojsonSourceLayerId";
+    private UbicacionItem ubicacionItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,51 +83,56 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
     }
 
+    /**
+     * Metodo para crear el inflater con el menu
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.navigation_menu, menu);
+
+        itemSearch = menu.findItem(R.id.searchNavigation);
+        itemSearch.setOnMenuItemClickListener(this);
+
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.searchNavigation:
+                Intent intent = new PlaceAutocomplete.IntentBuilder()
+                        .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))
+                        .placeOptions(PlaceOptions.builder()
+                                .backgroundColor(Color.parseColor("#EEEEEE"))
+                                .limit(10)
+                                .language("es")
+                                .build(PlaceOptions.MODE_CARDS))
+                        .build(this);
+                startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
+                break;
+        }
+        return false;
+    }
+
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(59.31, 18.06))
-                .zoom(10)
-                .tilt(20)
-                .build();
-
-        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
-        mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                enableLocationComponent(style);
-                addDestinationIconSymbolLayer(style);
-                mapboxMap.addOnMapClickListener(NavigationActivity.this);
-                button = findViewById(R.id.button);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        boolean simulateRoute = true;
-                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                .directionsRoute(currentRoute)
-                                .shouldSimulateRoute(simulateRoute)
-                                .build();
-                        NavigationLauncher.startNavigation(NavigationActivity.this, options);
-                    }
-                });
-
-            }
+        mapboxMap.setStyle(getString(R.string.navigation_guidance_day), style -> {
+            enableLocationComponent(style);
+            addDestinationIconSymbolLayer(style);
+            mapboxMap.addOnMapClickListener(this);
+            button = findViewById(R.id.button);
+            button.setOnClickListener(v -> {
+                boolean simulateRoute = true;
+                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                        .directionsRoute(currentRoute)
+                        .darkThemeResId(0)
+                        .shouldSimulateRoute(simulateRoute)
+                        .build();
+                NavigationLauncher.startNavigation(NavigationActivity.this, options);
+            });
         });
-    }
-
-    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle){
-        loadedMapStyle.addImage("destination-icon-id",
-                BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
-        GeoJsonSource geoJsonSource = new GeoJsonSource("destination-source-id");
-        loadedMapStyle.addSource(geoJsonSource);
-        SymbolLayer destinationSymbolLayer = new SymbolLayer("destination-symbol-layer-id","destination-source-id");
-        destinationSymbolLayer.withProperties(
-                iconImage("destination-icon-id"),
-                iconAllowOverlap(true),
-                iconIgnorePlacement(true)
-        );
-        loadedMapStyle.addLayer(destinationSymbolLayer);
     }
 
     @SuppressWarnings({"MissingPermission"})
@@ -127,6 +149,74 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         button.setEnabled(true);
         button.setBackgroundResource(R.color.mapbox_blue);
         return true;
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_AUTOCOMPLETE) {
+
+            // Retrieve selected location's CarmenFeature
+            CarmenFeature selectedCarmenFeature = PlaceAutocomplete.getPlace(data);
+
+            // Create a new FeatureCollection and add a new Feature to it using selectedCarmenFeature above.
+            // Then retrieve and update the source designated for showing a selected location's symbol layer icon
+
+            if (mapboxMap != null) {
+                Style style = mapboxMap.getStyle();
+                if (style != null) {
+                    GeoJsonSource source = style.getSourceAs(geojsonSourceLayerId);
+                    if (source != null) {
+                        source.setGeoJson(FeatureCollection.fromFeatures(
+                                new Feature[] {Feature.fromJson(selectedCarmenFeature.toJson())}));
+                    }
+
+                    // Move map camera to the selected location
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                            new CameraPosition.Builder()
+                                    .target(new LatLng(((Point) selectedCarmenFeature.geometry()).latitude(),
+                                            ((Point) selectedCarmenFeature.geometry()).longitude()))
+                                    .zoom(14)
+                                    .build()), 4000);
+
+                    this.ubicacionItem = new UbicacionItem(
+                            null,
+                            selectedCarmenFeature.text(),
+                            selectedCarmenFeature.placeName(),
+                            ((Point) selectedCarmenFeature.geometry()).latitude(),
+                            ((Point) selectedCarmenFeature.geometry()).longitude());
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings( {"MissingPermission"})
+    private void enableLocationComponent(@NonNull Style loadedMapStyle){
+        if(PermissionsManager.areLocationPermissionsGranted(this)){
+            locationComponent = mapboxMap.getLocationComponent();
+            locationComponent.activateLocationComponent(this,loadedMapStyle);
+            locationComponent.setLocationComponentEnabled(true);
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+        }
+        else{
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
+        }
+    }
+
+    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle){
+        loadedMapStyle.addImage("destination-icon-id",
+                BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
+        GeoJsonSource geoJsonSource = new GeoJsonSource("destination-source-id");
+        loadedMapStyle.addSource(geoJsonSource);
+        SymbolLayer destinationSymbolLayer = new SymbolLayer("destination-symbol-layer-id","destination-source-id");
+        destinationSymbolLayer.withProperties(
+                iconImage("destination-icon-id"),
+                iconAllowOverlap(true),
+                iconIgnorePlacement(true)
+        );
+        loadedMapStyle.addLayer(destinationSymbolLayer);
     }
 
     private void getRoute(Point originPoint, Point destinationPoint){
@@ -164,20 +254,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         Log.e(TAG, "Error:");
                     }
                 });
-    }
-
-    @SuppressWarnings( {"MissingPermission"})
-    private void enableLocationComponent(@NonNull Style loadedMapStyle){
-        if(PermissionsManager.areLocationPermissionsGranted(this)){
-            locationComponent = mapboxMap.getLocationComponent();
-            locationComponent.activateLocationComponent(this,loadedMapStyle);
-            locationComponent.setLocationComponentEnabled(true);
-            locationComponent.setCameraMode(CameraMode.TRACKING);
-        }
-        else{
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
-        }
     }
 
     @Override

@@ -13,8 +13,8 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_gravity="end|bottom"
             android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
             android:orientation="vertical">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -23,22 +23,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"
                 android:layout_margin="16dp"
-                android:visibility="invisible"
                 android:layout_marginBottom="20sp"
                 android:tint="@android:color/white"
+                android:visibility="invisible"
                 mapbox:backgroundTint="@color/mapbox_navigation_route_layer_congestion_red"
                 mapbox:srcCompat="@android:drawable/ic_menu_save" />
-
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_location_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_margin="16dp"
-                android:tint="@android:color/white"
-                app:backgroundTint="@color/mapbox_blue"
-                app:srcCompat="@android:drawable/ic_search_category_default" />
         </LinearLayout>
 
     </com.mapbox.mapboxsdk.maps.MapView>
