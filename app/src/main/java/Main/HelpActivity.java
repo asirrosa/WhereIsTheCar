@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class HelpActivity extends AppCompatActivity{
 
     private ImageView imageView;
+    private int contador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +19,15 @@ public class HelpActivity extends AppCompatActivity{
 
         imageView = findViewById(R.id.imageView);
         imageView.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), SanMamesActivity.class);
-            startActivity(intent);
-            finish();
+
+            if(contador == 5) {
+                Intent intent = new Intent(getApplicationContext(), SanMamesActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            else{
+                contador++;
+            }
         });
     }
 }

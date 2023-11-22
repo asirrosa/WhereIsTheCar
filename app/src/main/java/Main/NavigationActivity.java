@@ -51,15 +51,15 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NavigationActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener, MenuItem.OnMenuItemClickListener {
-
-    private Button button;
+public class NavigationActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener, MenuItem.OnMenuItemClickListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -70,7 +70,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private NavigationMapRoute navigationMapRoute;
     private MenuItem itemSearch;
     private String geojsonSourceLayerId = "geojsonSourceLayerId";
-    private UbicacionItem ubicacionItem;
+    private LatLng latLng;
+    private FloatingActionButton button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +122,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), style -> {
             enableLocationComponent(style);
             addDestinationIconSymbolLayer(style);
-            mapboxMap.addOnMapClickListener(this);
             button = findViewById(R.id.button);
             button.setOnClickListener(v -> {
                 boolean simulateRoute = true;
@@ -135,33 +135,13 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         });
     }
 
-    @SuppressWarnings({"MissingPermission"})
-    @Override
-    public boolean onMapClick(@NonNull LatLng point) {
-        Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
-        Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
-                locationComponent.getLastKnownLocation().getLatitude());
-        GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
-        if(source != null){
-            source.setGeoJson(Feature.fromGeometry(destinationPoint));
-        }
-        getRoute(originPoint, destinationPoint);
-        button.setEnabled(true);
-        button.setBackgroundResource(R.color.mapbox_blue);
-        return true;
-    }
-
     @SuppressLint("RestrictedApi")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_AUTOCOMPLETE) {
 
-            // Retrieve selected location's CarmenFeature
             CarmenFeature selectedCarmenFeature = PlaceAutocomplete.getPlace(data);
-
-            // Create a new FeatureCollection and add a new Feature to it using selectedCarmenFeature above.
-            // Then retrieve and update the source designated for showing a selected location's symbol layer icon
 
             if (mapboxMap != null) {
                 Style style = mapboxMap.getStyle();
@@ -172,23 +152,31 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                 new Feature[] {Feature.fromJson(selectedCarmenFeature.toJson())}));
                     }
 
-                    // Move map camera to the selected location
-                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                            new CameraPosition.Builder()
-                                    .target(new LatLng(((Point) selectedCarmenFeature.geometry()).latitude(),
-                                            ((Point) selectedCarmenFeature.geometry()).longitude()))
-                                    .zoom(14)
-                                    .build()), 4000);
-
-                    this.ubicacionItem = new UbicacionItem(
-                            null,
-                            selectedCarmenFeature.text(),
-                            selectedCarmenFeature.placeName(),
+                    latLng = new LatLng(
                             ((Point) selectedCarmenFeature.geometry()).latitude(),
                             ((Point) selectedCarmenFeature.geometry()).longitude());
+
+                    //para acceder a la navegacion con el punto de meta que hemos buscado
+                    navigateToSearchedPlace(
+                            ((Point) selectedCarmenFeature.geometry()).latitude(),
+                            ((Point) selectedCarmenFeature.geometry()).longitude()
+                    );
                 }
             }
         }
+    }
+
+    private void navigateToSearchedPlace(double latitude, double longitude){
+        Point destinationPoint = Point.fromLngLat(longitude, latitude);
+        Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
+                locationComponent.getLastKnownLocation().getLatitude());
+        GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
+        if(source != null){
+            source.setGeoJson(Feature.fromGeometry(destinationPoint));
+        }
+        getRoute(originPoint, destinationPoint);
+        button.setEnabled(true);
+        button.setBackgroundResource(R.color.mapbox_blue);
     }
 
     @SuppressWarnings( {"MissingPermission"})
@@ -222,22 +210,34 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private void getRoute(Point originPoint, Point destinationPoint){
         NavigationRoute.builder(this)
                 .accessToken(Mapbox.getAccessToken())
+                .alternatives(true)
+                .language(Locale.ENGLISH)
                 .origin(originPoint)
                 .destination(destinationPoint)
                 .build()
                 .getRoute(new Callback<DirectionsResponse>() {
+                    @SuppressLint("RestrictedApi")
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                        Log.d(TAG, "Response code: " + response.code());
+
                         if(response.body() == null){
-                            Log.e(TAG, "No routes found, make sure you are using the right token");
+                            Toast.makeText(getApplicationContext(),"No funciona la funcionalidad", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         else if(response.body().routes().size() < 1){
-                            Log.e(TAG, "No routes found, make sure you are using the right token");
+                            Toast.makeText(getApplicationContext(),"No se han encontrado rutas a esa ubicacion", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        currentRoute = response.body().routes().get(0);
+
+                        // Move map camera to the selected location
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                new CameraPosition.Builder()
+                                        .target(latLng)
+                                        .zoom(14)
+                                        .build()), 4000);
+
+                        //hacer el boton de navegacion visible
+                        button.setVisibility(FloatingActionButton.VISIBLE);
 
                         //draw in the map
                         if(navigationMapRoute != null){
@@ -246,7 +246,11 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         else{
                             navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
                         }
-                        navigationMapRoute.addRoute(currentRoute);
+
+                        List<DirectionsRoute> routes = response.body().routes();
+                        for(int i = 0; i<routes.size(); i++){
+                            navigationMapRoute.addRoute(routes.get(i));
+                        }
                     }
 
                     @Override

@@ -90,8 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btnNavegar:
-                Intent intent = new Intent(this, NavigationActivity.class);
-                startActivity(intent);
+                comprobarGPSNavegador();
                 break;
             case R.id.btnGuardar:
                 try {
@@ -116,6 +115,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return false;
+    }
+
+    private void comprobarGPSNavegador(){
+        main = this;
+        gps = new GPSTracker(this);
+        if (gps.isGPSAllowed && gps.isGPSEnabled) {
+            if(gps.location != null) {
+                Intent intent = new Intent(this, NavigationActivity.class);
+                startActivity(intent);
+            }
+            else{
+                SubCargarGPS subCargarGPS = new SubCargarGPS();
+                subCargarGPS.execute();
+            }
+        } else if(!gps.isGPSEnabled){
+            gps.showSettingsAlert();
+        }
     }
 
     /**
@@ -210,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         progressBar.setVisibility(visibility);
         btnGuardar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
         btnGuardar.setEnabled(guardar);
+        btnNavegar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
+        btnNavegar.setEnabled(guardar);
     }
 
     /**
