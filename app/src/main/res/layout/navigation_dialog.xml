@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textEvitar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Evitar"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/checkBoxPeaje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Peajes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textEvitar" />
+
+    <CheckBox
+        android:id="@+id/checkBoxAutopista"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Autopistas"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkBoxPeaje" />
+
+    <CheckBox
+        android:id="@+id/checkBoxFerri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ferris"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkBoxAutopista" />
+
+    <TextView
+        android:id="@+id/textTransporte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transporte"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutWalking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textTransporte">
+
+        <RadioButton
+            android:id="@+id/btnWalking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_andar" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/layoutDriving"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutWalking">
+
+        <RadioButton
+            android:id="@+id/btnDriving"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_coche" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

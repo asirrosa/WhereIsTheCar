@@ -21,13 +21,29 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.JsonIOException;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.MapboxDirections;
+import com.mapbox.api.directions.v5.WalkingOptions;
+import com.mapbox.api.directions.v5.models.BannerInstructions;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.directions.v5.models.LegAnnotation;
+import com.mapbox.api.directions.v5.models.LegStep;
+import com.mapbox.api.directions.v5.models.RouteLeg;
+import com.mapbox.api.directions.v5.models.RouteOptions;
+import com.mapbox.api.directions.v5.models.StepIntersection;
+import com.mapbox.api.directions.v5.models.StepManeuver;
+import com.mapbox.api.directions.v5.models.VoiceInstructions;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -50,6 +66,11 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationWalkingOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +89,14 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private DirectionsRoute currentRoute;
     private static final String TAG="DirectionsActivity";
     private NavigationMapRoute navigationMapRoute;
-    private MenuItem itemSearch;
+    private MenuItem itemSearch, itemRouteOptions;
     private String geojsonSourceLayerId = "geojsonSourceLayerId";
     private LatLng latLng;
     private FloatingActionButton button;
+    public String transporte;
+    public String[] exclude;
+    private Point originPoint;
+    private Point destinationPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +120,9 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         itemSearch = menu.findItem(R.id.searchNavigation);
         itemSearch.setOnMenuItemClickListener(this);
 
+        itemRouteOptions = menu.findItem(R.id.routeOptions);
+        itemRouteOptions.setOnMenuItemClickListener(this);
+
         return true;
     }
 
@@ -112,6 +140,10 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         .build(this);
                 startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);
                 break;
+
+            case R.id.routeOptions:
+                navDialog();
+                break;
         }
         return false;
     }
@@ -122,6 +154,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), style -> {
             enableLocationComponent(style);
             addDestinationIconSymbolLayer(style);
+
+            //El OnClick
             button = findViewById(R.id.button);
             button.setOnClickListener(v -> {
                 boolean simulateRoute = true;
@@ -166,15 +200,28 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         }
     }
 
+    public void navDialog(){
+        //mostrar el dialog con las opciones de la ruta
+        NavigationDialog navigationDialog = new NavigationDialog(this);
+        //para que aun clicando el back button o fuera del dialog este no se cierre
+        navigationDialog.setCancelable(false);
+        navigationDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
     private void navigateToSearchedPlace(double latitude, double longitude){
-        Point destinationPoint = Point.fromLngLat(longitude, latitude);
-        Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
-                locationComponent.getLastKnownLocation().getLatitude());
+        destinationPoint = Point.fromLngLat(longitude, latitude);
+        originPoint = Point.fromLngLat(
+                locationComponent.getLastKnownLocation().getLongitude(),
+                locationComponent.getLastKnownLocation().getLongitude()
+        );
+
+        //esto lo he quitado porque CREO que no hace nada
         GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
         if(source != null){
             source.setGeoJson(Feature.fromGeometry(destinationPoint));
         }
-        getRoute(originPoint, destinationPoint);
+
+        navigationRouteApiCall();
         button.setEnabled(true);
         button.setBackgroundResource(R.color.mapbox_blue);
     }
@@ -207,7 +254,87 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         loadedMapStyle.addLayer(destinationSymbolLayer);
     }
 
-    private void getRoute(Point originPoint, Point destinationPoint){
+    private String excludeOptions(){
+        String excludeText = "";
+        if(exclude[0] != null){
+            excludeText = exclude[0];
+            if(exclude[1] != null){
+                excludeText = excludeText + "," + exclude[1];
+                if(exclude[2] != null){
+                    excludeText = excludeText + "," + exclude[2];
+                }
+            }
+            else if(exclude[2] != null){
+                excludeText = excludeText + "," + exclude[2];
+            }
+        }
+        else if(exclude[1] != null){
+            excludeText = exclude[1];
+            if(exclude[2] != null){
+                excludeText = excludeText + "," + exclude[2];
+            }
+        }
+        else if(exclude[2] != null){
+            excludeText = exclude[2];
+        }
+        return excludeText;
+    }
+
+    private NavigationRoute navigationOptions(){
+        NavigationRoute result = null;
+        String excludeText = excludeOptions();
+        if(excludeText.equals("")){
+            if(transporte.equals("driving")) {
+                result = NavigationRoute.builder(this)
+                        .accessToken(Mapbox.getAccessToken())
+                        .alternatives(Boolean.TRUE)
+                        .language(new Locale("es_ES"))
+                        .enableRefresh(true)
+                        .origin(originPoint)
+                        .destination(destinationPoint)
+                        .build();
+            }
+            else if(transporte.equals("walking")){
+                result = NavigationRoute.builder(this)
+                        .accessToken(Mapbox.getAccessToken())
+                        .alternatives(Boolean.TRUE)
+                        .language(new Locale("es_ES"))
+                        .walkingOptions(NavigationWalkingOptions.builder().build())
+                        .enableRefresh(true)
+                        .origin(originPoint)
+                        .destination(destinationPoint)
+                        .build();
+            }
+        }
+        else{
+            if(transporte.equals("driving")) {
+                result = NavigationRoute.builder(this)
+                        .accessToken(Mapbox.getAccessToken())
+                        .alternatives(Boolean.TRUE)
+                        .language(new Locale("es_ES"))
+                        .exclude(excludeText)
+                        .enableRefresh(true)
+                        .origin(originPoint)
+                        .destination(destinationPoint)
+                        .build();
+            }
+            else if(transporte.equals("walking")){
+                result = NavigationRoute.builder(this)
+                        .origin(originPoint)
+                        .destination(destinationPoint)
+                        .accessToken(Mapbox.getAccessToken())
+                        .alternatives(Boolean.TRUE)
+                        .language(new Locale("es_ES"))
+                        .exclude(excludeText)
+                        .walkingOptions(NavigationWalkingOptions.builder().build())
+                        .enableRefresh(true)
+                        .build();
+            }
+        }
+        return result;
+    }
+
+    public void navigationRouteApiCall() {
         NavigationRoute.builder(this)
                 .accessToken(Mapbox.getAccessToken())
                 .alternatives(true)
@@ -220,12 +347,11 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
 
-                        if(response.body() == null){
-                            Toast.makeText(getApplicationContext(),"No funciona la funcionalidad", Toast.LENGTH_SHORT).show();
+                        if (response.body() == null) {
+                            Toast.makeText(getApplicationContext(), "Developer Message: Algun parametro de la api esta mal", Toast.LENGTH_SHORT).show();
                             return;
-                        }
-                        else if(response.body().routes().size() < 1){
-                            Toast.makeText(getApplicationContext(),"No se han encontrado rutas a esa ubicacion", Toast.LENGTH_SHORT).show();
+                        } else if (response.body().routes().size() < 1) {
+                            Toast.makeText(getApplicationContext(), "No se han encontrado rutas a esa ubicacion", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -240,25 +366,27 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         button.setVisibility(FloatingActionButton.VISIBLE);
 
                         //draw in the map
-                        if(navigationMapRoute != null){
+                        if (navigationMapRoute != null) {
                             navigationMapRoute.removeRoute();
-                        }
-                        else{
+                        } else {
                             navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                            navigationMapRoute.showAlternativeRoutes(true);
                         }
 
                         List<DirectionsRoute> routes = response.body().routes();
-                        for(int i = 0; i<routes.size(); i++){
+                        for (int i = 0; i < routes.size(); i++) {
                             navigationMapRoute.addRoute(routes.get(i));
                         }
                     }
 
                     @Override
                     public void onFailure(Call<DirectionsResponse> call, Throwable t) {
-                        Log.e(TAG, "Error:");
+                        Toast.makeText(getApplicationContext(), "Developer Message: No funciona la funcionalidad", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

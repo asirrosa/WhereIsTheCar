@@ -8,4 +8,10 @@
         android:title="Search"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/routeOptions"
+        android:icon="@drawable/ic_settings"
+        android:title="Options"
+        app:showAsAction="ifRoom" />
+
 </menu>
