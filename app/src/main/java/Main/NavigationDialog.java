@@ -20,10 +20,10 @@ import java.util.ArrayList;
 public class NavigationDialog extends AppCompatDialogFragment {
 
     private CheckBox checkBoxPeaje, checkBoxAutopista, checkBoxFerri;
-    private RadioButton btnWalking,btnDriving;
+    private RadioButton btnWalking, btnDriving, btnCycling;
     private NavigationActivity navigationActivity;
 
-    public NavigationDialog(NavigationActivity navigationActivity){
+    public NavigationDialog(NavigationActivity navigationActivity) {
         this.navigationActivity = navigationActivity;
     }
 
@@ -40,67 +40,110 @@ public class NavigationDialog extends AppCompatDialogFragment {
 
         btnDriving = view.findViewById(R.id.btnDriving);
         btnWalking = view.findViewById(R.id.btnWalking);
+        btnCycling = view.findViewById(R.id.btnCycling);
 
-        if(navigationActivity.exclude == null && navigationActivity.transporte == null){
+        if (navigationActivity.exclude == null && navigationActivity.transporte == null) {
             //para que el modo default sea el de driving
-            navigationActivity.transporte = "driving";
             btnDriving.setChecked(true);
-        }
-        else{
+        } else {
             //checkbox
-            if(navigationActivity.exclude[0] != null){
+            if (navigationActivity.exclude[0] != null) {
                 checkBoxPeaje.setChecked(true);
             }
-            if(navigationActivity.exclude[1] != null){
+            if (navigationActivity.exclude[1] != null) {
                 checkBoxAutopista.setChecked(true);
             }
-            if(navigationActivity.exclude[2] != null){
+            if (navigationActivity.exclude[2] != null) {
                 checkBoxFerri.setChecked(true);
             }
             //radio button
-            if(navigationActivity.transporte.equals("walking")){
+            if (navigationActivity.transporte.equals("walking")) {
                 btnWalking.setChecked(true);
                 btnDriving.setChecked(false);
-            }
-            else{
+                btnCycling.setChecked(false);
+                checkBoxPeaje.setEnabled(false);
+                checkBoxAutopista.setEnabled(false);
+                checkBoxFerri.setEnabled(false);
+            } else if(navigationActivity.transporte.equals("driving")) {
                 btnWalking.setChecked(false);
                 btnDriving.setChecked(true);
+                btnCycling.setChecked(false);
+            }
+            else if(navigationActivity.transporte.equals("cycling")) {
+                btnWalking.setChecked(false);
+                btnDriving.setChecked(false);
+                btnCycling.setChecked(true);
+                checkBoxPeaje.setEnabled(false);
+                checkBoxAutopista.setEnabled(false);
             }
         }
 
         btnWalking.setOnClickListener(v -> {
             btnWalking.setChecked(true);
             btnDriving.setChecked(false);
+            btnCycling.setChecked(false);
             navigationActivity.transporte = "walking";
+            //
+            checkBoxPeaje.setEnabled(false);
+            checkBoxAutopista.setEnabled(false);
+            checkBoxFerri.setEnabled(false);
+            //
+            checkBoxPeaje.setChecked(false);
+            checkBoxAutopista.setChecked(false);
+            checkBoxFerri.setChecked(false);
         });
 
         btnDriving.setOnClickListener(v -> {
             btnWalking.setChecked(false);
             btnDriving.setChecked(true);
+            btnCycling.setChecked(false);
             navigationActivity.transporte = "driving";
+
+            checkBoxPeaje.setEnabled(true);
+            checkBoxAutopista.setEnabled(true);
+            checkBoxFerri.setEnabled(true);
+
+            checkBoxPeaje.setChecked(false);
+            checkBoxAutopista.setChecked(false);
+            checkBoxFerri.setChecked(false);
+        });
+
+        btnCycling.setOnClickListener(v -> {
+            btnWalking.setChecked(false);
+            btnDriving.setChecked(false);
+            btnCycling.setChecked(true);
+            navigationActivity.transporte = "cycling";
+
+            checkBoxPeaje.setEnabled(false);
+            checkBoxAutopista.setEnabled(false);
+            checkBoxFerri.setEnabled(true);
+
+            checkBoxPeaje.setChecked(false);
+            checkBoxAutopista.setChecked(false);
+            checkBoxFerri.setChecked(false);
         });
 
         builder.setView(view)
                 .setTitle("Opciones de ruta")
                 .setPositiveButton("ok", (dialogInterface, i) -> {
-                    if(btnDriving.isChecked() == false && btnWalking.isChecked() == false){
-                        Toast.makeText(MainActivity.getInstance(), "Por favore elije un medio de transporte", Toast.LENGTH_SHORT).show();
-                        navigationActivity.navDialog();
+                    if (checkBoxPeaje.isChecked()) {
+                        navigationActivity.exclude[0] = "toll";
+                    } else {
+                        navigationActivity.exclude[0] = null;
                     }
-                    else{
-                        navigationActivity.exclude = new String[3];
-                        if(checkBoxPeaje.isChecked() || checkBoxAutopista.isChecked() ||
-                        checkBoxFerri.isChecked()) {
-                            if (checkBoxPeaje.isChecked()) {
-                                navigationActivity.exclude[0] = "toll";
-                            }
-                            if (checkBoxAutopista.isChecked()) {
-                                navigationActivity.exclude[1] = "motorway";
-                            }
-                            if (checkBoxFerri.isChecked()) {
-                                navigationActivity.exclude[2] = "ferry";
-                            }
-                        }
+                    if (checkBoxAutopista.isChecked()) {
+                        navigationActivity.exclude[1] = "motorway";
+                    } else {
+                        navigationActivity.exclude[1] = null;
+                    }
+                    if (checkBoxFerri.isChecked()) {
+                        navigationActivity.exclude[2] = "ferry";
+                    } else {
+                        navigationActivity.exclude[2] = null;
+                    }
+
+                    if (navigationActivity.currentRoute != null) {
+                        navigationActivity.getRoutes();
                     }
                 });
         return builder.create();

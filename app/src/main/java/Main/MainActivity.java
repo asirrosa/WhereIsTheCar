@@ -1,7 +1,10 @@
 package Main;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -90,7 +93,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btnNavegar:
-                comprobarGPSNavegador();
+                if(isNetworkAvailable()) {
+                    comprobarGPSNavegador();
+                }
+                else{
+                    Toast.makeText(this,"Por favor conectate a Internet",Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btnGuardar:
                 try {
@@ -236,6 +244,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void listaUbicaciones(View view){
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**

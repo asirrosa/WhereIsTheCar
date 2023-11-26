@@ -102,6 +102,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                         .placeOptions(PlaceOptions.builder()
                                 .backgroundColor(Color.parseColor("#EEEEEE"))
                                 .limit(10)
+                                .hint("Busca aqui")
                                 .language("es")
                                 .build(PlaceOptions.MODE_CARDS))
                         .build(SearchActivity.this);
@@ -114,19 +115,16 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                // Add the symbol layer icon to map for future use
-                style.addImage(symbolIconId, BitmapFactory.decodeResource(
-                        SearchActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+            // Add the symbol layer icon to map for future use
+            style.addImage(symbolIconId, BitmapFactory.decodeResource(
+                    SearchActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
 
-                // Create an empty GeoJSON source using the empty feature collection
-                setUpSource(style);
+            // Create an empty GeoJSON source using the empty feature collection
+            setUpSource(style);
 
-                // Set up a new symbol layer for displaying the searched location's feature coordinates
-                setupLayer(style);
-            }
+            // Set up a new symbol layer for displaying the searched location's feature coordinates
+            setupLayer(style);
         });
     }
 
