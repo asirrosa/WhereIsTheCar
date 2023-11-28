@@ -201,15 +201,11 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     if (hours == 0) {
                         if (minutes == 0) {
                             result = "Hace unos instantes";
-                        } else if (minutes == 1) {
-                            result = "Hace 1 minuto";
                         } else {
-                            result = "Hace " + minutes + " minutos";
+                            result = "Hace " + minutes + " min";
                         }
-                    } else if (hours == 1) {
-                        result = "Hace 1 hora";
                     } else {
-                        result = "Hace " + hours + " horas";
+                        result = "Hace " + hours + " h";
                     }
                 } else if (days == 1) {
                     result = "Hace 1 día";

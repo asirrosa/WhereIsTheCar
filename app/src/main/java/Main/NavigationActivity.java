@@ -19,6 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -97,6 +100,12 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public String[] exclude;
     private Point originPoint;
     private Point destinationPoint;
+    private ImageView ivTransporte;
+    private TextView textDuration, textDistance;
+    private LinearLayout barraAbajo;
+    //de normal esto es false
+    public UbicacionItem ubicacionItem;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +124,11 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
 
         btnDos = findViewById(R.id.btnDos);
         btnDos.setOnClickListener(this);
+
+        barraAbajo = findViewById(R.id.barraAbajo);
+        ivTransporte = findViewById(R.id.ivTransporte);
+        textDuration = findViewById(R.id.textDuration);
+        textDistance = findViewById(R.id.textDistance);
 
         //para que de default este cargado el array y ademas el modo sea el de driving
         exclude = new String[3];
@@ -193,6 +207,10 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), style -> {
             enableLocationComponent(style);
             addDestinationIconSymbolLayer(style);
+            double[] arrayLatLng = getIntent().getDoubleArrayExtra("arrayLatLng");
+            if(arrayLatLng != null){
+                irAlSitioGuardadoPreviamente(arrayLatLng);
+            }
         });
     }
 
@@ -360,11 +378,48 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
 
 
     private void changeRoute(DirectionsRoute route){
+        //esto de aqui sirve para mostrar la ruta en el mapa
         if (navigationMapRoute != null) {
             navigationMapRoute.removeRoute();
         } else {
             navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
         }
+
+        //esto de aqui sirve para que en la barra de abajo te ponga que tipo de transporte tiene la ruta, que distancia tiene y el tiempo que vas a tardar
+        if(transporte.equals("driving")){
+            ivTransporte.setBackgroundResource(R.drawable.ic_coche);
+        }
+        else if(transporte.equals("walking")){
+            ivTransporte.setBackgroundResource(R.drawable.ic_andar);
+        }
+        else if(transporte.equals("cycling")){
+            ivTransporte.setBackgroundResource(R.drawable.ic_cycling);
+        }
+
+        //para mostrar las horas y minutos que dura la ruta
+        barraAbajo.setVisibility(LinearLayout.VISIBLE);
+        double seconds = route.duration();
+        if(seconds >= 3600){
+            int hours = (int) (seconds / 3600);
+            seconds = seconds % 3600;
+            int minutes = (int) (seconds / 60);
+            textDuration.setText(hours + " h " + minutes + " min ");
+        }
+        else{
+            int minutes = (int) (seconds / 60);
+            textDuration.setText(minutes + " min ");
+        }
+
+        //para mostrar los km o metros que tiene la ruta
+        double meters = route.distance();
+        if(meters >= 1000){
+            int kilometers = (int) (meters / 1000);
+            textDistance.setText(kilometers + " km ");
+        }
+        else{
+            textDistance.setText(meters + " m ");
+        }
+        
         currentRoute = route;
         navigationMapRoute.addRoute(route);
     }
@@ -382,6 +437,18 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         //para que aun clicando el back button o fuera del dialog este no se cierre
         navigationDialog.setCancelable(false);
         navigationDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    public void irAlSitioGuardadoPreviamente(double[] arrayLatLng){
+        destinationPoint = Point.fromLngLat(
+                arrayLatLng[1],
+                arrayLatLng[0]
+        );
+        originPoint = Point.fromLngLat(
+                locationComponent.getLastKnownLocation().getLongitude(),
+                locationComponent.getLastKnownLocation().getLatitude()
+        );
+        getRoutes();
     }
 
     @Override

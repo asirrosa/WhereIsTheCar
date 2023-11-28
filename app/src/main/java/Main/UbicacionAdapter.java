@@ -24,7 +24,7 @@ import java.util.List;
 
 public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.UbicacionViewHolder> implements Filterable {
 
-    private Context context;
+    private ListActivity listActivity;
     public ArrayList<UbicacionItem> ubicacionList;
     public ArrayList<UbicacionItem> ubicacionListFull;
 
@@ -47,25 +47,25 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             mainLayout = itemView.findViewById(R.id.mainLayout);
             relativeLayout = itemView.findViewById(R.id.relativeLayout);
             relativeLayout.setOnClickListener(view -> {
-                //Para que cada vez que clickes en un item te mande a la ubicación de google maps
-                Uri mapUri = Uri.parse("geo:0,0?q="+ubicacion_lat.getText()+","+ubicacion_lon.getText()+"(Ubi: "+ ubicacion_nombre.getText()+")");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                context.startActivity(mapIntent);
+                UbicacionItem ubicacionItem = new UbicacionItem("",ubicacion_nombre.getText().toString(),"",
+                        Double.parseDouble(ubicacion_lat.getText().toString()),
+                        Double.parseDouble(ubicacion_lon.getText().toString()));
+                ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(listActivity, ubicacionItem);
+                chooseEngineDialog.show(listActivity.getSupportFragmentManager(), "example dialog");
             });
         }
     }
 
-    public UbicacionAdapter(Context context, ArrayList<UbicacionItem> ubicacionList){
+    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList){
         this.ubicacionList = ubicacionList;
         this.ubicacionListFull = new ArrayList<>();
-        this.context = context;
+        this.listActivity = listActivity;
     }
 
     @NonNull
     @Override
     public UbicacionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(listActivity);
         View view = inflater.inflate(R.layout.list_card_layout, parent, false);
         return new UbicacionViewHolder(view);
     }
