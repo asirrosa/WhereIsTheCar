@@ -158,7 +158,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartNavegation:
-                boolean simulateRoute = true;
+                boolean simulateRoute = false;
                 NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                         .directionsRoute(currentRoute)
                         .shouldSimulateRoute(simulateRoute)
@@ -382,7 +382,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         if (navigationMapRoute != null) {
             navigationMapRoute.removeRoute();
         } else {
-            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationViewDark);
         }
 
         //esto de aqui sirve para que en la barra de abajo te ponga que tipo de transporte tiene la ruta, que distancia tiene y el tiempo que vas a tardar
