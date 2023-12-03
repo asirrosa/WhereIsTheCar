@@ -3,7 +3,6 @@ package Main;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-
 import static Main.SearchActivity.REQUEST_CODE_AUTOCOMPLETE;
 
 import android.annotation.SuppressLint;
@@ -13,47 +12,28 @@ import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.JsonIOException;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.api.directions.v5.MapboxDirections;
-import com.mapbox.api.directions.v5.WalkingOptions;
-import com.mapbox.api.directions.v5.models.BannerInstructions;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
-import com.mapbox.api.directions.v5.models.LegAnnotation;
-import com.mapbox.api.directions.v5.models.LegStep;
-import com.mapbox.api.directions.v5.models.RouteLeg;
-import com.mapbox.api.directions.v5.models.RouteOptions;
-import com.mapbox.api.directions.v5.models.StepIntersection;
-import com.mapbox.api.directions.v5.models.StepManeuver;
-import com.mapbox.api.directions.v5.models.VoiceInstructions;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -71,13 +51,7 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
-import com.mapbox.services.android.navigation.v5.navigation.NavigationWalkingOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -133,7 +107,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         //para que de default este cargado el array y ademas el modo sea el de driving
         exclude = new String[3];
         transporte = "driving";
-
     }
 
     /**
@@ -185,7 +158,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                 Intent intent = new PlaceAutocomplete.IntentBuilder()
                         .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))
                         .placeOptions(PlaceOptions.builder()
-                                .backgroundColor(Color.parseColor("#EEEEEE"))
+                                .backgroundColor(Color.parseColor("#7678ED"))
                                 .limit(10)
                                 .hint("Busca aqui")
                                 .language("es")
@@ -204,7 +177,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        mapboxMap.setStyle(getString(R.string.navigation_guidance_day), style -> {
+        mapboxMap.setStyle(getString(R.string.navigation_guidance_night), style -> {
             enableLocationComponent(style);
             addDestinationIconSymbolLayer(style);
             double[] arrayLatLng = getIntent().getDoubleArrayExtra("arrayLatLng");
@@ -290,7 +263,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                 //esto sirve para calcular el centro entre dos puntos, de esta manera se muestra la ruta desde arriba
                 LatLngBounds latLngBounds = new LatLngBounds.Builder().include(originLatLng).include(destinationLatLng).build();
                 //este metodo sirve para mostrarte la ruta entre dos puntos de manera completa
-                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds,100));
+                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds,80));
 
                 //hacer el boton de navegacion visible
                 btnStartNavegation.setVisibility(FloatingActionButton.VISIBLE);
@@ -454,6 +427,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
     @Override

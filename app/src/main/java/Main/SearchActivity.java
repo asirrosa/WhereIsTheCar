@@ -100,7 +100,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 Intent intent = new PlaceAutocomplete.IntentBuilder()
                         .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))
                         .placeOptions(PlaceOptions.builder()
-                                .backgroundColor(Color.parseColor("#EEEEEE"))
+                                .backgroundColor(Color.parseColor("#7678ED"))
                                 .limit(10)
                                 .hint("Busca aqui")
                                 .language("es")

@@ -1,13 +1,21 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-    compileSdkVersion 31
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    compileSdkVersion 34
     namespace = "Main"
     defaultConfig {
         applicationId "com.UbiManager"
         minSdkVersion 26
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
@@ -34,15 +42,19 @@ dependencies {
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'androidx.core:core-ktx:+'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('androidx.test:core:1.5.0')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     //maptiles dependencies
     //implementation 'org.maplibre.gl:android-sdk:9.5.2'
-    //mapbox dependencies
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6'
-    //mapbox places -- buscador de sitios
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-places-v9:0.12.0'
-    //mapbox 3D building -- te muestra sitios en 3D
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-building-v9:0.7.0'
+    //mapbox JAVA SDK dependencies
+    implementation'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6'
+    implementation'com.mapbox.mapboxsdk:mapbox-android-plugin-places-v9:0.12.0'
+    implementation'com.mapbox.mapboxsdk:mapbox-android-plugin-building-v9:0.7.0'
+    //mapbox map -- KOTLIN DEPENDENCIES
+  /*  implementation "com.mapbox.maps:android:11.0.0"
+    implementation "com.mapbox.navigation:android:2.10.1"
+    implementation "com.mapbox.navigation:ui-dropin:2.10.1"*/
 }
