@@ -2,8 +2,6 @@ package Main;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -16,7 +14,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;

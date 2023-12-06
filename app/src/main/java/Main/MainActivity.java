@@ -33,10 +33,10 @@ import java.time.LocalDateTime;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     //boton para guardar la ubicacion
-    Button btnNavegar,btnGuardar;
+    Button btnNavegar, btnGuardar;
     FloatingActionButton btnLista;
     ProgressBar progressBar;
-    private double latitude,longitude;
+    private double latitude, longitude;
     GPSTracker gps;
     MenuItem itemHelp;
 
@@ -90,18 +90,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View view){
-        switch (view.getId()){
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.btnNavegar:
-                if(isNetworkAvailable()) {
-                    comprobarGPSNavegador();
-                }
-                else{
-                    Toast.makeText(this,"Por favor conectate a Internet",Toast.LENGTH_SHORT).show();
+                if (isNetworkAvailable()) {
+                    main = this;
+                    Intent intent = new Intent(this, NavigationActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Por favor conectate a Internet", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btnGuardar:
                 try {
+                    main = this;
                     añadirUbicacion();
                 } catch (CustomException e) {
                     e.printStackTrace();
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.help:
                 Intent intent = new Intent(this, HelpActivity.class);
                 startActivity(intent);
@@ -125,32 +127,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    private void comprobarGPSNavegador(){
-        main = this;
+    public boolean estaActivoGPS() {
         gps = new GPSTracker(this);
-        if (gps.isGPSAllowed && gps.isGPSEnabled) {
-            if(gps.location != null) {
-                Intent intent = new Intent(this, NavigationActivity.class);
-                startActivity(intent);
-            }
-            else{
-                SubCargarGPS subCargarGPS = new SubCargarGPS();
-                subCargarGPS.execute();
-            }
-        } else if(!gps.isGPSEnabled){
-            gps.showSettingsAlert();
+        if (gps.location == null) {
+            return false;
         }
+        return true;
     }
 
     /**
      * Metodo para añadir una ubicacion despues de darle al boton, se hacen diferentes comprobaciones
      */
     public void añadirUbicacion() throws CustomException {
-        main = this;
         gps = new GPSTracker(this);
         //En primer lugar miras si el servicio esta habilitado
         if (gps.isGPSAllowed && gps.isGPSEnabled) {
-            if(gps.location != null) {
+            if (gps.location != null) {
                 latitude = gps.location.getLatitude();
                 longitude = gps.location.getLongitude();
                 //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
@@ -159,17 +151,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     sinConexion();
                 }
-            }
-            else{
+            } else {
                 SubCargarGPS subCargarGPS = new SubCargarGPS();
                 subCargarGPS.execute();
             }
-        } else if(!gps.isGPSEnabled){
+        } else if (!gps.isGPSEnabled) {
             gps.showSettingsAlert();
         }
     }
 
-    public void sinConexion(){
+    public void sinConexion() {
         SinConexionDialog exampleDialog = new SinConexionDialog();
         exampleDialog.show(getSupportFragmentManager(), "example dialog");
     }
@@ -205,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         name = placeName;
                     }
                     //para guardarlo en la base de datos
-                    guardarEnDB(name,description);
+                    guardarEnDB(name, description);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -220,17 +211,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Metodo para guardar la nueva ubicacion en la base de datos
      */
-    public void guardarEnDB(String nombre, String descripcion){
+    public void guardarEnDB(String nombre, String descripcion) {
         MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
         LocalDateTime startDateTime = LocalDateTime.now();
-        myDB.addUbicacion(startDateTime,nombre,descripcion,latitude,longitude);
+        myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
     }
 
     /**
      * Metodo para actualizar el layout principal, se utiliza para ver que algo esta cargando, se ha cargado...
      */
-    public void actualizacionesLayout(int visibility, int drawable, boolean guardar){
+    public void actualizacionesLayout(int visibility, int drawable, boolean guardar) {
         progressBar.setVisibility(visibility);
         btnGuardar.setBackground(ResourcesCompat.getDrawable(getResources(), drawable, null));
         btnGuardar.setEnabled(guardar);
@@ -241,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * LLamada a otro layout donde se guardan la lista de todas las ubicaciones
      */
-    public void listaUbicaciones(View view){
+    public void listaUbicaciones(View view) {
         Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
     }
@@ -255,12 +246,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Metodo threads que sirve para esperar a que el gps se active
      */
-    private class SubCargarGPS extends AsyncTask<Void,Void,Void> {
+    private class SubCargarGPS extends AsyncTask<Void, Void, Void> {
 
         //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
         @Override
         protected void onPreExecute() {
-            MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
             actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background, false);
             super.onPreExecute();
         }
@@ -268,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
         @Override
         protected Void doInBackground(Void... params) {
-            while(gps.location == null){
+            while (gps.location == null) {
                 gps.onLocationChanged(gps.location);
                 gps.getLocation();
             }
