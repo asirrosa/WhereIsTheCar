@@ -13,8 +13,10 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -38,6 +40,7 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
@@ -53,6 +56,8 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -211,21 +216,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        mapboxMap.addOnMoveListener(new MapboxMap.OnMoveListener() {
-            @Override
-            public void onMoveBegin(@NonNull MoveGestureDetector detector) {
-            }
-
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onMove(@NonNull MoveGestureDetector detector) {
-                btnMyLocation.setVisibility(FloatingActionButton.VISIBLE);
-            }
-
-            @Override
-            public void onMoveEnd(@NonNull MoveGestureDetector detector) {
-            }
-        });
         mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
             SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
             // Add the symbol layer icon to map for future use
@@ -304,7 +294,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                                     .zoom(14)
                                     .build()), 4000);
 
-                    btnMyLocation.setVisibility(FloatingActionButton.VISIBLE);
                 }
             }
         }
@@ -508,7 +497,9 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                                             location.getLatitude()
                                     );
 
-                                    btnMyLocation.setVisibility(FloatingActionButton.INVISIBLE);
+                                    LatLng point = new LatLng(originPoint.latitude(),originPoint.longitude());
+                                    MarkerOptions markerOptions = new MarkerOptions().position(point);
+                                    mapboxMap.addMarker(markerOptions);
 
                                     mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                                             new CameraPosition.Builder()
@@ -533,7 +524,10 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                             }
                         });
                     } else {
-                        btnMyLocation.setVisibility(FloatingActionButton.INVISIBLE);
+
+                        LatLng point = new LatLng(originPoint.latitude(),originPoint.longitude());
+                        MarkerOptions markerOptions = new MarkerOptions().position(point);
+                        mapboxMap.addMarker(markerOptions);
 
                         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                                 new CameraPosition.Builder()
