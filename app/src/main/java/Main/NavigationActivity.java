@@ -6,17 +6,24 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 import static Main.SearchActivity.REQUEST_CODE_AUTOCOMPLETE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,10 +33,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.android.gestures.MoveGestureDetector;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
@@ -47,6 +63,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
@@ -74,7 +91,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     private NavigationMapRoute navigationMapRoute;
     private MenuItem itemSearch, itemRouteOptions;
     private String geojsonSourceLayerId = "geojsonSourceLayerId";
-    private FloatingActionButton btnStartNavegation, btnUno, btnDos;
+    private FloatingActionButton btnStartNavegation, btnUno, btnDos, btnMyLocation;
     public String transporte;
     public String[] exclude;
     private Point originPoint;
@@ -84,7 +101,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     private LinearLayout barraAbajo;
     //de normal esto es false
     public UbicacionItem ubicacionItem;
-    private GPSTracker gps;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
 
     @Override
@@ -105,15 +122,19 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         btnDos = findViewById(R.id.btnDos);
         btnDos.setOnClickListener(this);
 
+        btnMyLocation = findViewById(R.id.btnMyLocation);
+        btnMyLocation.setOnClickListener(this);
+
         barraAbajo = findViewById(R.id.barraAbajo);
         ivTransporte = findViewById(R.id.ivTransporte);
         textDuration = findViewById(R.id.textDuration);
         textDistance = findViewById(R.id.textDistance);
-        progressBar = findViewById(R.id.progressBarNavigation);
 
         //para que de default este cargado el array y ademas el modo sea el de driving
         exclude = new String[3];
         transporte = "driving";
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     /**
@@ -138,21 +159,24 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartNavegation:
-                comprobarGPSNavegador(NavigationActivity.this);
+                getLocation(true);
                 break;
 
-        case R.id.btnUno:
-        changeRoute(oneRoute);
-        changeRouteButtonColor(R.color.mapbox_blue, R.color.greyDark);
-        break;
+            case R.id.btnUno:
+                changeRoute(oneRoute);
+                changeRouteButtonColor(R.color.mapbox_blue, R.color.greyDark);
+                break;
 
-        case R.id.btnDos:
-        changeRoute(twoRoute);
-        changeRouteButtonColor(R.color.greyDark, R.color.mapbox_blue);
-        break;
+            case R.id.btnDos:
+                changeRoute(twoRoute);
+                changeRouteButtonColor(R.color.greyDark, R.color.mapbox_blue);
+                break;
+            case R.id.btnMyLocation:
+                getLocation(false);
+                break;
+        }
+
     }
-
-}
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -187,7 +211,23 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+        mapboxMap.addOnMoveListener(new MapboxMap.OnMoveListener() {
+            @Override
+            public void onMoveBegin(@NonNull MoveGestureDetector detector) {
+            }
+
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onMove(@NonNull MoveGestureDetector detector) {
+                btnMyLocation.setVisibility(FloatingActionButton.VISIBLE);
+            }
+
+            @Override
+            public void onMoveEnd(@NonNull MoveGestureDetector detector) {
+            }
+        });
         mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+            SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
             // Add the symbol layer icon to map for future use
             style.addImage("symbolIconId", BitmapFactory.decodeResource(
                     NavigationActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
@@ -200,8 +240,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
             // Set up a new symbol layer for displaying the searched location's feature coordinates
             style.addLayer(new SymbolLayer("SYMBOL_LAYER_ID", geojsonSourceLayerId).withProperties(
                     iconImage("symbolIconId"),
-                    iconOffset(new Float[] {0f, -8f})));
-
+                    iconOffset(new Float[]{0f, -8f})));
 
         });
     }
@@ -211,7 +250,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(this, loadedMapStyle);
-            locationComponent.setLocationComponentEnabled(true);
+            //locationComponent.setLocationComponentEnabled(true);
             locationComponent.setCameraMode(CameraMode.TRACKING);
         } else {
             permissionsManager = new PermissionsManager(this);
@@ -264,6 +303,8 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                                     .target(new LatLng(destinationPoint.latitude(), (destinationPoint.longitude())))
                                     .zoom(14)
                                     .build()), 4000);
+
+                    btnMyLocation.setVisibility(FloatingActionButton.VISIBLE);
                 }
             }
         }
@@ -432,78 +473,93 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         navigationDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
-    public void irAlSitioGuardadoPreviamente(double[] arrayLatLng) {
-        destinationPoint = Point.fromLngLat(
-                arrayLatLng[1],
-                arrayLatLng[0]
-        );
-        originPoint = Point.fromLngLat(
-                locationComponent.getLastKnownLocation().getLongitude(),
-                locationComponent.getLastKnownLocation().getLatitude()
-        );
-        getRoutes();
-    }
+    @SuppressLint("RestrictedApi")
+    private void getLocation(boolean nav) {
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-    public void comprobarGPSNavegador(NavigationActivity navigationActivity) {
-        gps = new GPSTracker(navigationActivity);
-        if (gps.isGPSAllowed && gps.isGPSEnabled) {
-            if (gps.location != null) {
-                //Pongo esto para que el origin point no de null, el destination point se
-                //asigna ya al buscar
-                originPoint = Point.fromLngLat(
-                        locationComponent.getLastKnownLocation().getLongitude(),
-                        locationComponent.getLastKnownLocation().getLatitude()
-                );
-                if(navigationActivity.currentRoute == null){
-                    navigationActivity.getRoutes();
-                    Toast.makeText(navigationActivity,"Elige la ruta que quieras",Toast.LENGTH_SHORT);
-                }
-                else {
-                    boolean simulateRoute = false;
-                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                            .directionsRoute(navigationActivity.currentRoute)
-                            .shouldSimulateRoute(simulateRoute)
-                            .build();
-                    NavigationLauncher.startNavigation(navigationActivity, options);
-                }
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                Toast.makeText(this, "Por favor dale los permisos de ubicación a la aplicación", Toast.LENGTH_SHORT).show();
+
             } else {
-                SubCargarGPS subCargarGPS = new SubCargarGPS();
-                subCargarGPS.execute();
+                if (isGPSEnabled) {
+                    if (originPoint == null) {
+                        fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
+                            @NonNull
+                            @Override
+                            public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
+                                return null;
+                            }
+
+                            @Override
+                            public boolean isCancellationRequested() {
+                                return false;
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<Location>() {
+                            @SuppressLint("RestrictedApi")
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    originPoint = Point.fromLngLat(
+                                            location.getLongitude(),
+                                            location.getLatitude()
+                                    );
+
+                                    btnMyLocation.setVisibility(FloatingActionButton.INVISIBLE);
+
+                                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                            new CameraPosition.Builder()
+                                                    .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+                                                    .zoom(14)
+                                                    .build()), 4000);
+
+                                    if (nav) {
+                                        if (currentRoute == null) {
+                                            getRoutes();
+                                            Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
+                                        } else {
+                                            boolean simulateRoute = false;
+                                            NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                                    .directionsRoute(currentRoute)
+                                                    .shouldSimulateRoute(simulateRoute)
+                                                    .build();
+                                            NavigationLauncher.startNavigation(NavigationActivity.this, options);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        btnMyLocation.setVisibility(FloatingActionButton.INVISIBLE);
+
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                new CameraPosition.Builder()
+                                        .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+                                        .zoom(14)
+                                        .build()), 4000);
+                    }
+                } else {
+                    showSettingsAlert();
+                }
             }
-        } else if (!gps.isGPSEnabled) {
-            gps.showSettingsAlert();
         }
     }
 
-    /**
-     * Metodo threads que sirve para esperar a que el gps se active
-     */
-    private class SubCargarGPS extends AsyncTask<Void, Void, Void> {
-
-        //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-            super.onPreExecute();
-        }
-
-        //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
-        @Override
-        protected Void doInBackground(Void... params) {
-            while (gps.location == null) {
-                gps.onLocationChanged(gps.location);
-                gps.getLocation();
-            }
-            return null;
-        }
-
-        //Despues de que el GPS se active se hace esto
-        @Override
-        protected void onPostExecute(Void unused) {
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
-            super.onPostExecute(unused);
-        }
+    public void showSettingsAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
+        //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            getApplicationContext().startActivity(intent);
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
     }
 
     @Override

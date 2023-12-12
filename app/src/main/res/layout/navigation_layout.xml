@@ -14,19 +14,6 @@
         mapbox:mapbox_cameraTargetLng="-3.691188"
         mapbox:mapbox_cameraZoom="10" />
 
-    <ProgressBar
-        android:id="@+id/progressBarNavigation"
-        style="@style/ProgressBarMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_gravity="center"
-        android:visibility="invisible"/>
-
-
     <LinearLayout
         android:id="@+id/barraAbajo"
         android:visibility="invisible"
@@ -73,6 +60,20 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnMyLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="20sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnStartNavegation"
+        mapbox:backgroundTint="@color/black"
+        mapbox:srcCompat="@drawable/ic_my_location"
+        tools:ignore="MissingConstraints" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnStartNavegation"

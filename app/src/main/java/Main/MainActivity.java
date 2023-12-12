@@ -1,12 +1,18 @@
 package Main;
 
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,20 +21,36 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mapbox.geojson.Point;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.Executor;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
@@ -36,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button btnNavegar, btnGuardar;
     FloatingActionButton btnLista;
     ProgressBar progressBar;
-    private double latitude, longitude;
-    GPSTracker gps;
+    public double latitude, longitude;
     MenuItem itemHelp;
+    public FusedLocationProviderClient fusedLocationProviderClient;
 
     //Singleton
     private static MainActivity main = null;
@@ -76,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //El botón de la lista de ubicaciones
         btnLista = findViewById(R.id.btnLista);
         btnLista.setOnClickListener(this);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     @Override
@@ -102,12 +126,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.btnGuardar:
-                try {
-                    main = this;
-                    añadirUbicacion();
-                } catch (CustomException e) {
-                    e.printStackTrace();
-                }
+                main = this;
+                getLocation();
                 break;
 
             case R.id.btnLista:
@@ -125,39 +145,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return false;
-    }
-
-    public boolean estaActivoGPS() {
-        gps = new GPSTracker(this);
-        if (gps.location == null) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Metodo para añadir una ubicacion despues de darle al boton, se hacen diferentes comprobaciones
-     */
-    public void añadirUbicacion() throws CustomException {
-        gps = new GPSTracker(this);
-        //En primer lugar miras si el servicio esta habilitado
-        if (gps.isGPSAllowed && gps.isGPSEnabled) {
-            if (gps.location != null) {
-                latitude = gps.location.getLatitude();
-                longitude = gps.location.getLongitude();
-                //PARA CONSEGUIR EL NOMBRE DE LA UBICACION ACTUAL
-                if (gps.isNetworkAvailable()) {
-                    conConexion();
-                } else {
-                    sinConexion();
-                }
-            } else {
-                SubCargarGPS subCargarGPS = new SubCargarGPS();
-                subCargarGPS.execute();
-            }
-        } else if (!gps.isGPSEnabled) {
-            gps.showSettingsAlert();
-        }
     }
 
     public void sinConexion() {
@@ -212,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Metodo para guardar la nueva ubicacion en la base de datos
      */
     public void guardarEnDB(String nombre, String descripcion) {
-        MyDatabaseHelper myDB = new MyDatabaseHelper(MainActivity.this);
+        MyDatabaseHelper myDB = new MyDatabaseHelper(this);
         LocalDateTime startDateTime = LocalDateTime.now();
         myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
@@ -237,40 +224,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
     }
 
+    private void getLocation() {
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this, "Por favor dale los permisos de ubicación a la aplicación", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+
+            } else {
+                if (isGPSEnabled) {
+                    fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
+                        @NonNull
+                        @Override
+                        public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
+                            return null;
+                        }
+
+                        @Override
+                        public boolean isCancellationRequested() {
+                            return false;
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if(location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                                if (isNetworkAvailable()) {
+                                    conConexion();
+                                } else {
+                                    sinConexion();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    showSettingsAlert();
+                }
+            }
+        }
+    }
+
     private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
-     * Metodo threads que sirve para esperar a que el gps se active
+     * Metodo para mostrar el dialog que te dice si quieres activar el gps
      */
-    private class SubCargarGPS extends AsyncTask<Void, Void, Void> {
-
-        //Aqui le decimos que es lo que va a hacer mientras el gps esta iniciandose
-        @Override
-        protected void onPreExecute() {
-            actualizacionesLayout(ProgressBar.VISIBLE, R.drawable.button_loading_background, false);
-            super.onPreExecute();
-        }
-
-        //Este es un metodo para que espere, de esta manera esperamos hasta que el gps esta activado
-        @Override
-        protected Void doInBackground(Void... params) {
-            while (gps.location == null) {
-                gps.onLocationChanged(gps.location);
-                gps.getLocation();
-            }
-            return null;
-        }
-
-        //Despues de que el GPS se active se hace esto
-        @Override
-        protected void onPostExecute(Void unused) {
-            actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
-            Toast.makeText(getApplicationContext(), "GPS activado", Toast.LENGTH_SHORT).show();
-            super.onPostExecute(unused);
-        }
+    public void showSettingsAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
+        //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            getApplicationContext().startActivity(intent);
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
     }
 }
