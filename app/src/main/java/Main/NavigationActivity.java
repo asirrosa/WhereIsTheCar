@@ -10,22 +10,25 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,19 +39,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.tasks.CancellationToken;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnTokenCanceledListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.android.gestures.MoveGestureDetector;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
@@ -56,7 +51,6 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -80,19 +74,18 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NavigationActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, PermissionsListener, MenuItem.OnMenuItemClickListener {
+public class NavigationActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener,LocationListener, View.OnClickListener, OnMapReadyCallback, MenuItem.OnMenuItemClickListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
-    private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
     public DirectionsRoute currentRoute, oneRoute, twoRoute;
-    private ProgressBar progressBar;
     private NavigationMapRoute navigationMapRoute;
     private MenuItem itemSearch, itemRouteOptions;
     private String geojsonSourceLayerId = "geojsonSourceLayerId";
@@ -104,10 +97,8 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     private ImageView ivTransporte;
     private TextView textDuration, textDistance;
     private LinearLayout barraAbajo;
-    //de normal esto es false
-    public UbicacionItem ubicacionItem;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-
+    private boolean nav;
+    private NetworkStateReceiver networkStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +130,17 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         exclude = new String[3];
         transporte = "driving";
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
     }
 
     /**
@@ -164,7 +165,8 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartNavegation:
-                getLocation(true);
+                nav = true;
+                getLocation();
                 break;
 
             case R.id.btnUno:
@@ -177,7 +179,8 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
                 changeRouteButtonColor(R.color.greyDark, R.color.mapbox_blue);
                 break;
             case R.id.btnMyLocation:
-                getLocation(false);
+                nav = false;
+                getLocation();
                 break;
         }
 
@@ -217,16 +220,10 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
         mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
-            SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
-            // Add the symbol layer icon to map for future use
-            style.addImage("symbolIconId", BitmapFactory.decodeResource(
-                    NavigationActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
-            //esto es necesario para que te coja la ubicación
+            style.addImage("symbolIconId", BitmapFactory.decodeResource(NavigationActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
             addDestinationIconSymbolLayer(style);
-            enableLocationComponent(style);
-            // Create an empty GeoJSON source using the empty feature collection
+            showLocationIfActivated(style);
             style.addSource(new GeoJsonSource(geojsonSourceLayerId));
-
             // Set up a new symbol layer for displaying the searched location's feature coordinates
             style.addLayer(new SymbolLayer("SYMBOL_LAYER_ID", geojsonSourceLayerId).withProperties(
                     iconImage("symbolIconId"),
@@ -235,19 +232,17 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    @SuppressWarnings({"MissingPermission"})
-    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            locationComponent = mapboxMap.getLocationComponent();
-            locationComponent.activateLocationComponent(this, loadedMapStyle);
-            //locationComponent.setLocationComponentEnabled(true);
-            locationComponent.setCameraMode(CameraMode.TRACKING);
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
+    private void showLocationIfActivated(@NonNull Style loadedMapStyle){
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        if(locationManager != null){
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                }
+            }
         }
     }
-
 
     private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
         loadedMapStyle.addImage("destination-icon-id",
@@ -463,80 +458,50 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     }
 
     @SuppressLint("RestrictedApi")
-    private void getLocation(boolean nav) {
+    private void getLocation() {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         if (locationManager != null) {
-            boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-                Toast.makeText(this, "Por favor dale los permisos de ubicación a la aplicación", Toast.LENGTH_SHORT).show();
-
-            } else {
-                if (isGPSEnabled) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     if (originPoint == null) {
-                        fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
-                            @NonNull
-                            @Override
-                            public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
-                                return null;
-                            }
-
-                            @Override
-                            public boolean isCancellationRequested() {
-                                return false;
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<Location>() {
-                            @SuppressLint("RestrictedApi")
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location != null) {
-                                    originPoint = Point.fromLngLat(
-                                            location.getLongitude(),
-                                            location.getLatitude()
-                                    );
-
-                                    LatLng point = new LatLng(originPoint.latitude(),originPoint.longitude());
-                                    MarkerOptions markerOptions = new MarkerOptions().position(point);
-                                    mapboxMap.addMarker(markerOptions);
-
-                                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                                            new CameraPosition.Builder()
-                                                    .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
-                                                    .zoom(14)
-                                                    .build()), 4000);
-
-                                    if (nav) {
-                                        if (currentRoute == null) {
-                                            getRoutes();
-                                            Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
-                                        } else {
-                                            boolean simulateRoute = false;
-                                            NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                                    .directionsRoute(currentRoute)
-                                                    .shouldSimulateRoute(simulateRoute)
-                                                    .build();
-                                            NavigationLauncher.startNavigation(NavigationActivity.this, options);
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                        try {
+                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else {
-
-                        LatLng point = new LatLng(originPoint.latitude(),originPoint.longitude());
-                        MarkerOptions markerOptions = new MarkerOptions().position(point);
-                        mapboxMap.addMarker(markerOptions);
-
+                        locationComponent = mapboxMap.getLocationComponent();
+                        locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
+                        locationComponent.setLocationComponentEnabled(true);
+                        locationComponent.setCameraMode(CameraMode.TRACKING);
                         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                                 new CameraPosition.Builder()
-                                        .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+                                        .target(new LatLng(originPoint.latitude(), originPoint.longitude()))
                                         .zoom(14)
                                         .build()), 4000);
                     }
                 } else {
                     showSettingsAlert();
+                }
+            }
+            else{
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 100) {
+            for (int i = 0, len = permissions.length; i < len; i++) {
+                String permission = permissions[i];
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    // user rejected the permission
+                    boolean askAgain = shouldShowRequestPermissionRationale(permission);
+                    if (!askAgain) {
+                        Toast.makeText(this, "La aplicación no tiene permisos de ubicación", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
@@ -545,7 +510,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
     public void showSettingsAlert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
-        //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             getApplicationContext().startActivity(intent);
@@ -556,66 +520,56 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         builder.create().show();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            originPoint = Point.fromLngLat(
+                    location.getLongitude(),
+                    location.getLatitude()
+            );
 
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            enableLocationComponent(mapboxMap.getStyle());
-        } else {
-            Toast.makeText(this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
-            finish();
+            locationComponent = mapboxMap.getLocationComponent();
+            locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
+            locationComponent.setLocationComponentEnabled(true);
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition.Builder()
+                            .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+                            .zoom(14)
+                            .build()), 4000);
+
+            if (nav) {
+                if (currentRoute == null) {
+                    getRoutes();
+                    Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
+                } else {
+                    boolean simulateRoute = false;
+                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                            .directionsRoute(currentRoute)
+                            .shouldSimulateRoute(simulateRoute)
+                            .build();
+                    NavigationLauncher.startNavigation(NavigationActivity.this, options);
+                }
+            }
         }
     }
 
     @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(this, "Please allow GPS on your phone", Toast.LENGTH_SHORT).show();
-    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
+    public void onProviderEnabled(String provider) {}
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
+    public void onProviderDisabled(String provider) {}
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
+    public void networkAvailable() {}
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mapView.onStop();
+    public void networkUnavailable() {
+        Toast.makeText(this, "Se ha perdido la conexión a Internet", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
 }

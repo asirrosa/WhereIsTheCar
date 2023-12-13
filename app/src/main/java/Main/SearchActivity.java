@@ -6,6 +6,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -38,7 +39,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.time.LocalDateTime;
 
-public class SearchActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, MenuItem.OnMenuItemClickListener{
+public class SearchActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener,OnMapReadyCallback, View.OnClickListener, MenuItem.OnMenuItemClickListener{
 
     static final int REQUEST_CODE_AUTOCOMPLETE = 1;
     private MapView mapView;
@@ -48,6 +49,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     private UbicacionItem ubicacionItem;
     private FloatingActionButton btnSave;
     private MenuItem itemSearch;
+    private NetworkStateReceiver networkStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,18 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         mapView.getMapAsync(this);
         btnSave = findViewById(R.id.fab_location_save);
         btnSave.setOnClickListener(this);
+
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
     }
 
     /**
@@ -191,46 +205,11 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    // Add the mapView lifecycle to the activity's lifecycle methods
     @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
+    public void networkAvailable() {}
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mapView.onStop();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+    public void networkUnavailable() {
+        Toast.makeText(this, "Se ha perdido la conexión a Internet", Toast.LENGTH_SHORT).show();
     }
 }

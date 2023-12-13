@@ -29,7 +29,6 @@ public class SinConexionDialog extends AppCompatDialogFragment{
         builder.setView(view)
                 .setTitle("Modo Sin Conexión")
                 .setNegativeButton("cancelar", (dialogInterface, i) -> {
-                    MainActivity.getInstance().actualizacionesLayout(ProgressBar.GONE, R.drawable.button_main_click, true);
                     dialogInterface.cancel();
                 })
                 .setCancelable(false)
@@ -39,7 +38,7 @@ public class SinConexionDialog extends AppCompatDialogFragment{
 
                     if(nombre.equals("")){
                         Toast.makeText(MainActivity.getInstance(), "Por favor pon un nombre", Toast.LENGTH_SHORT).show();
-                        MainActivity.getInstance().sinConexion();
+                        MainActivity.getInstance().noConnectionDialog();
                     }
                     else{
                         MainActivity.getInstance().guardarEnDB(nombre,descripcion);
