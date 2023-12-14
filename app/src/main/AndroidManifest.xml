@@ -28,7 +28,6 @@
             android:name=".NavigationActivity"
             android:label="Navegador"
             android:exported="true"
-            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
