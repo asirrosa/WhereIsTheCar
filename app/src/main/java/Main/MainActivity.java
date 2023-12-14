@@ -221,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     String description = addresses.get(0).getAddressLine(0);
                     String name = addresses.get(0).getLocality();
                     guardarEnDB(name, description);
-                    Toast.makeText(this, "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e){
                     e.printStackTrace();
