@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
         LocalDateTime startDateTime = LocalDateTime.now();
         myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);
-        Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            getApplicationContext().startActivity(intent);
+            startActivity(intent);
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             dialogInterface.cancel();

@@ -10,8 +10,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -21,9 +19,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
@@ -32,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,9 +35,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
@@ -62,7 +55,6 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
@@ -72,7 +64,6 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -182,7 +173,6 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                 getLocation();
                 break;
         }
-
     }
 
     @SuppressLint("RestrictedApi")
@@ -221,17 +211,46 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
             style.addImage("symbolIconId", BitmapFactory.decodeResource(NavigationActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));
             addDestinationIconSymbolLayer(style);
-            showLocationIfActivated(style);
             style.addSource(new GeoJsonSource(geojsonSourceLayerId));
             // Set up a new symbol layer for displaying the searched location's feature coordinates
             style.addLayer(new SymbolLayer("SYMBOL_LAYER_ID", geojsonSourceLayerId).withProperties(
                     iconImage("symbolIconId"),
                     iconOffset(new Float[]{0f, -8f})));
-
+            //en caso de que vengas de la listactivity te enseña el destino y sino tu ubicacion donde tu estas
+            double[] arrayLatLng = getIntent().getDoubleArrayExtra("arrayLatLng");
+            if(arrayLatLng != null){
+                irAlSitioGuardadoPreviamente(arrayLatLng);
+            }
+            else {
+                showLocationIfActivated();
+            }
         });
     }
 
-    private void showLocationIfActivated(@NonNull Style loadedMapStyle) {
+    @SuppressLint("RestrictedApi")
+    private void irAlSitioGuardadoPreviamente(double[] arrayLatLng){
+        destinationPoint = Point.fromLngLat(
+                arrayLatLng[1],
+                arrayLatLng[0]
+        );
+
+        //para que se vea el botón
+        btnStartNavegation.setVisibility(FloatingActionButton.VISIBLE);
+
+        // Move map camera to the selected location
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                new CameraPosition.Builder()
+                        .target(new LatLng(destinationPoint.latitude(), (destinationPoint.longitude())))
+                        .zoom(14)
+                        .build()), 4000);
+
+        //para poner el marker
+        LatLng point = new LatLng(destinationPoint.latitude(),destinationPoint.longitude());
+        MarkerOptions markerOptions = new MarkerOptions().position(point);
+        mapboxMap.addMarker(markerOptions);
+    }
+
+    private void showLocationIfActivated() {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -519,7 +538,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            getApplicationContext().startActivity(intent);
+            startActivity(intent);
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             dialogInterface.cancel();
@@ -531,6 +550,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
+
             originPoint = Point.fromLngLat(
                     location.getLongitude(),
                     location.getLatitude()
