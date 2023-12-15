@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+
 import android.location.Geocoder;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -154,19 +155,49 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    try {
-                        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastLocation == null) {
+                        try {
+                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        processWithLocation(lastLocation);
                     }
+
                 } else {
                     showSettingsAlert();
                 }
-            }
-            else{
+            } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
             }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        if (location != null) {
+            processWithLocation(location);
+        }
+    }
+
+    private void processWithLocation(Location location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        if (isNetworkAvailable()) {
+            try {
+                Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                String description = addresses.get(0).getAddressLine(0);
+                String name = addresses.get(0).getLocality();
+                guardarEnDB(name, description);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            noConnectionDialog();
         }
     }
 
@@ -210,33 +241,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     @Override
-    public void onLocationChanged(@NonNull Location location) {
-        if(location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            if (isNetworkAvailable()) {
-                try {
-                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                    String description = addresses.get(0).getAddressLine(0);
-                    String name = addresses.get(0).getLocality();
-                    guardarEnDB(name, description);
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            } else {
-                noConnectionDialog();
-            }
-        }
+    public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onProviderEnabled(String provider) {
+    }
 
     @Override
-    public void onProviderEnabled(String provider) {}
-
-    @Override
-    public void onProviderDisabled(String provider) {}
+    public void onProviderDisabled(String provider) {
+    }
 }

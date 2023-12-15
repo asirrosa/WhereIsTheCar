@@ -480,16 +480,9 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    if(nav){
-                        try {
-                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-                        if (originPoint == null) {
+                    Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if(lastLocation == null) {
+                        if (nav) {
                             try {
                                 locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
                                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
@@ -497,16 +490,28 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                                 e.printStackTrace();
                             }
                         } else {
-                            locationComponent = mapboxMap.getLocationComponent();
-                            locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
-                            locationComponent.setLocationComponentEnabled(true);
-                            locationComponent.setCameraMode(CameraMode.TRACKING);
-                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                                    new CameraPosition.Builder()
-                                            .target(new LatLng(originPoint.latitude(), originPoint.longitude()))
-                                            .zoom(14)
-                                            .build()), 4000);
+                            if (originPoint == null) {
+                                try {
+                                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                locationComponent = mapboxMap.getLocationComponent();
+                                locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
+                                locationComponent.setLocationComponentEnabled(true);
+                                locationComponent.setCameraMode(CameraMode.TRACKING);
+                                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                        new CameraPosition.Builder()
+                                                .target(new LatLng(originPoint.latitude(), originPoint.longitude()))
+                                                .zoom(14)
+                                                .build()), 4000);
+                            }
                         }
+                    }
+                    else{
+                        processWithLocation(lastLocation);
                     }
                 } else {
                     showSettingsAlert();
@@ -514,6 +519,45 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
             }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            processWithLocation(location);
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void processWithLocation(Location location){
+        originPoint = Point.fromLngLat(
+                location.getLongitude(),
+                location.getLatitude()
+        );
+
+        if (nav) {
+            if (currentRoute == null) {
+                getRoutes();
+                Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
+            } else {
+                boolean simulateRoute = false;
+                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                        .directionsRoute(currentRoute)
+                        .shouldSimulateRoute(simulateRoute)
+                        .build();
+                NavigationLauncher.startNavigation(NavigationActivity.this, options);
+            }
+        } else {
+            locationComponent = mapboxMap.getLocationComponent();
+            locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
+            locationComponent.setLocationComponentEnabled(true);
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition.Builder()
+                            .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+                            .zoom(14)
+                            .build()), 4000);
         }
     }
 
@@ -544,42 +588,6 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
             dialogInterface.cancel();
         });
         builder.create().show();
-    }
-
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-
-            originPoint = Point.fromLngLat(
-                    location.getLongitude(),
-                    location.getLatitude()
-            );
-
-            if (nav) {
-                if (currentRoute == null) {
-                    getRoutes();
-                    Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
-                } else {
-                    boolean simulateRoute = false;
-                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                            .directionsRoute(currentRoute)
-                            .shouldSimulateRoute(simulateRoute)
-                            .build();
-                    NavigationLauncher.startNavigation(NavigationActivity.this, options);
-                }
-            } else {
-                locationComponent = mapboxMap.getLocationComponent();
-                locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
-                locationComponent.setLocationComponentEnabled(true);
-                locationComponent.setCameraMode(CameraMode.TRACKING);
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                        new CameraPosition.Builder()
-                                .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
-                                .zoom(14)
-                                .build()), 4000);
-            }
-        }
     }
 
     @Override
