@@ -218,17 +218,16 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                     iconOffset(new Float[]{0f, -8f})));
             //en caso de que vengas de la listactivity te enseña el destino y sino tu ubicacion donde tu estas
             double[] arrayLatLng = getIntent().getDoubleArrayExtra("arrayLatLng");
-            if(arrayLatLng != null){
+            if (arrayLatLng != null) {
                 irAlSitioGuardadoPreviamente(arrayLatLng);
-            }
-            else {
+            } else {
                 showLocationIfActivated();
             }
         });
     }
 
     @SuppressLint("RestrictedApi")
-    private void irAlSitioGuardadoPreviamente(double[] arrayLatLng){
+    private void irAlSitioGuardadoPreviamente(double[] arrayLatLng) {
         destinationPoint = Point.fromLngLat(
                 arrayLatLng[1],
                 arrayLatLng[0]
@@ -245,7 +244,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                         .build()), 4000);
 
         //para poner el marker
-        LatLng point = new LatLng(destinationPoint.latitude(),destinationPoint.longitude());
+        LatLng point = new LatLng(destinationPoint.latitude(), destinationPoint.longitude());
         MarkerOptions markerOptions = new MarkerOptions().position(point);
         mapboxMap.addMarker(markerOptions);
     }
@@ -481,36 +480,14 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if(lastLocation == null) {
-                        if (nav) {
-                            try {
-                                locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            if (originPoint == null) {
-                                try {
-                                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                locationComponent = mapboxMap.getLocationComponent();
-                                locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
-                                locationComponent.setLocationComponentEnabled(true);
-                                locationComponent.setCameraMode(CameraMode.TRACKING);
-                                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                                        new CameraPosition.Builder()
-                                                .target(new LatLng(originPoint.latitude(), originPoint.longitude()))
-                                                .zoom(14)
-                                                .build()), 4000);
-                            }
+                    if (lastLocation == null) {
+                        try {
+                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }
-                    else{
+                    } else {
                         processWithLocation(lastLocation);
                     }
                 } else {
@@ -530,7 +507,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
     }
 
     @SuppressLint("MissingPermission")
-    private void processWithLocation(Location location){
+    private void processWithLocation(Location location) {
         originPoint = Point.fromLngLat(
                 location.getLongitude(),
                 location.getLatitude()
