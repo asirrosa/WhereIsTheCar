@@ -89,6 +89,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
     private TextView textDuration, textDistance;
     private LinearLayout barraAbajo;
     private boolean nav;
+    private boolean navegar;
     private NetworkStateReceiver networkStateReceiver;
 
     @Override
@@ -157,6 +158,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         switch (view.getId()) {
             case R.id.btnStartNavegation:
                 nav = true;
+                navegar = true;
                 getLocation();
                 break;
             case R.id.btnUno:
@@ -170,6 +172,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                 break;
             case R.id.btnMyLocation:
                 nav = false;
+                navegar = true;
                 getLocation();
                 break;
         }
@@ -502,7 +505,10 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            processWithLocation(location);
+            if(navegar) {
+                navegar = false;
+                processWithLocation(location);
+            }
         }
     }
 

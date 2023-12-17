@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     FloatingActionButton btnLista;
     public double latitude, longitude;
     MenuItem itemHelp;
+    private boolean pulsar;
 
     //Singleton
     private static MainActivity main = null;
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 break;
             case R.id.btnGuardar:
                 main = this;
+                pulsar = true;
                 getLocation();
                 break;
 
@@ -166,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     } else {
                         processWithLocation(lastLocation);
                     }
-
                 } else {
                     showSettingsAlert();
                 }
@@ -179,7 +180,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onLocationChanged(@NonNull Location location) {
         if (location != null) {
-            processWithLocation(location);
+            if(pulsar) {
+                pulsar = false;
+                processWithLocation(location);
+            }
         }
     }
 
