@@ -166,7 +166,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             e.printStackTrace();
                         }
                     } else {
-                        processWithLocation(lastLocation);
+                        if(pulsar) {
+                            pulsar = false;
+                            processWithLocation(lastLocation);
+                        }
                     }
                 } else {
                     showSettingsAlert();

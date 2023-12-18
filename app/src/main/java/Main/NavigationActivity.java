@@ -491,7 +491,10 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
                             e.printStackTrace();
                         }
                     } else {
-                        processWithLocation(lastLocation);
+                        if(navegar) {
+                            navegar = false;
+                            processWithLocation(lastLocation);
+                        }
                     }
                 } else {
                     showSettingsAlert();
