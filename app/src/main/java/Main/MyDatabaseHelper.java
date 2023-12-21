@@ -1,5 +1,6 @@
 package Main;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -54,7 +55,8 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
-        String addUbicacion = "INSERT INTO " + TABLE_NAME_UBICACION +
+        //De momento lo desecho porque no es seguro
+        /*String addUbicacion = "INSERT INTO " + TABLE_NAME_UBICACION +
                 "(" + COLUMN_UBICACION_DATE_TIME + "," +
                 COLUMN_UBICACION_NOMBRE + "," +
                 COLUMN_UBICACION_DESCRIPCION + "," +
@@ -66,7 +68,16 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
                 lat + "," +
                 lon + ");";
 
-        db.execSQL(addUbicacion);
+                db.execSQL(addUbicacion);
+        */
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_UBICACION_DATE_TIME,fechaHora.toString());
+        values.put(COLUMN_UBICACION_NOMBRE,nombre);
+        values.put(COLUMN_UBICACION_DESCRIPCION,descipcion);
+        values.put(COLUMN_UBICACION_LAT,lat);
+        values.put(COLUMN_UBICACION_LON,lon);
+        db.insert(TABLE_NAME_UBICACION,null,values);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Light application theme. -->
-    <style name="Theme.DarkModeExample" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.DarkModeExample" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/toolbarLight</item>
         <item name="colorPrimaryDark">@color/notificacionLight</item>

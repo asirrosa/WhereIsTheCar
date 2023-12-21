@@ -20,10 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public double latitude, longitude;
     MenuItem itemHelp;
     private boolean pulsar;
+    private Toolbar toolbar;
+    private TextView toolbarTitle;
 
     //Singleton
     private static MainActivity main = null;
@@ -68,6 +72,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         //Para que al iniciar cargue el layout del inicio
         setContentView(R.layout.main_layout);
+
+        toolbar=findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
+        toolbarTitle.setText("UbiManager");
 
         //El botón de guardar
         btnGuardar = findViewById(R.id.btnGuardar);

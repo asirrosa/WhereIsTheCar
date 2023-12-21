@@ -59,6 +59,7 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
                 arrayLatLng[1] = ubicacionItem.getLon();
                 intent.putExtra("arrayLatLng", arrayLatLng);
                 startActivity(intent);
+                dismiss();
                 break;
             case R.id.btnGoogleMaps:
                 //Para que cada vez que clickes en un item te mande a la ubicación de google maps
@@ -66,6 +67,7 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 listActivity.startActivity(mapIntent);
+                dismiss();
                 break;
         }
     }

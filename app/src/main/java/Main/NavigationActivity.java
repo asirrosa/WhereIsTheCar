@@ -30,8 +30,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -91,6 +93,8 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
     private boolean nav;
     private boolean navegar;
     private NetworkStateReceiver networkStateReceiver;
+    private Toolbar toolbar;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +104,12 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        toolbar=findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
+        toolbarTitle.setText("Ubicaciones");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         btnStartNavegation = findViewById(R.id.btnStartNavegation);
         btnStartNavegation.setOnClickListener(this);

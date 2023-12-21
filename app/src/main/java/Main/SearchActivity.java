@@ -14,10 +14,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
@@ -50,6 +52,8 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
     private FloatingActionButton btnSave;
     private MenuItem itemSearch;
     private NetworkStateReceiver networkStateReceiver;
+    private Toolbar toolbar;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,12 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.search_layout);
+
+        toolbar=findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
+        toolbarTitle.setText("Ubicaciones");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);

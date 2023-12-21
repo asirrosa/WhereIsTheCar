@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
+    <include layout="@layout/toolbar" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        mapbox:mapbox_cameraBearing="300"
-        mapbox:mapbox_cameraTargetLat="43.264102"
-        mapbox:mapbox_cameraTargetLng="-2.949372"
-        mapbox:mapbox_cameraTilt="60"
-        mapbox:mapbox_cameraZoom="16" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            mapbox:mapbox_cameraBearing="300"
+            mapbox:mapbox_cameraTargetLat="43.264102"
+            mapbox:mapbox_cameraTargetLng="-2.949372"
+            mapbox:mapbox_cameraTilt="60"
+            mapbox:mapbox_cameraZoom="16" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

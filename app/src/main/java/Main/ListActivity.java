@@ -10,12 +10,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,9 +32,10 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     ImageView empty_imageview;
     UbicacionAdapter ubicacionAdapter;
     TextView no_data;
-    MenuItem itemSearch;
-    MenuItem itemDelete;
-    MenuItem itemAddLocation;
+    MenuItem itemDeleteAll,itemSearch,itemAddLocation;
+    public Toolbar toolbar;
+    public TextView toolbarTitle;
+
 
     /**
      * Metodo onCreate que rellena el layout con los diferentes ubicaciones guardadas
@@ -41,14 +44,32 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_layout);
+
+        toolbar=findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
+        toolbarTitle.setText("Ubicaciones");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         recyclerUbicaciones = findViewById(R.id.recyclerUbicaciones);
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
+
 
         myDB = new MyDatabaseHelper(ListActivity.this);
         storeDataInArrays();
         recyclerUbicaciones.setAdapter(ubicacionAdapter);
         recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+
+        //para gestionar el back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ubicacionAdapter.isEnable){
+                    ubicacionAdapter.disableContextualActionMode();
+                }
+            }
+        });
     }
 
     /**
@@ -59,11 +80,11 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.list_menu, menu);
 
+        itemDeleteAll = menu.findItem(R.id.deleteAll);
+        itemDeleteAll.setOnMenuItemClickListener(this);
+
         itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
-
-        itemDelete = menu.findItem(R.id.delete_all);
-        itemDelete.setOnMenuItemClickListener(this);
 
         itemAddLocation = menu.findItem(R.id.add_location);
         itemAddLocation.setOnMenuItemClickListener(this);
@@ -73,7 +94,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()){
-            case R.id.delete_all:
+            case R.id.deleteAll:
                 confirmDialogDeleteAll();
                 break;
 
@@ -100,6 +121,10 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     confirmDialogNoInternetNoApiRes();
                 }
                 break;
+            /*case android.R.id.home:
+                onBackPressed();
+                disableContextualActionMode();
+                break;*/
         }
         return false;
     }
