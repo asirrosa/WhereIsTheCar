@@ -10,9 +10,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,9 +32,11 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     ImageView empty_imageview;
     UbicacionAdapter ubicacionAdapter;
     TextView no_data;
-    MenuItem itemDeleteAll,itemSearch,itemAddLocation;
+    MenuItem itemSearch,itemAddLocation,itemDeleteSelected,itemArchiveSelected,itemArchived, itemUnarchived, itemAddArchivedLocation;
     public Toolbar toolbar;
     public TextView toolbarTitle;
+    private boolean archiveMode;
+    private String folderName;
 
 
     /**
@@ -43,7 +45,9 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_layout);
+        setContentView(R.layout.original_list_layout);
+
+        archiveMode = getIntent().getBooleanExtra("archiveMode",false);
 
         toolbar=findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
@@ -55,21 +59,45 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
 
+        myDB = new MyDatabaseHelper(this);
 
-        myDB = new MyDatabaseHelper(ListActivity.this);
-        storeDataInArrays();
-        recyclerUbicaciones.setAdapter(ubicacionAdapter);
-        recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+        if(archiveMode) {
+            folderName = getIntent().getStringExtra("folderName");
+            toolbarTitle.setText(folderName);
 
-        //para gestionar el back button
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ubicacionAdapter.isEnable){
+            storeArchivedDataInArrays();
+            recyclerUbicaciones.setAdapter(ubicacionAdapter);
+            recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+
+
+            //para gestionar el back button
+            toolbar.setNavigationOnClickListener(v -> {
+                if (ubicacionAdapter.isEnable) {
                     ubicacionAdapter.disableContextualActionMode();
+                } else {
+                    //para que vuelva al list activity
+                    finish();
                 }
-            }
-        });
+            });
+        }
+        else{
+            toolbarTitle.setText("Ubicaciones");
+
+            //para rellenar la pantalla
+            storeOriginalDataInArrays();
+            recyclerUbicaciones.setAdapter(ubicacionAdapter);
+            recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+
+            toolbar.setNavigationOnClickListener(v -> {
+                if (ubicacionAdapter.isEnable) {
+                    ubicacionAdapter.disableContextualActionMode();
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.getInstance().getClass());
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
     }
 
     /**
@@ -77,11 +105,20 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.list_menu, menu);
+        if(!archiveMode) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.list_menu, menu);
 
-        itemDeleteAll = menu.findItem(R.id.deleteAll);
-        itemDeleteAll.setOnMenuItemClickListener(this);
+            itemArchived = menu.findItem(R.id.archived);
+            itemArchived.setOnMenuItemClickListener(this);
+        }
+        else{
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.list_archive_menu, menu);
+
+            itemUnarchived = menu.findItem(R.id.unarchived);
+            itemUnarchived.setOnMenuItemClickListener(this);
+        }
 
         itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
@@ -94,8 +131,10 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()){
-            case R.id.deleteAll:
-                confirmDialogDeleteAll();
+
+            case R.id.archived:
+                Intent intent = new Intent(getApplicationContext(), FolderActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.searchUbicaciones:
@@ -121,12 +160,30 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     confirmDialogNoInternetNoApiRes();
                 }
                 break;
-            /*case android.R.id.home:
-                onBackPressed();
-                disableContextualActionMode();
-                break;*/
+
+            case R.id.deleteSelected:
+                if (ubicacionAdapter.selectList.size()<1){
+                    Toast.makeText(this, "Selecciona al menos uno", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    confirmDialogDeleteSelected();
+                }
+                break;
+
+            case R.id.archiveSelected:
+                if (ubicacionAdapter.selectList.size()<1){
+                    Toast.makeText(this, "Selecciona al menos uno", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    confirmDialogArchiveSelected();
+                }
+                break;
+
+            case R.id.unarchived:
+                break;
+
         }
-        return false;
+        return true;
     }
 
     private void confirmDialogNoInternetNoApiRes() {
@@ -142,19 +199,33 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    /**
-     * Metodo para la funcionalidad de borrar las ubicaciones
-     */
-    private void confirmDialogDeleteAll() {
+    private void confirmDialogArchiveSelected(){
+        //todo cambiar esto y que el dialog sea de las distintas carpetas que hay
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("¿Borrar todo?");
-        //builder.setMessage("¿Estas seguro de que quieres borrar todo?");
+        builder.setTitle("¿Archivar seleccionados?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            String deleteListId = ubicacionAdapter.manageSelected();
             MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
-            myDB.deleteAllData();
-            Intent intent = new Intent(getApplicationContext(), MainActivity.getInstance().getClass());
-            startActivity(intent);
-            finish();
+            //myDB.archiveSelected(asf);
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
+    }
+
+    private void confirmDialogDeleteSelected(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("¿Borrar seleccionados?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            String deleteListId = ubicacionAdapter.manageSelected();
+            MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
+            if(archiveMode){
+                myDB.deleteSelectedArchivedData(deleteListId);
+            }
+            else {
+                myDB.deleteSelectedData(deleteListId);
+            }
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             dialogInterface.cancel();
@@ -168,6 +239,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+            intent.putExtra("archiveMode",archiveMode);
+            intent.putExtra("folderName",folderName);
             startActivity(intent);
             finish();
         });
@@ -180,8 +253,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     /**
      * Metodo para crear los arrays con diferentes valores
      */
-    private void storeDataInArrays() {
-        Cursor cursor = myDB.readAllData();
+    private void storeOriginalDataInArrays() {
+        Cursor cursor = myDB.readAllOriginalData();
         ArrayList<UbicacionItem> ubicacionList = new ArrayList<>();
         ubicacionAdapter = new UbicacionAdapter(this, ubicacionList);
         if (cursor.getCount() == 0) {
@@ -190,7 +263,29 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         } else {
             while (cursor.moveToNext()) {
                 LocalDateTime startDateTime = LocalDateTime.parse(cursor.getString(1));
-                UbicacionItem ubicacionItem = new UbicacionItem(calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getString(3), cursor.getDouble(4), cursor.getDouble(5));
+                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0),0,calculateTimeDiff(startDateTime), cursor.getString(2), cursor.getString(3), cursor.getDouble(4), cursor.getDouble(5));
+                ubicacionAdapter.ubicacionList.add(ubicacionItem);
+                ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
+            }
+        }
+    }
+
+    private void storeArchivedDataInArrays() {
+        Cursor cursor = myDB.readAllArchivedData(folderName);
+        ArrayList<UbicacionItem> ubicacionList = new ArrayList<>();
+        ubicacionAdapter = new UbicacionAdapter(this, ubicacionList);
+        if (cursor.getCount() <= 1) {
+            empty_imageview.setVisibility(View.VISIBLE);
+            no_data.setVisibility(View.VISIBLE);
+        } else {
+            while (cursor.moveToNext()) {
+                LocalDateTime startDateTime = null;
+                String hora = null;
+                if(cursor.getString(2) != null) {
+                    startDateTime = LocalDateTime.parse(cursor.getString(2));
+                    hora = calculateTimeDiff(startDateTime);
+                }
+                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0),0,hora, cursor.getString(3), cursor.getString(4), cursor.getDouble(5), cursor.getDouble(6));
                 ubicacionAdapter.ubicacionList.add(ubicacionItem);
                 ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }

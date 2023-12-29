@@ -9,18 +9,4 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView"
         />
-
-    <item
-        android:id="@+id/add_location"
-        android:icon="@drawable/ic_add_location"
-        android:title="Añadir ubicación"
-        app:showAsAction="ifRoom"
-        />
-
-    <item
-        android:id="@+id/archived"
-        android:title="Archivados"
-        app:showAsAction="never"
-        />
-
 </menu>

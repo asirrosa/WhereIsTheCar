@@ -13,6 +13,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -51,6 +52,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     @Override
     public void onBindViewHolder(@NonNull final UbicacionViewHolder holder, final int position) {
         UbicacionItem ubicacionItem = ubicacionList.get(position);
+        holder.ubicacion_id.setText(String.valueOf(ubicacionItem.getId()));
+        holder.ubicacion_position.setText(String.valueOf(position));
         holder.ubicacion_fecha_hora.setText(String.valueOf(ubicacionItem.getFechaHora()));
         holder.ubicacion_nombre.setText(String.valueOf(ubicacionItem.getNombre()));
         holder.ubicacion_descripcion.setText(String.valueOf(ubicacionItem.getDescripcion()));
@@ -61,65 +64,42 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             holder.checkBox.setChecked(false);
             holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.item_click));
         }
-        /*holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ActionMode.Callback callback = new ActionMode.Callback() {
-                    @Override
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        enableContextualActionMode();
-                        return false;
-                    }
 
-                    @Override
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        isEnable = true;
-                        makeSelection(holder);
-                        if (isEnable) {
-                            enableContextualActionMode();
-                        }
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        return false;
-                    }
-
-                    @Override
-                    public void onDestroyActionMode(ActionMode mode) {
-                        isEnable = false;
-                    }
-                };
-                return true;
-            }
-        });*/
     }
 
-    private void makeSelection(UbicacionViewHolder holder) {
-
-        UbicacionItem ubicacionItem = ubicacionListFull.get(holder.getAdapterPosition());
-
-        if(!holder.checkBox.isChecked()){
-            holder.checkBox.setChecked(true);
-            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_loading_background));
-            selectList.add(ubicacionItem);
-            counter++;
-            updateCounter();
+    public String manageSelected(){
+        String result = "";
+        for(int i = 0;i<selectList.size();i++){
+            result = result + selectList.get(i).getId() + ",";
+            ubicacionList.remove(selectList.get(i));
+            //para que la pantalla muestre como los elementos se eliminan
+            notifyItemRemoved(selectList.get(i).getPosition());
         }
-        else{
-            holder.checkBox.setChecked(false);
-            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.item_click));
-            selectList.remove(ubicacionItem);
-            counter--;
-            updateCounter();
+
+        //para que muestre que no hay ninguna ubicacion en caso de que no la haya
+        if(ubicacionList.isEmpty()){
+            listActivity.empty_imageview.setVisibility(View.VISIBLE);
+            listActivity.no_data.setVisibility(View.VISIBLE);
         }
+
+        //para quitarle la ultima coma
+        result = result.substring(0, result.length() - 1);
+        disableContextualActionMode();
+        Toast.makeText(listActivity, "Se han borrado las ubicaciones seleccionadas", Toast.LENGTH_SHORT).show();
+        return result;
     }
 
     public void enableContextualActionMode(){
         isEnable=true;
         listActivity.toolbar.getMenu().clear();
         listActivity.toolbar.inflateMenu(R.menu.list_longpress_menu);
+
+        listActivity.itemDeleteSelected = listActivity.toolbar.getMenu().findItem(R.id.deleteSelected);
+        listActivity.itemDeleteSelected.setOnMenuItemClickListener(listActivity);
+
+        listActivity.itemArchiveSelected = listActivity.toolbar.getMenu().findItem(R.id.archiveSelected);
+        listActivity.itemArchiveSelected.setOnMenuItemClickListener(listActivity);
+
         listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.black));
         listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -133,6 +113,13 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         isEnable = false;
         listActivity.toolbar.getMenu().clear();
         listActivity.toolbar.inflateMenu(R.menu.list_menu);
+
+        listActivity.itemSearch = listActivity.toolbar.getMenu().findItem(R.id.searchUbicaciones);
+        listActivity.itemSearch.setOnMenuItemClickListener(listActivity);
+
+        listActivity.itemAddLocation = listActivity.toolbar.getMenu().findItem(R.id.add_location);
+        listActivity.itemAddLocation.setOnMenuItemClickListener(listActivity);
+
         listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.toolbarLight));
         listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         listActivity.toolbarTitle.setText("Ubicaciones");
@@ -179,7 +166,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     };
 
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
-        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon;
+        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon, ubicacion_id, ubicacion_position;
         CheckBox checkBox;
         RelativeLayout relativeLayout;
 
@@ -189,6 +176,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
         public UbicacionViewHolder(View itemView) {
             super(itemView);
+            ubicacion_id = itemView.findViewById(R.id.ubicacion_id);
+            ubicacion_position = itemView.findViewById(R.id.ubicacion_position);
             ubicacion_fecha_hora = itemView.findViewById(R.id.ubicacion_fecha_hora);
             ubicacion_nombre = itemView.findViewById(R.id.ubicacion_nombre);
             ubicacion_descripcion = itemView.findViewById(R.id.ubicacion_desc);
@@ -196,6 +185,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             ubicacion_lon = itemView.findViewById(R.id.ubicacion_lon);
             relativeLayout = itemView.findViewById(R.id.relativeLayout);
             checkBox = itemView.findViewById(R.id.checkSelected);
+
 
             onClick(itemView);
             onLongClick(itemView);
@@ -206,7 +196,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                 if (isEnable) {
                     makeSelection();
                 } else {
-                    UbicacionItem ubicacionItem = new UbicacionItem("", ubicacion_nombre.getText().toString(), "",
+                    //le pongo un id cualquiera porque me da igual en este caso solo lo utilizo para pasar info al google maps
+                    UbicacionItem ubicacionItem = new UbicacionItem(1, 0,null,ubicacion_nombre.getText().toString(), null,
                             Double.parseDouble(ubicacion_lat.getText().toString()),
                             Double.parseDouble(ubicacion_lon.getText().toString()));
                     ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(listActivity, ubicacionItem);
@@ -232,7 +223,6 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             if(!checkBox.isChecked()){
                 checkBox.setChecked(true);
                 relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_loading_background));
-                //notifyItemChanged(getAdapterPosition());
                 selectList.add(ubicacionItem);
                 counter++;
                 updateCounter();
@@ -240,7 +230,6 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             else{
                 checkBox.setChecked(false);
                 relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_main_background));
-                //notifyItemChanged(getAdapterPosition());
                 selectList.remove(ubicacionItem);
                 counter--;
                 updateCounter();

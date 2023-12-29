@@ -54,6 +54,8 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
     private NetworkStateReceiver networkStateReceiver;
     private Toolbar toolbar;
     private TextView toolbarTitle;
+    private boolean archiveMode;
+    private String folderName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,9 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.search_layout);
+
+        archiveMode = getIntent().getBooleanExtra("archiveMode",false);
+        folderName = getIntent().getStringExtra("folderName");
 
         toolbar=findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
@@ -81,7 +86,6 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         networkStateReceiver = new NetworkStateReceiver();
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
-
     }
 
     @Override
@@ -110,9 +114,18 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         switch (v.getId()) {
             case R.id.fab_location_save:
                 guardarEnDB();
-                Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-                startActivity(intent);
-                finish();
+                if(archiveMode){
+                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+                    intent.putExtra("archiveMode",archiveMode);
+                    intent.putExtra("folderName",folderName);
+                    startActivity(intent);
+                    finish();
+                }
+                else{
+                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 break;
         }
     }
@@ -152,15 +165,25 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         });
     }
 
-    public void guardarEnDB(){
+    private void guardarEnDB(){
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
         LocalDateTime startDateTime = LocalDateTime.now();
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
-        myDB.addUbicacion(startDateTime,
-                this.ubicacionItem.getNombre(),
-                this.ubicacionItem.getDescripcion(),
-                this.ubicacionItem.getLat(),
-                this.ubicacionItem.getLon());
+        if(archiveMode){
+            myDB.addArchivedUbicacion(
+                    folderName,startDateTime,
+                    this.ubicacionItem.getNombre(),
+                    this.ubicacionItem.getDescripcion(),
+                    this.ubicacionItem.getLat(),
+                    this.ubicacionItem.getLon());
+        }
+        else{
+            myDB.addUbicacion(startDateTime,
+                    this.ubicacionItem.getNombre(),
+                    this.ubicacionItem.getDescripcion(),
+                    this.ubicacionItem.getLat(),
+                    this.ubicacionItem.getLon());
+        }
     }
 
     private void setUpSource(@NonNull Style loadedMapStyle) {
@@ -205,7 +228,7 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
                     btnSave.setVisibility(FloatingActionButton.VISIBLE);
                     this.ubicacionItem = new UbicacionItem(
-                            null,
+                            1, 0, null,
                             selectedCarmenFeature.text(),
                             selectedCarmenFeature.placeName(),
                             ((Point) selectedCarmenFeature.geometry()).latitude(),

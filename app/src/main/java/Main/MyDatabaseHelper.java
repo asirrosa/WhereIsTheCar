@@ -5,10 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Queue;
 
 class MyDatabaseHelper extends SQLiteOpenHelper {
 
@@ -23,6 +26,16 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_UBICACION_DATE_TIME = "ubicacion_fecha_hora";
     private static final String COLUMN_UBICACION_LAT = "ubicacion_lat";
     private static final String COLUMN_UBICACION_LON = "ubicacion_lon";
+
+    //tabla archivar
+    private static final String TABLE_NAME_ARCHIVADO = "archivados";
+    private static final String COLUMN_ARCHIVADO_ID = "archivado_id";
+    private static final String COLUMN_ARCHIVADO_CARPETA = "archivado_carpeta";
+    private static final String COLUMN_ARCHIVADO_NOMBRE = "archivado_nombre";
+    private static final String COLUMN_ARCHIVADO_DESCRIPCION = "archivado_descripción";
+    private static final String COLUMN_ARCHIVADO_DATE_TIME = "archivado_fecha_hora";
+    private static final String COLUMN_ARCHIVADO_LAT = "archivado_lat";
+    private static final String COLUMN_ARCHIVADO_LON = "archivado_lon";
 
 
     MyDatabaseHelper(@Nullable Context context) {
@@ -42,11 +55,22 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_UBICACION_LAT + " REAL, " +
                 COLUMN_UBICACION_LON + " REAL);";
 
+        String queryArchivar = "CREATE TABLE " + TABLE_NAME_ARCHIVADO +
+                " (" + COLUMN_ARCHIVADO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ARCHIVADO_CARPETA + " TEXT, " +
+                COLUMN_ARCHIVADO_DATE_TIME + " DATETIME, " +
+                COLUMN_ARCHIVADO_NOMBRE + " TEXT, " +
+                COLUMN_ARCHIVADO_DESCRIPCION + " TEXT, " +
+                COLUMN_ARCHIVADO_LAT + " REAL, " +
+                COLUMN_ARCHIVADO_LON + " REAL);";
+
         db.execSQL(queryUbicacion);
+        db.execSQL(queryArchivar);
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_UBICACION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ARCHIVADO);
         onCreate(db);
     }
 
@@ -55,21 +79,6 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
      */
     public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
-        //De momento lo desecho porque no es seguro
-        /*String addUbicacion = "INSERT INTO " + TABLE_NAME_UBICACION +
-                "(" + COLUMN_UBICACION_DATE_TIME + "," +
-                COLUMN_UBICACION_NOMBRE + "," +
-                COLUMN_UBICACION_DESCRIPCION + "," +
-                COLUMN_UBICACION_LAT + "," +
-                COLUMN_UBICACION_LON + ") VALUES " +
-                "('" + fechaHora.toString() + "'," +
-                "'" + nombre + "'," +
-                "'" + descipcion + "'," +
-                lat + "," +
-                lon + ");";
-
-                db.execSQL(addUbicacion);
-        */
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_UBICACION_DATE_TIME,fechaHora.toString());
@@ -80,10 +89,59 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME_UBICACION,null,values);
     }
 
+    public void addArchivedUbicacion(String folderName, LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ARCHIVADO_CARPETA,folderName);
+        values.put(COLUMN_ARCHIVADO_DATE_TIME,fechaHora.toString());
+        values.put(COLUMN_ARCHIVADO_NOMBRE,nombre);
+        values.put(COLUMN_ARCHIVADO_DESCRIPCION,descipcion);
+        values.put(COLUMN_ARCHIVADO_LAT,lat);
+        values.put(COLUMN_ARCHIVADO_LON,lon);
+        db.insert(TABLE_NAME_ARCHIVADO,null,values);
+    }
+
+    /**
+     * Metodo para leer todos los nombres de las carpetas
+     */
+    public Cursor readAllArchivedFolders(){
+        String query = "SELECT DISTINCT " + COLUMN_ARCHIVADO_CARPETA + " FROM " + TABLE_NAME_ARCHIVADO + " ORDER BY " + COLUMN_ARCHIVADO_CARPETA + " DESC" ;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    public void archiveSelected(){
+        String query = "SELECT * FROM " + TABLE_NAME_UBICACION + " ORDER BY " + COLUMN_UBICACION_ID + " DESC" ;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+
+        while (cursor.moveToNext()) {
+
+        }
+
+        db = this.getWritableDatabase();
+        //todo
+        /*ContentValues values = new ContentValues();
+        values.put(COLUMN_UBICACION_DATE_TIME,fechaHora.toString());
+        values.put(COLUMN_UBICACION_NOMBRE,nombre);
+        values.put(COLUMN_UBICACION_DESCRIPCION,descipcion);
+        values.put(COLUMN_UBICACION_LAT,lat);
+        values.put(COLUMN_UBICACION_LON,lon);
+        db.insert(TABLE_NAME_UBICACION,null,values);*/
+    }
+
     /**
      * Metodo para leer todos las ubicaciones guardadas
      */
-    public Cursor readAllData(){
+    public Cursor readAllOriginalData(){
         String query = "SELECT * FROM " + TABLE_NAME_UBICACION + " ORDER BY " + COLUMN_UBICACION_ID + " DESC" ;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
@@ -94,10 +152,71 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Metodo para borrar todas las entradas de la base de datos
+     * Metodo para leer todos las ubicaciones archivadas
      */
-    public void deleteAllData(){
+    public Cursor readAllArchivedData(String folderName){
+        String query = "SELECT * FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_CARPETA + " = '" + folderName + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    public boolean folderExistsAlready(String folderName){
+        boolean result;
+        String query = "SELECT * FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_CARPETA + " = '" + folderName + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+
+        assert cursor != null;
+
+        if(!cursor.moveToNext()){
+            result = false;
+        }
+        else{
+            result = true;
+        }
+
+        return result;
+    }
+
+    public void addFolder(String folderName){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_NAME_UBICACION);
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ARCHIVADO_CARPETA,folderName);
+        db.insert(TABLE_NAME_ARCHIVADO,null,values);
+    }
+
+    public Cursor showSelectedFoldersData(String deleteListNames){
+        String query = "SELECT " + COLUMN_ARCHIVADO_NOMBRE + " FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_CARPETA + " in (" + deleteListNames + ")";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    public void deleteSelectedFolders(String deleteListNames){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_CARPETA + " in (" + deleteListNames + ");";
+        db.execSQL(query);
+    }
+
+    public void deleteSelectedData(String deleteListId){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NAME_UBICACION + " WHERE " + COLUMN_UBICACION_ID + " in (" + deleteListId + ");";
+        db.execSQL(query);
+    }
+
+    public void deleteSelectedArchivedData(String deleteListId){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_ID + " in (" + deleteListId + ");";
+        db.execSQL(query);
     }
 }

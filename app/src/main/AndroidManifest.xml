@@ -53,6 +53,12 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".FolderActivity"
+            android:label="Carpetas"
+            android:parentActivityName=".ListActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

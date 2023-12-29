@@ -23,7 +23,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@id/checkbox"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
@@ -39,7 +38,8 @@
                         android:layout_gravity="center_vertical" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
@@ -75,8 +75,8 @@
                     android:id="@+id/ubicacion_fecha_hora"
                     style="@style/TextViewList"
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
                     android:gravity="center"
+                    android:layout_height="50dp"
                     android:paddingHorizontal="10dp"
                     android:text="Fecha/hora"
                     android:textAlignment="textStart"
@@ -95,13 +95,27 @@
                     android:layout_height="0dp"
                     android:visibility="gone"
                     tools:ignore="MissingConstraints" />
+
+                <TextView
+                    android:id="@+id/ubicacion_id"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    tools:ignore="MissingConstraints" />
+
+                <TextView
+                    android:id="@+id/ubicacion_position"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    tools:ignore="MissingConstraints" />
             </LinearLayout>
 
             <CheckBox
                 android:id="@+id/checkSelected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="invisible"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

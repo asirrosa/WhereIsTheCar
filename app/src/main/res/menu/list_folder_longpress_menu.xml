@@ -6,14 +6,6 @@
         android:id="@+id/deleteSelected"
         android:icon="@drawable/ic_delete"
         android:title="Borrar"
-        app:showAsAction="ifRoom"
-        />
-
-    <item
-        android:id="@+id/archiveSelected"
-        android:icon="@drawable/ic_archive"
-        android:title="Archivar"
-        app:showAsAction="ifRoom"
-        />
+        app:showAsAction="ifRoom" />
 
 </menu>

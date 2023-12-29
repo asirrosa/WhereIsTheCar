@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
      */
     public void listaUbicaciones(View view) {
         Intent intent = new Intent(this, ListActivity.class);
+        intent.putExtra("archiveMode",false);
         startActivity(intent);
     }
 
