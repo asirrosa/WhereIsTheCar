@@ -60,6 +60,15 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         holder.ubicacion_lat.setText(String.valueOf(ubicacionItem.getLat()));
         holder.ubicacion_lon.setText(String.valueOf(ubicacionItem.getLon()));
 
+        if(selectList.contains(ubicacionItem)){
+            holder.checkBox.setChecked(true);
+            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_loading_background));
+        }
+        else{
+            holder.checkBox.setChecked(false);
+            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_main_background));
+        }
+
         if (!isEnable) {
             holder.checkBox.setChecked(false);
             holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.item_click));
@@ -72,6 +81,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         for(int i = 0;i<selectList.size();i++){
             result = result + selectList.get(i).getId() + ",";
             ubicacionList.remove(selectList.get(i));
+            ubicacionListFull.remove(selectList.get(i));
             //para que la pantalla muestre como los elementos se eliminan
             notifyItemRemoved(selectList.get(i).getPosition());
         }
@@ -119,6 +129,9 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
         listActivity.itemAddLocation = listActivity.toolbar.getMenu().findItem(R.id.add_location);
         listActivity.itemAddLocation.setOnMenuItemClickListener(listActivity);
+
+        listActivity.itemArchived = listActivity.toolbar.getMenu().findItem(R.id.archived);
+        listActivity.itemArchived.setOnMenuItemClickListener(listActivity);
 
         listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.toolbarLight));
         listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -234,6 +247,9 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                 counter--;
                 updateCounter();
             }
+            //esto funciona raro todo
+            //notifyItemChanged(getAdapterPosition());
+            //notifyDataSetChanged();
         }
     }
 }

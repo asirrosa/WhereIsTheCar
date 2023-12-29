@@ -59,7 +59,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
 
         MyDatabaseHelper myDB = new MyDatabaseHelper(folderActivity);
         myDB.deleteSelectedFolders(result);
-        Toast.makeText(folderActivity, "Se han borrado las carpetas seleccionadas", Toast.LENGTH_SHORT).show();
+        Toast.makeText(folderActivity, "Se han borrado las carpetas seleccionadas junto con todas sus ubicaciones", Toast.LENGTH_SHORT).show();
     }
 
     public class DeleteFolderViewHolder extends RecyclerView.ViewHolder {

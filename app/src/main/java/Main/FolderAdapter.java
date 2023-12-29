@@ -50,6 +50,15 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
         holder.folderName.setText(String.valueOf(folderItem.getNombre()));
         holder.folderPosition.setText(String.valueOf(folderItem.getPosition()));
 
+        if(selectList.contains(folderItem)){
+            holder.checkBox.setChecked(true);
+            holder.relativeLayout.setBackground(folderActivity.getDrawable(R.drawable.card_loading_background));
+        }
+        else{
+            holder.checkBox.setChecked(false);
+            holder.relativeLayout.setBackground(folderActivity.getDrawable(R.drawable.card_main_background));
+        }
+
         if (!isEnable) {
             holder.checkBox.setChecked(false);
             holder.relativeLayout.setBackground(folderActivity.getDrawable(R.drawable.item_click));
@@ -68,6 +77,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
 
         for(int i = 0;i<selectList.size();i++){
             folderList.remove(selectList.get(i));
+            folderListFull.remove(selectList.get(i));
             //para que la pantalla muestre como los elementos se eliminan
             notifyItemRemoved(selectList.get(i).getPosition());
         }
