@@ -12,12 +12,3 @@ Hello there, UbiManager is a simple Android app with 2 functionalities:
 This app is written 100% in Java, and it uses some api services like [Mapbox Java SDK](https://docs.mapbox.com/android/java/guides/) (maps and the search engine) and [Geocoder](https://developer.android.com/reference/android/location/Geocoder) (get the name of the place from the latitude and longitude), it also uses [Sqlite](https://www.sqlite.org/index.html) in order to create a database inside the phone and save the info of the locations. 
 
 Currently the apps language is spanish, although in the future the idea is to implement more languages, if you find it interesting you can build the application yourself using [Android Studio](https://developer.android.com/studio), or if you want to implement some of the code in your app feel free to use it, i tried to do it as easy and clean as possible so anyone can understand it (i know there are comments in spanish in the app, don't mind them).
-
-<br/><br/>
-
-<p align="center">
-  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/88f1e5c6-3e45-45e3-8b8c-f2a6021a03b6" width="300" height="600" />
-  <img src="https://github.com/asirrosa/UbiManager/assets/143890605/2ee79463-a4ed-4c77-a952-746efd4c1def" width="300" height="600" />
-   <img src="https://github.com/asirrosa/UbiManager/assets/143890605/84285466-bc12-49e3-a52e-1467b33b81a7" width="300" height="600" />
-</p>
-
