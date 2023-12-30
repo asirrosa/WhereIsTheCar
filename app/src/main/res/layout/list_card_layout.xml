@@ -72,7 +72,7 @@
                     android:gravity="center_vertical" />
 
                 <TextView
-                    android:id="@+id/ubicacion_fecha_hora"
+                    android:id="@+id/ubicacion_hace_cuanto"
                     style="@style/TextViewList"
                     android:layout_width="wrap_content"
                     android:gravity="center"
@@ -105,6 +105,13 @@
 
                 <TextView
                     android:id="@+id/ubicacion_position"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    tools:ignore="MissingConstraints" />
+
+                <TextView
+                    android:id="@+id/ubicacion_fecha_hora"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:visibility="gone"

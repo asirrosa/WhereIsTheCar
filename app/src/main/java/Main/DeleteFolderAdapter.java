@@ -19,20 +19,20 @@ import java.util.Collection;
 
 public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapter.DeleteFolderViewHolder> {
 
-    private FolderActivity folderActivity;
     public ArrayList<String> deleteFolderList;
+    private FolderActivity folderActivity;
 
 
     public DeleteFolderAdapter(FolderActivity folderActivity, ArrayList<String> deleteFolderList) {
-        this.deleteFolderList = deleteFolderList;
         this.folderActivity = folderActivity;
+        this.deleteFolderList = deleteFolderList;
     }
 
     @NonNull
     @Override
     public DeleteFolderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(folderActivity);
-        View view = inflater.inflate(R.layout.delete_folder_card_layout, parent, false);
+        View view = inflater.inflate(R.layout.list_folder_card_layout, parent, false);
         return new DeleteFolderViewHolder(view);
     }
 
@@ -42,7 +42,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
     @Override
     public void onBindViewHolder(@NonNull final DeleteFolderAdapter.DeleteFolderViewHolder holder, final int position) {
         String nombre = deleteFolderList.get(position);
-        holder.deleteNombre.setText(nombre);
+        holder.folderName.setText(nombre);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
     }
 
     public class DeleteFolderViewHolder extends RecyclerView.ViewHolder {
-        TextView deleteNombre;
+        TextView folderName;
 
         /**
          * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse alguna ubicacion guardada
@@ -71,7 +71,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
 
         public DeleteFolderViewHolder(View itemView) {
             super(itemView);
-            deleteNombre = itemView.findViewById(R.id.deleteNombre);
+            folderName = itemView.findViewById(R.id.folderName);
         }
     }
 }

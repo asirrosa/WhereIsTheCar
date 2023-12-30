@@ -1,28 +1,23 @@
 package Main;
 
 import android.app.Dialog;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 
 public class DeleteFolderDialog extends AppCompatDialogFragment{
-    private FolderActivity folderActivity;
     private RecyclerView recyclerDeleteList;
     private ArrayList<String> deleteList;
     private DeleteFolderAdapter deleteFolderAdapter;
+    private FolderActivity folderActivity;
 
     public DeleteFolderDialog(FolderActivity folderActivity, ArrayList<String> deleteList){
         this.folderActivity = folderActivity;
@@ -34,9 +29,9 @@ public class DeleteFolderDialog extends AppCompatDialogFragment{
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.delete_folder_dialog, null);
+        View view = inflater.inflate(R.layout.list_folder_dialog, null);
 
-        recyclerDeleteList = view.findViewById(R.id.recyclerDeleteList);
+        recyclerDeleteList = view.findViewById(R.id.recyclerUbicaciones);
 
         deleteFolderAdapter = new DeleteFolderAdapter(folderActivity,deleteList);
         recyclerDeleteList.setAdapter(deleteFolderAdapter);

@@ -19,25 +19,25 @@ import java.util.Collection;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionViewHolder> implements Filterable {
 
-    private FolderActivity folderActivity;
     public ArrayList<UbicacionItem> folderList;
     public ArrayList<UbicacionItem> folderListFull;
     public boolean isEnable = false;
     public ArrayList<UbicacionItem> selectList = new ArrayList<>();
     private int counter = 0;
+    private FolderActivity folderActivity;
 
 
-    public FolderAdapter(FolderActivity folderActivity, ArrayList<UbicacionItem> ubicacionList) {
-        this.folderList = ubicacionList;
-        this.folderListFull = new ArrayList<>();
+    public FolderAdapter(FolderActivity folderActivity, ArrayList<UbicacionItem> folderList) {
         this.folderActivity = folderActivity;
+        this.folderList = folderList;
+        this.folderListFull = new ArrayList<>();
     }
 
     @NonNull
     @Override
     public UbicacionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(folderActivity);
-        View view = inflater.inflate(R.layout.list_folder_layout, parent, false);
+        View view = inflater.inflate(R.layout.list_folder_card_layout, parent, false);
         return new UbicacionViewHolder(view);
     }
 
@@ -106,7 +106,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
 
     public void updateCounter()
     {
-        folderActivity.toolbarTitle.setText(counter+" Item Selected");
+        folderActivity.toolbarTitle.setText(counter+" Seleccionado");
     }
 
     public void disableContextualActionMode() {
@@ -190,6 +190,8 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
                     intent.putExtra("archiveMode",true);
                     intent.putExtra("folderName",folderName.getText());
                     folderActivity.startActivity(intent);
+                    //para acabar el folder activity despues de haberte metido dentro de una carpeta
+                    /*folderActivity.finish();*/
                 }
             });
         }

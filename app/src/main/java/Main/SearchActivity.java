@@ -167,10 +167,10 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
     private void guardarEnDB(){
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        LocalDateTime startDateTime = LocalDateTime.now();
+        String startDateTime = LocalDateTime.now().toString();
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
         if(archiveMode){
-            myDB.addArchivedUbicacion(
+            myDB.addUbicacionArchived(
                     folderName,startDateTime,
                     this.ubicacionItem.getNombre(),
                     this.ubicacionItem.getDescripcion(),

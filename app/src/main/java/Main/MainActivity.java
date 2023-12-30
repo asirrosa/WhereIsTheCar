@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
      */
     public void guardarEnDB(String nombre, String descripcion) {
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        LocalDateTime startDateTime = LocalDateTime.now();
+        String startDateTime = LocalDateTime.now().toString();
         myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
     }

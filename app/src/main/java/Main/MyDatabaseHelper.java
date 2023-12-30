@@ -77,7 +77,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     /**
      * Metodo para añadir una nueva ubicacion a la base de datos
      */
-    public void addUbicacion(LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
+    public void addUbicacion(String fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -89,14 +89,14 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME_UBICACION,null,values);
     }
 
-    public void addArchivedUbicacion(String folderName, LocalDateTime fechaHora, String nombre, String descipcion, double lat, double lon){
+    public void addUbicacionArchived(String folderName, String fechaHora, String nombre, String descipcion, double lat, double lon){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_ARCHIVADO_CARPETA,folderName);
-        values.put(COLUMN_ARCHIVADO_DATE_TIME,fechaHora.toString());
         values.put(COLUMN_ARCHIVADO_NOMBRE,nombre);
         values.put(COLUMN_ARCHIVADO_DESCRIPCION,descipcion);
+        values.put(COLUMN_ARCHIVADO_DATE_TIME,fechaHora);
         values.put(COLUMN_ARCHIVADO_LAT,lat);
         values.put(COLUMN_ARCHIVADO_LON,lon);
         db.insert(TABLE_NAME_ARCHIVADO,null,values);
@@ -115,28 +115,20 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void archiveSelected(){
-        String query = "SELECT * FROM " + TABLE_NAME_UBICACION + " ORDER BY " + COLUMN_UBICACION_ID + " DESC" ;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = null;
-        if(db != null){
-            cursor = db.rawQuery(query, null);
+    public void archiveSelected(ArrayList<UbicacionItem> archiveList, String folderName){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        for(int i = 0;i<archiveList.size();i++){
+            values.put(COLUMN_ARCHIVADO_CARPETA,folderName);
+            values.put(COLUMN_ARCHIVADO_NOMBRE,archiveList.get(i).getNombre());
+            values.put(COLUMN_ARCHIVADO_DESCRIPCION,archiveList.get(i).getDescripcion());
+            values.put(COLUMN_ARCHIVADO_DATE_TIME,archiveList.get(i).getFechaHora());
+            values.put(COLUMN_ARCHIVADO_LAT,archiveList.get(i).getLat());
+            values.put(COLUMN_ARCHIVADO_LON,archiveList.get(i).getLon());
+            db.insert(TABLE_NAME_ARCHIVADO,null,values);
         }
-
-        while (cursor.moveToNext()) {
-
-        }
-
-        db = this.getWritableDatabase();
-        //todo
-        /*ContentValues values = new ContentValues();
-        values.put(COLUMN_UBICACION_DATE_TIME,fechaHora.toString());
-        values.put(COLUMN_UBICACION_NOMBRE,nombre);
-        values.put(COLUMN_UBICACION_DESCRIPCION,descipcion);
-        values.put(COLUMN_UBICACION_LAT,lat);
-        values.put(COLUMN_UBICACION_LON,lon);
-        db.insert(TABLE_NAME_UBICACION,null,values);*/
     }
+
 
     /**
      * Metodo para leer todos las ubicaciones guardadas
@@ -190,16 +182,6 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ARCHIVADO_CARPETA,folderName);
         db.insert(TABLE_NAME_ARCHIVADO,null,values);
-    }
-
-    public Cursor showSelectedFoldersData(String deleteListNames){
-        String query = "SELECT " + COLUMN_ARCHIVADO_NOMBRE + " FROM " + TABLE_NAME_ARCHIVADO + " WHERE " + COLUMN_ARCHIVADO_CARPETA + " in (" + deleteListNames + ")";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = null;
-        if(db != null){
-            cursor = db.rawQuery(query, null);
-        }
-        return cursor;
     }
 
     public void deleteSelectedFolders(String deleteListNames){

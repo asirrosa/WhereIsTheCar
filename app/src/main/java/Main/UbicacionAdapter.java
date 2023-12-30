@@ -19,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,15 +29,17 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     private ListActivity listActivity;
     public ArrayList<UbicacionItem> ubicacionList;
     public ArrayList<UbicacionItem> ubicacionListFull;
+    public ArrayList<String> folderList;
     public boolean isEnable = false;
     public ArrayList<UbicacionItem> selectList = new ArrayList<>();
     private int counter = 0;
 
 
-    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList) {
+    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList,ArrayList<String> folderList) {
         this.ubicacionList = ubicacionList;
         this.ubicacionListFull = new ArrayList<>();
         this.listActivity = listActivity;
+        this.folderList = folderList;
     }
 
     @NonNull
@@ -54,7 +58,11 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         UbicacionItem ubicacionItem = ubicacionList.get(position);
         holder.ubicacion_id.setText(String.valueOf(ubicacionItem.getId()));
         holder.ubicacion_position.setText(String.valueOf(position));
+
+        LocalDateTime startDateTime = LocalDateTime.parse(String.valueOf(ubicacionItem.getFechaHora()));
+        holder.ubicacion_hace_cuanto.setText(calculateTimeDiff(startDateTime));
         holder.ubicacion_fecha_hora.setText(String.valueOf(ubicacionItem.getFechaHora()));
+
         holder.ubicacion_nombre.setText(String.valueOf(ubicacionItem.getNombre()));
         holder.ubicacion_descripcion.setText(String.valueOf(ubicacionItem.getDescripcion()));
         holder.ubicacion_lat.setText(String.valueOf(ubicacionItem.getLat()));
@@ -76,7 +84,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
     }
 
-    public String manageSelected(){
+    public String deleteSelectedFromScreen(){
         String result = "";
         for(int i = 0;i<selectList.size();i++){
             result = result + selectList.get(i).getId() + ",";
@@ -95,11 +103,10 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         //para quitarle la ultima coma
         result = result.substring(0, result.length() - 1);
         disableContextualActionMode();
-        Toast.makeText(listActivity, "Se han borrado las ubicaciones seleccionadas", Toast.LENGTH_SHORT).show();
         return result;
     }
 
-    public void enableContextualActionMode(){
+    private void enableContextualActionMode(){
         isEnable=true;
         listActivity.toolbar.getMenu().clear();
         listActivity.toolbar.inflateMenu(R.menu.list_longpress_menu);
@@ -114,9 +121,24 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    private void enableContextualActionModeArchived(){
+        isEnable=true;
+        listActivity.toolbar.getMenu().clear();
+        listActivity.toolbar.inflateMenu(R.menu.list_longpress_menu_archived);
+
+        listActivity.itemDeleteSelected = listActivity.toolbar.getMenu().findItem(R.id.deleteSelected);
+        listActivity.itemDeleteSelected.setOnMenuItemClickListener(listActivity);
+
+        listActivity.itemUnarchiveSelected = listActivity.toolbar.getMenu().findItem(R.id.unarchiveSelected);
+        listActivity.itemUnarchiveSelected.setOnMenuItemClickListener(listActivity);
+
+        listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.black));
+        listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
     public void updateCounter()
     {
-        listActivity.toolbarTitle.setText(counter+" Item Selected");
+        listActivity.toolbarTitle.setText(counter+" Seleccionado");
     }
 
     public void disableContextualActionMode() {
@@ -178,8 +200,54 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         }
     };
 
+    private String calculateTimeDiff(LocalDateTime startDateTime) {
+        String result = "";
+        LocalDateTime endDateTime;
+        endDateTime = LocalDateTime.now();
+        LocalDateTime tempDateTime = LocalDateTime.from(startDateTime);
+        long years = startDateTime.until(endDateTime, ChronoUnit.YEARS);
+        tempDateTime = tempDateTime.plusYears(years);
+        long months = tempDateTime.until(endDateTime, ChronoUnit.MONTHS);
+        tempDateTime = tempDateTime.plusMonths(months);
+        long days = tempDateTime.until(endDateTime, ChronoUnit.DAYS);
+        tempDateTime = tempDateTime.plusDays(days);
+        long hours = tempDateTime.until(endDateTime, ChronoUnit.HOURS);
+        tempDateTime = tempDateTime.plusHours(hours);
+        long minutes = tempDateTime.until(endDateTime, ChronoUnit.MINUTES);
+
+        if (years == 0) {
+            if (months == 0) {
+                if (days == 0) {
+                    if (hours == 0) {
+                        if (minutes == 0) {
+                            result = "Hace unos instantes";
+                        } else {
+                            result = "Hace " + minutes + " min";
+                        }
+                    } else {
+                        result = "Hace " + hours + " h";
+                    }
+                } else if (days == 1) {
+                    result = "Hace 1 día";
+                } else {
+                    result = "Hace " + days + " días";
+                }
+            } else if (months == 1) {
+                result = "Hace 1 mes";
+            } else {
+                result = "Hace " + months + " meses";
+            }
+        } else if (years == 1) {
+            result = "Hace 1 año";
+        } else {
+            result = "Hace " + years + " años";
+        }
+
+        return result;
+    }
+
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
-        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_lat, ubicacion_lon, ubicacion_id, ubicacion_position;
+        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_hace_cuanto, ubicacion_lat, ubicacion_lon, ubicacion_id, ubicacion_position;
         CheckBox checkBox;
         RelativeLayout relativeLayout;
 
@@ -192,6 +260,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             ubicacion_id = itemView.findViewById(R.id.ubicacion_id);
             ubicacion_position = itemView.findViewById(R.id.ubicacion_position);
             ubicacion_fecha_hora = itemView.findViewById(R.id.ubicacion_fecha_hora);
+            ubicacion_hace_cuanto = itemView.findViewById(R.id.ubicacion_hace_cuanto);
             ubicacion_nombre = itemView.findViewById(R.id.ubicacion_nombre);
             ubicacion_descripcion = itemView.findViewById(R.id.ubicacion_desc);
             ubicacion_lat = itemView.findViewById(R.id.ubicacion_lat);
@@ -223,7 +292,12 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             itemView.setOnLongClickListener(v -> {
                 makeSelection();
                 if (!isEnable) {
-                    enableContextualActionMode();
+                    if(listActivity.archiveMode) {
+                        enableContextualActionModeArchived();
+                    }
+                    else{
+                        enableContextualActionMode();
+                    }
                 }
                 return true;
             });
@@ -247,9 +321,6 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                 counter--;
                 updateCounter();
             }
-            //esto funciona raro todo
-            //notifyItemChanged(getAdapterPosition());
-            //notifyDataSetChanged();
         }
     }
 }

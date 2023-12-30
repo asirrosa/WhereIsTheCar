@@ -17,6 +17,12 @@
         <item name="android:textSize">25dp</item>
     </style>
 
+    <style name="AñadirCarpetaButton">
+        <item name="android:background">@drawable/button_main_click</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
     <style name="SecondaryButtonMain">
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold|italic</item>

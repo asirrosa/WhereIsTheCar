@@ -1,21 +1,16 @@
 package Main;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -24,9 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.lang.reflect.Array;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class FolderActivity extends AppCompatActivity implements View.OnClickListener,MenuItem.OnMenuItemClickListener{
@@ -141,8 +133,8 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
 
     //creo esto para volverlo a llamar cuando haya algun error
     public void añadirCarpetaDialog(){
-        AñadirCarpetaDialog añadirCarpetaDialog= new AñadirCarpetaDialog(this);
-        añadirCarpetaDialog.show(getSupportFragmentManager(), "example dialog");
+        AddFolderDialog addFolderDialog = new AddFolderDialog(null,this);
+        addFolderDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     private void confirmDialogDeleteSelected(){
@@ -157,7 +149,7 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
     private void storeDataInArrays() {
         Cursor cursor = myDB.readAllArchivedFolders();
         ArrayList<UbicacionItem> folderList = new ArrayList<>();
-        folderAdapter = new FolderAdapter(this, folderList);
+        folderAdapter = new FolderAdapter(this,folderList);
         if (cursor.getCount() == 0) {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
