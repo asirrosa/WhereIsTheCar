@@ -1,9 +1,12 @@
 package Main;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -19,6 +22,8 @@ public class SanMamesActivity extends AppCompatActivity {
 
     private MapView mapView;
     private BuildingPlugin buildingPlugin;
+    private Toolbar toolbar;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,12 @@ public class SanMamesActivity extends AppCompatActivity {
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
 
         setContentView(R.layout.san_mames_layout);
+
+        toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
+        toolbarTitle.setText("San mamés");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -43,6 +54,13 @@ public class SanMamesActivity extends AppCompatActivity {
                         buildingPlugin.setVisibility(true);
                     }
                 });
+            }
+        });
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }

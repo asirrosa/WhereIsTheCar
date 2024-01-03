@@ -24,9 +24,11 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
     private Button btnMapbox, btnGoogleMaps;
     private UbicacionItem ubicacionItem;
     private ListActivity listActivity;
+    private ArchivedListActivity archivedListActivity;
 
-    public ChooseEngineDialog(ListActivity listActivity, UbicacionItem ubicacionItem) {
+    public ChooseEngineDialog(ListActivity listActivity, ArchivedListActivity archivedListActivity, UbicacionItem ubicacionItem) {
         this.listActivity = listActivity;
+        this.archivedListActivity = archivedListActivity;
         this.ubicacionItem = ubicacionItem;
     }
 
@@ -53,7 +55,13 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnMapbox:
-                Intent intent = new Intent(listActivity, NavigationActivity.class);
+                Intent intent;
+                if(listActivity != null) {
+                    intent = new Intent(listActivity, NavigationActivity.class);
+                }
+                else{
+                    intent = new Intent(archivedListActivity, NavigationActivity.class);
+                }
                 double[] arrayLatLng = new double[2];
                 arrayLatLng[0] = ubicacionItem.getLat();
                 arrayLatLng[1] = ubicacionItem.getLon();
@@ -66,7 +74,12 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
                 Uri mapUri = Uri.parse("geo:0,0?q=" + ubicacionItem.getLat() + "," + ubicacionItem.getLon() + "(Ubi: " + ubicacionItem.getNombre() + ")");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                listActivity.startActivity(mapIntent);
+                if(listActivity != null) {
+                    listActivity.startActivity(mapIntent);
+                }
+                else{
+                    archivedListActivity.startActivity(mapIntent);
+                }
                 dismiss();
                 break;
         }

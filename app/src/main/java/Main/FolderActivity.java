@@ -68,8 +68,6 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
                     folderAdapter.disableContextualActionMode();
                 }
                 else{
-                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-                    startActivity(intent);
                     finish();
                 }
             }
@@ -129,6 +127,15 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
 
         }
         return true;
+    }
+
+    /**
+     * METODO IMPORTANTE: Hace que al volver a la pantalla del list activity esta se refresque de nuevo
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        folderAdapter.disableContextualActionMode();
     }
 
     //creo esto para volverlo a llamar cuando haya algun error

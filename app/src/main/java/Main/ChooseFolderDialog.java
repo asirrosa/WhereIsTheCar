@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -18,6 +20,8 @@ public class ChooseFolderDialog extends AppCompatDialogFragment {
     private RecyclerView recyclerChooseFolder;
     private ArrayList<String> folderList;
     private ChooseFolderAdapter chooseFolderAdapter;
+    private TextView no_data;
+
 
     public ChooseFolderDialog(ListActivity listActivity, ArrayList<String> folderList) {
         this.listActivity = listActivity;
@@ -31,6 +35,12 @@ public class ChooseFolderDialog extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.list_folder_dialog, null);
 
+        no_data = view.findViewById(R.id.no_data);
+
+        if(folderList.isEmpty()){
+            no_data.setVisibility(TextView.VISIBLE);
+        }
+
         recyclerChooseFolder = view.findViewById(R.id.recyclerUbicaciones);
 
         chooseFolderAdapter = new ChooseFolderAdapter(this,listActivity, folderList);
@@ -41,7 +51,9 @@ public class ChooseFolderDialog extends AppCompatDialogFragment {
                 .setTitle("Guardar ubicacion en la carpeta:")
                 .setNegativeButton("cancelar", (dialogInterface, i) -> {
                     //para que se quite el modo de seleccion
-                    listActivity.ubicacionAdapter.disableContextualActionMode();
+                    if(listActivity != null){
+                        listActivity.ubicacionAdapter.disableContextualActionMode();
+                    }
                     dialogInterface.cancel();
                 })
                 .setCancelable(false)

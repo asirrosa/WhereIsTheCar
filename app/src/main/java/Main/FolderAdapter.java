@@ -74,7 +74,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
     }
 
     public void deleteSelectedFolders(){
-
         for(int i = 0;i<selectList.size();i++){
             folderList.remove(selectList.get(i));
             folderListFull.remove(selectList.get(i));
@@ -89,7 +88,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
         }
 
         disableContextualActionMode();
-        Toast.makeText(folderActivity, "Se han borrado las carpetas seleccionadas", Toast.LENGTH_SHORT).show();
     }
 
     public void enableContextualActionMode(){
@@ -186,12 +184,10 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
                 if (isEnable) {
                     makeSelection();
                 } else {
-                    Intent intent = new Intent(folderActivity, ListActivity.class);
+                    Intent intent = new Intent(folderActivity, ArchivedListActivity.class);
                     intent.putExtra("archiveMode",true);
                     intent.putExtra("folderName",folderName.getText());
                     folderActivity.startActivity(intent);
-                    //para acabar el folder activity despues de haberte metido dentro de una carpeta
-                    /*folderActivity.finish();*/
                 }
             });
         }

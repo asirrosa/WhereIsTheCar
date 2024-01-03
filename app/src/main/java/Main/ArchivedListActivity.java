@@ -1,5 +1,6 @@
 package Main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -23,15 +24,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener {
+public class ArchivedListActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener {
 
     RecyclerView recyclerUbicaciones;
     ImageView empty_imageview;
-    UbicacionAdapter ubicacionAdapter;
+    ArchivedUbicacionAdapter archivedUbicacionAdapter;
     TextView no_data;
-    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemArchiveSelected, itemArchived;
+    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemUnarchiveSelected;
     public Toolbar toolbar;
     public TextView toolbarTitle;
+    public String folderName;
     private int LAUNCH_SECOND_ACTIVITY = 1;
 
     /**
@@ -45,13 +47,13 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
-        toolbarTitle.setText("Ubicaciones");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recyclerUbicaciones = findViewById(R.id.recyclerUbicaciones);
         empty_imageview = findViewById(R.id.empty_imageview);
         no_data = findViewById(R.id.no_data);
 
+        folderName = getIntent().getStringExtra("folderName");
         initialize();
     }
 
@@ -61,10 +63,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.list_menu, menu);
-
-        itemArchived = menu.findItem(R.id.archived);
-        itemArchived.setOnMenuItemClickListener(this);
+        inflater.inflate(R.menu.list_archive_menu, menu);
 
         itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
@@ -78,11 +77,6 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
 
-            case R.id.archived:
-                Intent intent = new Intent(getApplicationContext(), FolderActivity.class);
-                startActivity(intent);
-                break;
-
             case R.id.searchUbicaciones:
                 SearchView searchView = (SearchView) menuItem.getActionView();
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -93,7 +87,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
 
                     @Override
                     public boolean onQueryTextChange(String text) {
-                        ubicacionAdapter.getFilter().filter(text);
+                        archivedUbicacionAdapter.getFilter().filter(text);
                         return false;
                     }
                 });
@@ -108,22 +102,35 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 break;
 
             case R.id.deleteSelected:
-                if (ubicacionAdapter.selectList.size() < 1) {
+                if (archivedUbicacionAdapter.selectList.size() < 1) {
                     Toast.makeText(this, "Selecciona al menos una ubicacion", Toast.LENGTH_SHORT).show();
                 } else {
                     confirmDialogDeleteSelected();
                 }
                 break;
 
-            case R.id.archiveSelected:
-                if (ubicacionAdapter.selectList.size() < 1) {
+            case R.id.unarchiveSelected:
+                if (archivedUbicacionAdapter.selectList.size() < 1) {
                     Toast.makeText(this, "Selecciona al menos una ubicacion", Toast.LENGTH_SHORT).show();
                 } else {
-                    elegirCarpetaDialog();
+                    confirmDialogUnarchiveSelected();
                 }
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == LAUNCH_SECOND_ACTIVITY) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                // Write your code if there's no result
+                finish();
+                startActivity(getIntent());
+            }
+        }
     }
 
     /**
@@ -133,24 +140,43 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     public void onResume() {
         super.onResume();
         initialize();
-        ubicacionAdapter.disableContextualActionMode();
+        archivedUbicacionAdapter.disableContextualActionMode();
     }
 
-    private void initialize() {
-        toolbarTitle.setText("Ubicaciones");
+    private void initialize(){
+        toolbarTitle.setText(folderName);
 
-        //para rellenar la pantalla
-        storeOriginalDataInArrays();
-        recyclerUbicaciones.setAdapter(ubicacionAdapter);
-        recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+        storeArchivedDataInArrays();
+        recyclerUbicaciones.setAdapter(archivedUbicacionAdapter);
+        recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ArchivedListActivity.this));
 
+
+        //para gestionar el back button
         toolbar.setNavigationOnClickListener(v -> {
-            if (ubicacionAdapter.isEnable) {
-                ubicacionAdapter.disableContextualActionMode();
+            if (archivedUbicacionAdapter.isEnable) {
+                archivedUbicacionAdapter.disableContextualActionMode();
             } else {
                 finish();
             }
         });
+    }
+
+    private void unarchiveSelected() {
+        MyDatabaseHelper myDB = new MyDatabaseHelper(this);
+        //para guardar las ubicaciones seleccionadas en la página principal
+        for (int i = 0; i < archivedUbicacionAdapter.selectList.size(); i++) {
+            myDB.addUbicacion(
+                    archivedUbicacionAdapter.selectList.get(i).getFechaHora(),
+                    archivedUbicacionAdapter.selectList.get(i).getNombre(),
+                    archivedUbicacionAdapter.selectList.get(i).getDescripcion(),
+                    archivedUbicacionAdapter.selectList.get(i).getLat(),
+                    archivedUbicacionAdapter.selectList.get(i).getLon());
+        }
+
+        //para borrarlos de la lista del grupo en concreto de los archivados
+        String deleteListString = archivedUbicacionAdapter.deleteSelectedFromScreen();
+        myDB.deleteSelectedArchivedData(deleteListString);
+        Toast.makeText(this, "Se han desarchivado las ubicaciones seleccionadas", Toast.LENGTH_SHORT).show();
     }
 
     private void confirmDialogNoInternetNoApiRes() {
@@ -167,34 +193,25 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void elegirCarpetaDialog() {
-        ArrayList<String> folderList = getSelectedFoldersName();
-        ChooseFolderDialog chooseFolderDialog = new ChooseFolderDialog(this, folderList);
-        chooseFolderDialog.show(getSupportFragmentManager(), "example dialog");
-    }
-
-    public void añadirCarpetaDialog() {
-        AddFolderDialog addFolderDialog = new AddFolderDialog(this, null);
-        addFolderDialog.show(getSupportFragmentManager(), "example dialog");
-    }
-
-    private ArrayList<String> getSelectedFoldersName() {
-        ArrayList<String> folderList = new ArrayList<>();
-        MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        Cursor cursor = myDB.readAllArchivedFolders();
-        while (cursor.moveToNext()) {
-            folderList.add(cursor.getString(0));
-        }
-        return folderList;
+    private void confirmDialogUnarchiveSelected() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("¿Desarchivar seleccionados?");
+        builder.setPositiveButton("Si", (dialogInterface, i) -> {
+            unarchiveSelected();
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+            dialogInterface.cancel();
+        });
+        builder.create().show();
     }
 
     private void confirmDialogDeleteSelected() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("¿Borrar seleccionados?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
-            String deleteListString = ubicacionAdapter.deleteSelectedFromScreen();
-            MyDatabaseHelper myDB = new MyDatabaseHelper(ListActivity.this);
-            myDB.deleteSelectedData(deleteListString);
+            String deleteListString = archivedUbicacionAdapter.deleteSelectedFromScreen();
+            MyDatabaseHelper myDB = new MyDatabaseHelper(ArchivedListActivity.this);
+            myDB.deleteSelectedArchivedData(deleteListString);
             Toast.makeText(this, "Se han borrado las ubicaciones seleccionadas", Toast.LENGTH_SHORT).show();
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
@@ -209,7 +226,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
-            intent.putExtra("archiveMode", false);
+            intent.putExtra("archiveMode", true);
+            intent.putExtra("folderName", folderName);
             startActivityForResult(intent, LAUNCH_SECOND_ACTIVITY);
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
@@ -218,30 +236,25 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         builder.create().show();
     }
 
-    /**
-     * Metodo para crear los arrays con diferentes valores
-     */
-    private void storeOriginalDataInArrays() {
+    private void storeArchivedDataInArrays() {
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        Cursor cursor = myDB.readAllOriginalData();
+        Cursor cursor = myDB.readAllArchivedData(folderName);
         ArrayList<UbicacionItem> ubicacionList = new ArrayList<>();
-        ubicacionAdapter = new UbicacionAdapter(this, ubicacionList, new ArrayList<>());
-        if (cursor.getCount() == 0) {
+        archivedUbicacionAdapter = new ArchivedUbicacionAdapter(this, ubicacionList, new ArrayList<>());
+        if (cursor.getCount() <= 1) {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
         } else {
             empty_imageview.setVisibility(View.INVISIBLE);
             no_data.setVisibility(View.INVISIBLE);
             while (cursor.moveToNext()) {
-                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0, cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getDouble(4), cursor.getDouble(5));
-                ubicacionAdapter.ubicacionList.add(ubicacionItem);
-                ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
+                //miramos si el nombre = null si es asi esque es una row para identificar carpetas
+                if (!(cursor.getString(3) == null)) {
+                    UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0, cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getDouble(5), cursor.getDouble(6));
+                    archivedUbicacionAdapter.ubicacionList.add(ubicacionItem);
+                    archivedUbicacionAdapter.ubicacionListFull.add(ubicacionItem);
+                }
             }
-        }
-
-        cursor = myDB.readAllArchivedFolders();
-        while (cursor.moveToNext()) {
-            ubicacionAdapter.folderList.add(cursor.getString(0));
         }
     }
 }

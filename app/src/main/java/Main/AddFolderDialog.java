@@ -39,6 +39,9 @@ public class AddFolderDialog extends AppCompatDialogFragment {
         builder.setView(view)
                 .setTitle("Añadir carpeta")
                 .setNegativeButton("cancelar", (dialogInterface, i) -> {
+                    if(listActivity != null){
+                        listActivity.ubicacionAdapter.disableContextualActionMode();
+                    }
                     dialogInterface.cancel();
                 })
                 .setCancelable(false)
@@ -67,7 +70,6 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                             folderActivity.folderAdapter.notifyItemInserted(0);
                             folderActivity.folderAdapter.notifyDataSetChanged();
                             myDB.addFolder(nombre);
-                            Toast.makeText(folderActivity, "Se ha añadido la carpeta: " + nombre, Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         MyDatabaseHelper myDB = new MyDatabaseHelper(listActivity);
@@ -84,7 +86,6 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                             myDB.addFolder(nombre);
                             dialogInterface.cancel();
                             listActivity.elegirCarpetaDialog();
-                            Toast.makeText(listActivity, "Se ha añadido la carpeta: " + nombre, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -17,10 +17,4 @@
         app:showAsAction="ifRoom"
         />
 
-    <item
-        android:id="@+id/unarchived"
-        android:title="Desarchivados"
-        app:showAsAction="never"
-        />
-
 </menu>

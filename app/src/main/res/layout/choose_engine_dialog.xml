@@ -13,16 +13,16 @@
         android:id="@+id/btnMapbox"
         style="@style/DialogButtons"
         android:layout_width="wrap_content"
-        android:paddingHorizontal="10dp"
-        android:layout_height="150dp"
+        android:paddingHorizontal="20dp"
+        android:layout_height="100dp"
         android:text="Nav\n Mapbox" />
 
     <Button
         android:id="@+id/btnGoogleMaps"
         style="@style/DialogButtons"
         android:layout_width="wrap_content"
-        android:paddingHorizontal="10dp"
-        android:layout_height="150dp"
+        android:paddingHorizontal="20dp"
+        android:layout_height="100dp"
         android:layout_marginHorizontal="10dp"
         android:text="Google \n Maps"/>
 

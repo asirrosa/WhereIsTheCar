@@ -1,22 +1,15 @@
 package Main;
 
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDateTime;
@@ -24,9 +17,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.UbicacionViewHolder> implements Filterable {
+public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbicacionAdapter.UbicacionViewHolder> implements Filterable {
 
-    private ListActivity listActivity;
+    private ArchivedListActivity archivedListActivity;
     public ArrayList<UbicacionItem> ubicacionList;
     public ArrayList<UbicacionItem> ubicacionListFull;
     public ArrayList<String> folderList;
@@ -35,17 +28,17 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     private int counter = 0;
 
 
-    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList,ArrayList<String> folderList) {
+    public ArchivedUbicacionAdapter(ArchivedListActivity archivedListActivity, ArrayList<UbicacionItem> ubicacionList, ArrayList<String> folderList) {
         this.ubicacionList = ubicacionList;
         this.ubicacionListFull = new ArrayList<>();
-        this.listActivity = listActivity;
+        this.archivedListActivity = archivedListActivity;
         this.folderList = folderList;
     }
 
     @NonNull
     @Override
     public UbicacionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(listActivity);
+        LayoutInflater inflater = LayoutInflater.from(archivedListActivity);
         View view = inflater.inflate(R.layout.list_card_layout, parent, false);
         return new UbicacionViewHolder(view);
     }
@@ -70,16 +63,16 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
         if(selectList.contains(ubicacionItem)){
             holder.checkBox.setChecked(true);
-            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_loading_background));
+            holder.relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.card_loading_background));
         }
         else{
             holder.checkBox.setChecked(false);
-            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_main_background));
+            holder.relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.card_main_background));
         }
 
         if (!isEnable) {
             holder.checkBox.setChecked(false);
-            holder.relativeLayout.setBackground(listActivity.getDrawable(R.drawable.item_click));
+            holder.relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.item_click));
         }
 
     }
@@ -96,8 +89,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
         //para que muestre que no hay ninguna ubicacion en caso de que no la haya
         if(ubicacionList.isEmpty()){
-            listActivity.empty_imageview.setVisibility(View.VISIBLE);
-            listActivity.no_data.setVisibility(View.VISIBLE);
+            archivedListActivity.empty_imageview.setVisibility(View.VISIBLE);
+            archivedListActivity.no_data.setVisibility(View.VISIBLE);
         }
 
         //para quitarle la ultima coma
@@ -106,43 +99,40 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         return result;
     }
 
-    private void enableContextualActionMode(){
+    private void enableContextualActionModeArchived(){
         isEnable=true;
-        listActivity.toolbar.getMenu().clear();
-        listActivity.toolbar.inflateMenu(R.menu.list_longpress_menu);
+        archivedListActivity.toolbar.getMenu().clear();
+        archivedListActivity.toolbar.inflateMenu(R.menu.list_longpress_menu_archived);
 
-        listActivity.itemDeleteSelected = listActivity.toolbar.getMenu().findItem(R.id.deleteSelected);
-        listActivity.itemDeleteSelected.setOnMenuItemClickListener(listActivity);
+        archivedListActivity.itemDeleteSelected = archivedListActivity.toolbar.getMenu().findItem(R.id.deleteSelected);
+        archivedListActivity.itemDeleteSelected.setOnMenuItemClickListener(archivedListActivity);
 
-        listActivity.itemArchiveSelected = listActivity.toolbar.getMenu().findItem(R.id.archiveSelected);
-        listActivity.itemArchiveSelected.setOnMenuItemClickListener(listActivity);
+        archivedListActivity.itemUnarchiveSelected = archivedListActivity.toolbar.getMenu().findItem(R.id.unarchiveSelected);
+        archivedListActivity.itemUnarchiveSelected.setOnMenuItemClickListener(archivedListActivity);
 
-        listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.black));
-        listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        archivedListActivity.toolbar.setBackgroundColor(archivedListActivity.getColor(R.color.black));
+        archivedListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void updateCounter()
     {
-        listActivity.toolbarTitle.setText(counter+" Seleccionado");
+        archivedListActivity.toolbarTitle.setText(counter+" Seleccionado");
     }
 
     public void disableContextualActionMode() {
         isEnable = false;
-        listActivity.toolbar.getMenu().clear();
-        listActivity.toolbar.inflateMenu(R.menu.list_menu);
+        archivedListActivity.toolbar.getMenu().clear();
+        archivedListActivity.toolbar.inflateMenu(R.menu.list_archive_menu);
 
-        listActivity.itemSearch = listActivity.toolbar.getMenu().findItem(R.id.searchUbicaciones);
-        listActivity.itemSearch.setOnMenuItemClickListener(listActivity);
+        archivedListActivity.itemSearch = archivedListActivity.toolbar.getMenu().findItem(R.id.searchUbicaciones);
+        archivedListActivity.itemSearch.setOnMenuItemClickListener(archivedListActivity);
 
-        listActivity.itemAddLocation = listActivity.toolbar.getMenu().findItem(R.id.add_location);
-        listActivity.itemAddLocation.setOnMenuItemClickListener(listActivity);
+        archivedListActivity.itemAddLocation = archivedListActivity.toolbar.getMenu().findItem(R.id.add_location);
+        archivedListActivity.itemAddLocation.setOnMenuItemClickListener(archivedListActivity);
 
-        listActivity.itemArchived = listActivity.toolbar.getMenu().findItem(R.id.archived);
-        listActivity.itemArchived.setOnMenuItemClickListener(listActivity);
-
-        listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.toolbarLight));
-        listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        listActivity.toolbarTitle.setText("Ubicaciones");
+        archivedListActivity.toolbar.setBackgroundColor(archivedListActivity.getColor(R.color.toolbarLight));
+        archivedListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        archivedListActivity.toolbarTitle.setText(archivedListActivity.folderName);
         counter = 0;
         selectList.clear();
         notifyDataSetChanged();
@@ -267,8 +257,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                     UbicacionItem ubicacionItem = new UbicacionItem(1, 0,null,ubicacion_nombre.getText().toString(), null,
                             Double.parseDouble(ubicacion_lat.getText().toString()),
                             Double.parseDouble(ubicacion_lon.getText().toString()));
-                    ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(listActivity, null, ubicacionItem);
-                    chooseEngineDialog.show(listActivity.getSupportFragmentManager(), "example dialog");
+                    ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(null,archivedListActivity, ubicacionItem);
+                    chooseEngineDialog.show(archivedListActivity.getSupportFragmentManager(), "example dialog");
                 }
             });
         }
@@ -277,7 +267,7 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             itemView.setOnLongClickListener(v -> {
                 makeSelection();
                 if (!isEnable) {
-                    enableContextualActionMode();
+                    enableContextualActionModeArchived();
                 }
                 return true;
             });
@@ -289,14 +279,14 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
             if(!checkBox.isChecked()){
                 checkBox.setChecked(true);
-                relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_loading_background));
+                relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.card_loading_background));
                 selectList.add(ubicacionItem);
                 counter++;
                 updateCounter();
             }
             else{
                 checkBox.setChecked(false);
-                relativeLayout.setBackground(listActivity.getDrawable(R.drawable.card_main_background));
+                relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.card_main_background));
                 selectList.remove(ubicacionItem);
                 counter--;
                 updateCounter();

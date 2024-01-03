@@ -40,7 +40,9 @@ public class DeleteFolderDialog extends AppCompatDialogFragment{
         builder.setView(view)
                 .setTitle("¿Estas seguro de querer borrar la/las capetas y su contenido?")
                 .setNegativeButton("cancelar", (dialogInterface, i) -> {
-                    folderActivity.folderAdapter.disableContextualActionMode();
+                    if(folderActivity != null){
+                        folderActivity.folderAdapter.disableContextualActionMode();
+                    }
                     dialogInterface.cancel();
                 })
                 .setCancelable(false)

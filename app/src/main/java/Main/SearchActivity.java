@@ -40,6 +40,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SearchActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener,OnMapReadyCallback, View.OnClickListener, MenuItem.OnMenuItemClickListener{
 
@@ -68,13 +69,13 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.search_layout);
 
-        archiveMode = getIntent().getBooleanExtra("archiveMode",false);
+        archiveMode = getIntent().getBooleanExtra("archiveMode", false);
         folderName = getIntent().getStringExtra("folderName");
 
-        toolbar=findViewById(R.id.toolBar);
+        toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
-        toolbarTitle.setText("Ubicaciones");
+        toolbarTitle.setText("Busqueda");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mapView = findViewById(R.id.mapView);
@@ -86,6 +87,13 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         networkStateReceiver = new NetworkStateReceiver();
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -114,18 +122,12 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         switch (v.getId()) {
             case R.id.fab_location_save:
                 guardarEnDB();
+                Intent intent = new Intent();
                 if(archiveMode){
-                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-                    intent.putExtra("archiveMode",archiveMode);
+                    intent.putExtra("archiveMode", true);
                     intent.putExtra("folderName",folderName);
-                    startActivity(intent);
-                    finish();
                 }
-                else{
-                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+                finish();
                 break;
         }
     }

@@ -108,7 +108,7 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         toolbar=findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
-        toolbarTitle.setText("Ubicaciones");
+        toolbarTitle.setText("Navegación");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         btnStartNavegation = findViewById(R.id.btnStartNavegation);
@@ -136,6 +136,12 @@ public class NavigationActivity extends AppCompatActivity implements NetworkStat
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override

@@ -59,6 +59,12 @@
             android:parentActivityName=".ListActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ArchivedListActivity"
+            android:label="Nombre de la carpeta"
+            android:parentActivityName=".ListActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>
