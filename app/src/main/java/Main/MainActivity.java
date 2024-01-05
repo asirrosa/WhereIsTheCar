@@ -19,7 +19,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import android.location.Geocoder;
 
@@ -109,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             case R.id.btnNavegar:
                 if (isNetworkAvailable()) {
                     main = this;
-                    Intent intent = new Intent(this, NavigationActivity.class);
+                    Intent intent = new Intent(this, FindRouteActivity.class);
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, "Por favor conectate a Internet", Toast.LENGTH_SHORT).show();

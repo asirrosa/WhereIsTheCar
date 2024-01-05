@@ -79,7 +79,6 @@
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/btnStartNavegation"
-        mapbox:backgroundTint="@color/black"
         mapbox:srcCompat="@drawable/ic_my_location"
         tools:ignore="MissingConstraints" />
 

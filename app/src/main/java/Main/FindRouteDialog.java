@@ -10,14 +10,14 @@ import android.widget.RadioButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-public class NavigationDialog extends AppCompatDialogFragment {
+public class FindRouteDialog extends AppCompatDialogFragment {
 
     private CheckBox checkBoxPeaje, checkBoxAutopista, checkBoxFerri;
     private RadioButton btnWalking, btnDriving, btnCycling;
-    private NavigationActivity navigationActivity;
+    private FindRouteActivity findRouteActivity;
 
-    public NavigationDialog(NavigationActivity navigationActivity) {
-        this.navigationActivity = navigationActivity;
+    public FindRouteDialog(FindRouteActivity findRouteActivity) {
+        this.findRouteActivity = findRouteActivity;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class NavigationDialog extends AppCompatDialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.navigation_dialog, null);
+        View view = inflater.inflate(R.layout.find_route_dialog, null);
 
         checkBoxPeaje = view.findViewById(R.id.checkBoxPeaje);
         checkBoxAutopista = view.findViewById(R.id.checkBoxAutopista);
@@ -35,34 +35,34 @@ public class NavigationDialog extends AppCompatDialogFragment {
         btnWalking = view.findViewById(R.id.btnWalking);
         btnCycling = view.findViewById(R.id.btnCycling);
 
-        if (navigationActivity.exclude == null && navigationActivity.transporte == null) {
+        if (findRouteActivity.exclude == null && findRouteActivity.transporte == null) {
             //para que el modo default sea el de driving
             btnDriving.setChecked(true);
         } else {
             //checkbox
-            if (navigationActivity.exclude[0] != null) {
+            if (findRouteActivity.exclude[0] != null) {
                 checkBoxPeaje.setChecked(true);
             }
-            if (navigationActivity.exclude[1] != null) {
+            if (findRouteActivity.exclude[1] != null) {
                 checkBoxAutopista.setChecked(true);
             }
-            if (navigationActivity.exclude[2] != null) {
+            if (findRouteActivity.exclude[2] != null) {
                 checkBoxFerri.setChecked(true);
             }
             //radio button
-            if (navigationActivity.transporte.equals("walking")) {
+            if (findRouteActivity.transporte.equals("walking")) {
                 btnWalking.setChecked(true);
                 btnDriving.setChecked(false);
                 btnCycling.setChecked(false);
                 checkBoxPeaje.setEnabled(false);
                 checkBoxAutopista.setEnabled(false);
                 checkBoxFerri.setEnabled(false);
-            } else if(navigationActivity.transporte.equals("driving")) {
+            } else if(findRouteActivity.transporte.equals("driving")) {
                 btnWalking.setChecked(false);
                 btnDriving.setChecked(true);
                 btnCycling.setChecked(false);
             }
-            else if(navigationActivity.transporte.equals("cycling")) {
+            else if(findRouteActivity.transporte.equals("cycling")) {
                 btnWalking.setChecked(false);
                 btnDriving.setChecked(false);
                 btnCycling.setChecked(true);
@@ -75,7 +75,7 @@ public class NavigationDialog extends AppCompatDialogFragment {
             btnWalking.setChecked(true);
             btnDriving.setChecked(false);
             btnCycling.setChecked(false);
-            navigationActivity.transporte = "walking";
+            findRouteActivity.transporte = "walking";
             //
             checkBoxPeaje.setEnabled(false);
             checkBoxAutopista.setEnabled(false);
@@ -90,7 +90,7 @@ public class NavigationDialog extends AppCompatDialogFragment {
             btnWalking.setChecked(false);
             btnDriving.setChecked(true);
             btnCycling.setChecked(false);
-            navigationActivity.transporte = "driving";
+            findRouteActivity.transporte = "driving";
 
             checkBoxPeaje.setEnabled(true);
             checkBoxAutopista.setEnabled(true);
@@ -105,7 +105,7 @@ public class NavigationDialog extends AppCompatDialogFragment {
             btnWalking.setChecked(false);
             btnDriving.setChecked(false);
             btnCycling.setChecked(true);
-            navigationActivity.transporte = "cycling";
+            findRouteActivity.transporte = "cycling";
 
             checkBoxPeaje.setEnabled(false);
             checkBoxAutopista.setEnabled(false);
@@ -120,23 +120,23 @@ public class NavigationDialog extends AppCompatDialogFragment {
                 .setTitle("Opciones de ruta")
                 .setPositiveButton("ok", (dialogInterface, i) -> {
                     if (checkBoxPeaje.isChecked()) {
-                        navigationActivity.exclude[0] = "toll";
+                        findRouteActivity.exclude[0] = "toll";
                     } else {
-                        navigationActivity.exclude[0] = null;
+                        findRouteActivity.exclude[0] = null;
                     }
                     if (checkBoxAutopista.isChecked()) {
-                        navigationActivity.exclude[1] = "motorway";
+                        findRouteActivity.exclude[1] = "motorway";
                     } else {
-                        navigationActivity.exclude[1] = null;
+                        findRouteActivity.exclude[1] = null;
                     }
                     if (checkBoxFerri.isChecked()) {
-                        navigationActivity.exclude[2] = "ferry";
+                        findRouteActivity.exclude[2] = "ferry";
                     } else {
-                        navigationActivity.exclude[2] = null;
+                        findRouteActivity.exclude[2] = null;
                     }
 
-                    if (navigationActivity.currentRoute != null) {
-                        navigationActivity.getRoutes();
+                    if (findRouteActivity.currentRoute != null) {
+                        findRouteActivity.getRoutes();
                     }
                 });
         return builder.create();

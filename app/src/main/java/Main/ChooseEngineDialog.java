@@ -1,23 +1,15 @@
 package Main;
 
-import static android.content.Context.LOCATION_SERVICE;
-
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 public class ChooseEngineDialog extends AppCompatDialogFragment implements View.OnClickListener {
 
@@ -57,10 +49,10 @@ public class ChooseEngineDialog extends AppCompatDialogFragment implements View.
             case R.id.btnMapbox:
                 Intent intent;
                 if(listActivity != null) {
-                    intent = new Intent(listActivity, NavigationActivity.class);
+                    intent = new Intent(listActivity, FindRouteActivity.class);
                 }
                 else{
-                    intent = new Intent(archivedListActivity, NavigationActivity.class);
+                    intent = new Intent(archivedListActivity, FindRouteActivity.class);
                 }
                 double[] arrayLatLng = new double[2];
                 arrayLatLng[0] = ubicacionItem.getLat();
