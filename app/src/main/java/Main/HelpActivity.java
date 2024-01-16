@@ -34,9 +34,7 @@ public class HelpActivity extends AppCompatActivity{
                 Intent intent = new Intent(getApplicationContext(), SanMamesActivity.class);
                 startActivity(intent);
             }
-            else{
-                contador++;
-            }
+            contador ++;
         });
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

@@ -46,7 +46,7 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                 })
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialogInterface, i) -> {
-                    String nombre = nombreCarpeta.getText().toString().replace(" ", "").replace("\n", "");
+                    String nombre = nombreCarpeta.getText().toString().replaceAll("\\s+", " ").replaceAll("\n", "");
 
                     if (folderActivity != null) {
                         MyDatabaseHelper myDB = new MyDatabaseHelper(folderActivity);
