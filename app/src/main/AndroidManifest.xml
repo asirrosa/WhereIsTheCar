@@ -24,6 +24,8 @@
             </intent-filter>
         </activity>
 
+
+
         <activity
             android:name=".FindRouteActivity"
             android:label="Navegador"
@@ -33,41 +35,48 @@
         <activity
             android:name=".ListActivity"
             android:label="Ubicaciones"
+            android:exported="true"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".SearchActivity"
             android:label="Añadir ubicación"
+            android:exported="true"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".HelpActivity"
             android:label="Ayuda"
+            android:exported="true"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".SanMamesActivity"
             android:label="San mames"
+            android:exported="true"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".FolderActivity"
             android:label="Carpetas"
+            android:exported="true"
             android:parentActivityName=".ListActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".ArchivedListActivity"
             android:label="Nombre de la carpeta"
+            android:exported="true"
             android:parentActivityName=".ListActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".NavigationActivity"
             android:label="Navegación"
+            android:exported="true"
             android:screenOrientation="portrait" />
 
     </application>

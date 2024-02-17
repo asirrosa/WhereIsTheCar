@@ -1,0 +1,385 @@
+Index: app/src/main/java/Main/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Main;\n\n\nimport android.Manifest;\nimport android.app.AlertDialog;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.content.pm.PackageManager;\nimport android.location.Address;\nimport android.location.Location;\nimport android.location.LocationListener;\nimport android.location.LocationManager;\nimport android.net.ConnectivityManager;\nimport android.net.NetworkInfo;\nimport android.os.Bundle;\nimport android.provider.Settings;\nimport android.view.Menu;\nimport android.view.MenuInflater;\nimport android.view.MenuItem;\nimport android.view.View;\nimport android.widget.Button;\nimport android.widget.ProgressBar;\nimport android.widget.Toast;\n\nimport androidx.annotation.NonNull;\nimport androidx.appcompat.app.AppCompatActivity;\nimport androidx.core.app.ActivityCompat;\nimport androidx.core.content.ContextCompat;\nimport androidx.core.content.res.ResourcesCompat;\nimport android.location.Geocoder;\n\nimport com.google.android.material.floatingactionbutton.FloatingActionButton;\n\nimport java.time.LocalDateTime;\nimport java.util.List;\nimport java.util.Locale;\n\n\npublic class MainActivity extends AppCompatActivity implements LocationListener, View.OnClickListener, MenuItem.OnMenuItemClickListener {\n\n    //boton para guardar la ubicacion\n    Button btnNavegar, btnGuardar;\n    FloatingActionButton btnLista;\n    public double latitude, longitude;\n    MenuItem itemHelp;\n\n    //Singleton\n    private static MainActivity main = null;\n\n    public MainActivity() {\n    }\n\n    public static MainActivity getInstance() {\n        if (main == null) {\n            main = new MainActivity();\n        }\n        return main;\n    }\n\n    /**\n     * Metodo onCreate que instanciara el main layout\n     */\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n\n        //Para que al iniciar cargue el layout del inicio\n        setContentView(R.layout.main_layout);\n\n        //El botón de guardar\n        btnGuardar = findViewById(R.id.btnGuardar);\n        //esta linea necesaria para que funcione el onClick\n        btnGuardar.setOnClickListener(this);\n\n        btnNavegar = findViewById(R.id.btnNavegar);\n        btnNavegar.setOnClickListener(this);\n\n        //El botón de la lista de ubicaciones\n        btnLista = findViewById(R.id.btnLista);\n        btnLista.setOnClickListener(this);\n\n    }\n\n    @Override\n    public boolean onCreateOptionsMenu(Menu menu) {\n        MenuInflater inflater = getMenuInflater();\n        inflater.inflate(R.menu.main_menu, menu);\n\n        itemHelp = menu.findItem(R.id.help);\n        itemHelp.setOnMenuItemClickListener(this);\n\n        return true;\n    }\n\n    @Override\n    public void onClick(View view) {\n        switch (view.getId()) {\n            case R.id.btnNavegar:\n                if (isNetworkAvailable()) {\n                    main = this;\n                    Intent intent = new Intent(this, NavigationActivity.class);\n                    startActivity(intent);\n                } else {\n                    Toast.makeText(this, \"Por favor conectate a Internet\", Toast.LENGTH_SHORT).show();\n                }\n                break;\n            case R.id.btnGuardar:\n                main = this;\n                getLocation();\n                break;\n\n            case R.id.btnLista:\n                listaUbicaciones(view);\n                break;\n        }\n    }\n\n    @Override\n    public boolean onMenuItemClick(MenuItem item) {\n        switch (item.getItemId()) {\n            case R.id.help:\n                Intent intent = new Intent(this, HelpActivity.class);\n                startActivity(intent);\n                break;\n        }\n        return false;\n    }\n\n    public void noConnectionDialog() {\n        SinConexionDialog exampleDialog = new SinConexionDialog();\n        exampleDialog.show(getSupportFragmentManager(), \"example dialog\");\n    }\n\n    /**\n     * Metodo para guardar la nueva ubicacion en la base de datos\n     */\n    public void guardarEnDB(String nombre, String descripcion) {\n        MyDatabaseHelper myDB = new MyDatabaseHelper(this);\n        LocalDateTime startDateTime = LocalDateTime.now();\n        myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);\n        Toast.makeText(getApplicationContext(), \"Se ha guardado la ubi!\", Toast.LENGTH_SHORT).show();\n    }\n\n    /**\n     * LLamada a otro layout donde se guardan la lista de todas las ubicaciones\n     */\n    public void listaUbicaciones(View view) {\n        Intent intent = new Intent(this, ListActivity.class);\n        startActivity(intent);\n    }\n\n    private void getLocation() {\n        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n        if (locationManager != null) {\n            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {\n                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {\n                    try {\n                        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);\n                    } catch (Exception e) {\n                        e.printStackTrace();\n                    }\n                } else {\n                    showSettingsAlert();\n                }\n            }\n            else{\n                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);\n            }\n        }\n    }\n\n    @Override\n    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {\n        if (requestCode == 100) {\n            for (int i = 0, len = permissions.length; i < len; i++) {\n                String permission = permissions[i];\n                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {\n                    // user rejected the permission\n                    boolean askAgain = shouldShowRequestPermissionRationale(permission);\n                    if (!askAgain) {\n                        Toast.makeText(this, \"La aplicación no tiene permisos de ubicación\", Toast.LENGTH_SHORT).show();\n                    }\n                }\n            }\n        }\n    }\n\n    private boolean isNetworkAvailable() {\n        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);\n        NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;\n        return activeNetworkInfo != null && activeNetworkInfo.isConnected();\n    }\n\n    /**\n     * Metodo para mostrar el dialog que te dice si quieres activar el gps\n     */\n    public void showSettingsAlert() {\n        AlertDialog.Builder builder = new AlertDialog.Builder(this);\n        builder.setTitle(\"El gps esta desactivado. ¿Quieres activarlo?\");\n        //builder.setMessage(\"¿Estas seguro que quieres añadir una ubicación de manera manual?\");\n        builder.setPositiveButton(\"Si\", (dialogInterface, i) -> {\n            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);\n            getApplicationContext().startActivity(intent);\n        });\n        builder.setNegativeButton(\"No\", (dialogInterface, i) -> {\n            dialogInterface.cancel();\n        });\n        builder.create().show();\n    }\n\n    @Override\n    public void onLocationChanged(@NonNull Location location) {\n        if(location != null) {\n            latitude = location.getLatitude();\n            longitude = location.getLongitude();\n            if (isNetworkAvailable()) {\n                try {\n                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());\n                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);\n                    String description = addresses.get(0).getAddressLine(0);\n                    String name = addresses.get(0).getLocality();\n                    guardarEnDB(name, description);\n                    Toast.makeText(this, \"Se ha guardado la ubi\", Toast.LENGTH_SHORT).show();\n                }\n                catch (Exception e){\n                    e.printStackTrace();\n                }\n            } else {\n                noConnectionDialog();\n            }\n        }\n    }\n\n    @Override\n    public void onStatusChanged(String provider, int status, Bundle extras) {}\n\n    @Override\n    public void onProviderEnabled(String provider) {}\n\n    @Override\n    public void onProviderDisabled(String provider) {}\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/Main/MainActivity.java b/app/src/main/java/Main/MainActivity.java
+--- a/app/src/main/java/Main/MainActivity.java	
++++ b/app/src/main/java/Main/MainActivity.java	
+@@ -7,6 +7,7 @@
+ import android.content.Intent;
+ import android.content.pm.PackageManager;
+ import android.location.Address;
++import android.location.Geocoder;
+ import android.location.Location;
+ import android.location.LocationListener;
+ import android.location.LocationManager;
+@@ -19,18 +20,23 @@
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.widget.Button;
+-import android.widget.ProgressBar;
+ import android.widget.Toast;
+ 
+ import androidx.annotation.NonNull;
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.core.app.ActivityCompat;
+ import androidx.core.content.ContextCompat;
+-import androidx.core.content.res.ResourcesCompat;
+-import android.location.Geocoder;
+ 
++import com.android.volley.Request;
++import com.android.volley.RequestQueue;
++import com.android.volley.toolbox.StringRequest;
++import com.android.volley.toolbox.Volley;
+ import com.google.android.material.floatingactionbutton.FloatingActionButton;
+ 
++import org.json.JSONArray;
++import org.json.JSONException;
++import org.json.JSONObject;
++
+ import java.time.LocalDateTime;
+ import java.util.List;
+ import java.util.Locale;
+@@ -43,6 +49,7 @@
+     FloatingActionButton btnLista;
+     public double latitude, longitude;
+     MenuItem itemHelp;
++    private boolean guardarUbiPressed;
+ 
+     //Singleton
+     private static MainActivity main = null;
+@@ -106,6 +113,7 @@
+                 break;
+             case R.id.btnGuardar:
+                 main = this;
++                guardarUbiPressed = true;
+                 getLocation();
+                 break;
+ 
+@@ -138,7 +146,7 @@
+         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
+         LocalDateTime startDateTime = LocalDateTime.now();
+         myDB.addUbicacion(startDateTime, nombre, descripcion, latitude, longitude);
+-        Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
++        Toast.makeText(getApplicationContext(), "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
+     }
+ 
+     /**
+@@ -155,16 +163,21 @@
+             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                     try {
+-                        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
++                        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
++                        if(lastLocation == null) {
++                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
++                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
++                        }
++                        else{
++                            locationReceived(lastLocation);
++                        }
+                     } catch (Exception e) {
+                         e.printStackTrace();
+                     }
+                 } else {
+                     showSettingsAlert();
+                 }
+-            }
+-            else{
++            } else {
+                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+             }
+         }
+@@ -201,7 +214,7 @@
+         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
+         builder.setPositiveButton("Si", (dialogInterface, i) -> {
+             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+-            getApplicationContext().startActivity(intent);
++            startActivity(intent);
+         });
+         builder.setNegativeButton("No", (dialogInterface, i) -> {
+             dialogInterface.cancel();
+@@ -211,33 +224,47 @@
+ 
+     @Override
+     public void onLocationChanged(@NonNull Location location) {
+-        if(location != null) {
+-            latitude = location.getLatitude();
+-            longitude = location.getLongitude();
+-            if (isNetworkAvailable()) {
+-                try {
+-                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+-                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+-                    String description = addresses.get(0).getAddressLine(0);
+-                    String name = addresses.get(0).getLocality();
+-                    guardarEnDB(name, description);
+-                    Toast.makeText(this, "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
+-                }
+-                catch (Exception e){
+-                    e.printStackTrace();
+-                }
+-            } else {
+-                noConnectionDialog();
+-            }
++        if (location != null) {
++            if (guardarUbiPressed) {
++                locationReceived(location);
++            }
++        }
++    }
++
++    private void locationReceived(Location location){
++        latitude = location.getLatitude();
++        longitude = location.getLongitude();
++        if (isNetworkAvailable()) {
++            geocoderCall(location);
++            guardarUbiPressed = false;
++        } else {
++            noConnectionDialog();
++        }
++    }
++
++    private void geocoderCall(Location location) {
++        try {
++            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
++            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
++            String description = addresses.get(0).getAddressLine(0);
++            String name = addresses.get(0).getLocality();
++            guardarEnDB(name, description);
++            Toast.makeText(this, "Se ha guardado la ubi", Toast.LENGTH_SHORT).show();
++        }
++        catch (Exception e){
++            e.printStackTrace();
+         }
+     }
+ 
+     @Override
+-    public void onStatusChanged(String provider, int status, Bundle extras) {}
++    public void onStatusChanged(String provider, int status, Bundle extras) {
++    }
+ 
+     @Override
+-    public void onProviderEnabled(String provider) {}
++    public void onProviderEnabled(String provider) {
++    }
+ 
+     @Override
+-    public void onProviderDisabled(String provider) {}
++    public void onProviderDisabled(String provider) {
++    }
+ }
+\ No newline at end of file
+Index: app/src/main/java/Main/NavigationActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package Main;\n\nimport static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;\nimport static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;\nimport static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;\nimport static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;\nimport static Main.SearchActivity.REQUEST_CODE_AUTOCOMPLETE;\n\nimport android.Manifest;\nimport android.annotation.SuppressLint;\nimport android.app.Activity;\nimport android.app.AlertDialog;\nimport android.content.BroadcastReceiver;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.content.IntentFilter;\nimport android.content.pm.PackageManager;\nimport android.content.res.ColorStateList;\nimport android.graphics.BitmapFactory;\nimport android.graphics.Color;\nimport android.location.Location;\nimport android.location.LocationListener;\nimport android.location.LocationManager;\nimport android.net.ConnectivityManager;\nimport android.net.Network;\nimport android.net.NetworkInfo;\nimport android.os.Bundle;\nimport android.provider.Settings;\nimport android.view.Menu;\nimport android.view.MenuInflater;\nimport android.view.MenuItem;\nimport android.view.View;\nimport android.widget.ImageView;\nimport android.widget.LinearLayout;\nimport android.widget.ProgressBar;\nimport android.widget.TextView;\nimport android.widget.Toast;\n\nimport androidx.annotation.NonNull;\nimport androidx.appcompat.app.AppCompatActivity;\nimport androidx.core.app.ActivityCompat;\nimport androidx.core.content.ContextCompat;\n\nimport com.google.android.material.floatingactionbutton.FloatingActionButton;\nimport com.mapbox.android.core.permissions.PermissionsListener;\nimport com.mapbox.android.core.permissions.PermissionsManager;\nimport com.mapbox.api.directions.v5.models.DirectionsResponse;\nimport com.mapbox.api.directions.v5.models.DirectionsRoute;\nimport com.mapbox.api.geocoding.v5.models.CarmenFeature;\nimport com.mapbox.geojson.Feature;\nimport com.mapbox.geojson.FeatureCollection;\nimport com.mapbox.geojson.Point;\nimport com.mapbox.mapboxsdk.Mapbox;\nimport com.mapbox.mapboxsdk.annotations.MarkerOptions;\nimport com.mapbox.mapboxsdk.camera.CameraPosition;\nimport com.mapbox.mapboxsdk.camera.CameraUpdateFactory;\nimport com.mapbox.mapboxsdk.geometry.LatLng;\nimport com.mapbox.mapboxsdk.geometry.LatLngBounds;\nimport com.mapbox.mapboxsdk.location.LocationComponent;\nimport com.mapbox.mapboxsdk.location.modes.CameraMode;\nimport com.mapbox.mapboxsdk.maps.MapView;\nimport com.mapbox.mapboxsdk.maps.MapboxMap;\nimport com.mapbox.mapboxsdk.maps.OnMapReadyCallback;\nimport com.mapbox.mapboxsdk.maps.Style;\nimport com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;\nimport com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;\nimport com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;\nimport com.mapbox.mapboxsdk.style.layers.SymbolLayer;\nimport com.mapbox.mapboxsdk.style.sources.GeoJsonSource;\nimport com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;\nimport com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;\nimport com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;\nimport com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;\n\nimport java.util.List;\nimport java.util.Locale;\nimport java.util.Objects;\n\nimport retrofit2.Call;\nimport retrofit2.Callback;\nimport retrofit2.Response;\n\npublic class NavigationActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener, LocationListener, View.OnClickListener, OnMapReadyCallback, MenuItem.OnMenuItemClickListener {\n\n    private MapView mapView;\n    private MapboxMap mapboxMap;\n    private LocationComponent locationComponent;\n    public DirectionsRoute currentRoute, oneRoute, twoRoute;\n    private NavigationMapRoute navigationMapRoute;\n    private MenuItem itemSearch, itemRouteOptions;\n    private String geojsonSourceLayerId = \"geojsonSourceLayerId\";\n    private FloatingActionButton btnStartNavegation, btnUno, btnDos, btnMyLocation;\n    public String transporte;\n    public String[] exclude;\n    private Point originPoint;\n    private Point destinationPoint;\n    private ImageView ivTransporte;\n    private TextView textDuration, textDistance;\n    private LinearLayout barraAbajo;\n    private boolean nav;\n    private NetworkStateReceiver networkStateReceiver;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        Mapbox.getInstance(this, getString(R.string.mapbox_access_token));\n        setContentView(R.layout.navigation_layout);\n        mapView = findViewById(R.id.mapView);\n        mapView.onCreate(savedInstanceState);\n        mapView.getMapAsync(this);\n\n        btnStartNavegation = findViewById(R.id.btnStartNavegation);\n        btnStartNavegation.setOnClickListener(this);\n\n        btnUno = findViewById(R.id.btnUno);\n        btnUno.setOnClickListener(this);\n\n        btnDos = findViewById(R.id.btnDos);\n        btnDos.setOnClickListener(this);\n\n        btnMyLocation = findViewById(R.id.btnMyLocation);\n        btnMyLocation.setOnClickListener(this);\n\n        barraAbajo = findViewById(R.id.barraAbajo);\n        ivTransporte = findViewById(R.id.ivTransporte);\n        textDuration = findViewById(R.id.textDuration);\n        textDistance = findViewById(R.id.textDistance);\n\n        //para que de default este cargado el array y ademas el modo sea el de driving\n        exclude = new String[3];\n        transporte = \"driving\";\n\n        networkStateReceiver = new NetworkStateReceiver();\n        networkStateReceiver.addListener(this);\n        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));\n\n    }\n\n    @Override\n    protected void onDestroy() {\n        super.onDestroy();\n        networkStateReceiver.removeListener(this);\n        this.unregisterReceiver(networkStateReceiver);\n    }\n\n    /**\n     * Metodo para crear el inflater con el menu\n     */\n    @Override\n    public boolean onCreateOptionsMenu(Menu menu) {\n        MenuInflater inflater = getMenuInflater();\n        inflater.inflate(R.menu.navigation_menu, menu);\n\n        itemSearch = menu.findItem(R.id.searchNavigation);\n        itemSearch.setOnMenuItemClickListener(this);\n\n        itemRouteOptions = menu.findItem(R.id.routeOptions);\n        itemRouteOptions.setOnMenuItemClickListener(this);\n\n        return true;\n    }\n\n    @SuppressLint(\"ResourceType\")\n    @Override\n    public void onClick(View view) {\n        switch (view.getId()) {\n            case R.id.btnStartNavegation:\n                nav = true;\n                getLocation();\n                break;\n            case R.id.btnUno:\n                changeRoute(oneRoute);\n                changeRouteButtonColor(R.color.mapbox_blue, R.color.greyDark);\n                break;\n\n            case R.id.btnDos:\n                changeRoute(twoRoute);\n                changeRouteButtonColor(R.color.greyDark, R.color.mapbox_blue);\n                break;\n            case R.id.btnMyLocation:\n                nav = false;\n                getLocation();\n                break;\n        }\n\n    }\n\n    @SuppressLint(\"RestrictedApi\")\n    @Override\n    public boolean onMenuItemClick(MenuItem item) {\n        switch (item.getItemId()) {\n            case R.id.searchNavigation:\n                Intent intent = new PlaceAutocomplete.IntentBuilder()\n                        .accessToken(Mapbox.getAccessToken() != null ? Mapbox.getAccessToken() : getString(R.string.mapbox_access_token))\n                        .placeOptions(PlaceOptions.builder()\n                                .backgroundColor(Color.parseColor(\"#7678ED\"))\n                                .limit(10)\n                                .hint(\"Busca aqui\")\n                                .language(\"es\")\n                                .build(PlaceOptions.MODE_CARDS))\n                        .build(this);\n                startActivityForResult(intent, REQUEST_CODE_AUTOCOMPLETE);\n                //para que no se muestre lo de la pasada busqueda\n                barraAbajo.setVisibility(LinearLayout.INVISIBLE);\n                btnStartNavegation.setVisibility(FloatingActionButton.INVISIBLE);\n                btnUno.setVisibility(FloatingActionButton.INVISIBLE);\n                btnDos.setVisibility(FloatingActionButton.INVISIBLE);\n                currentRoute = null;\n                break;\n\n            case R.id.routeOptions:\n                navDialog();\n                break;\n        }\n        return false;\n    }\n\n    @Override\n    public void onMapReady(@NonNull MapboxMap mapboxMap) {\n        this.mapboxMap = mapboxMap;\n        mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {\n            style.addImage(\"symbolIconId\", BitmapFactory.decodeResource(NavigationActivity.this.getResources(), R.drawable.mapbox_marker_icon_default));\n            addDestinationIconSymbolLayer(style);\n            showLocationIfActivated(style);\n            style.addSource(new GeoJsonSource(geojsonSourceLayerId));\n            // Set up a new symbol layer for displaying the searched location's feature coordinates\n            style.addLayer(new SymbolLayer(\"SYMBOL_LAYER_ID\", geojsonSourceLayerId).withProperties(\n                    iconImage(\"symbolIconId\"),\n                    iconOffset(new Float[]{0f, -8f})));\n\n        });\n    }\n\n    private void showLocationIfActivated(@NonNull Style loadedMapStyle) {\n        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n        if (locationManager != null) {\n            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {\n                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {\n                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);\n                }\n            }\n        }\n    }\n\n    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {\n        loadedMapStyle.addImage(\"destination-icon-id\",\n                BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));\n        GeoJsonSource geoJsonSource = new GeoJsonSource(\"destination-source-id\");\n        loadedMapStyle.addSource(geoJsonSource);\n        SymbolLayer destinationSymbolLayer = new SymbolLayer(\"destination-symbol-layer-id\", \"destination-source-id\");\n        destinationSymbolLayer.withProperties(\n                iconImage(\"destination-icon-id\"),\n                iconAllowOverlap(true),\n                iconIgnorePlacement(true)\n        );\n        loadedMapStyle.addLayer(destinationSymbolLayer);\n    }\n\n    @SuppressLint(\"RestrictedApi\")\n    @Override\n    protected void onActivityResult(int requestCode, int resultCode, Intent data) {\n        super.onActivityResult(requestCode, resultCode, data);\n        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_AUTOCOMPLETE) {\n            CarmenFeature selectedCarmenFeature = PlaceAutocomplete.getPlace(data);\n            if (mapboxMap != null) {\n                Style style = mapboxMap.getStyle();\n                if (style != null) {\n                    GeoJsonSource source = style.getSourceAs(geojsonSourceLayerId);\n                    if (source != null) {\n                        source.setGeoJson(FeatureCollection.fromFeatures(\n                                new Feature[]{Feature.fromJson(selectedCarmenFeature.toJson())}));\n                    }\n\n                    //para conseguir la ruta\n                    destinationPoint = Point.fromLngLat(\n                            ((Point) selectedCarmenFeature.geometry()).longitude(),\n                            ((Point) selectedCarmenFeature.geometry()).latitude()\n                    );\n\n                    //para que se vea el botón\n                    btnStartNavegation.setVisibility(FloatingActionButton.VISIBLE);\n\n                    // Move map camera to the selected location\n                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(\n                            new CameraPosition.Builder()\n                                    .target(new LatLng(destinationPoint.latitude(), (destinationPoint.longitude())))\n                                    .zoom(14)\n                                    .build()), 4000);\n\n                }\n            }\n        }\n    }\n\n    public void getRoutes() {\n        navigationOptions().getRoute(new Callback<DirectionsResponse>() {\n            @SuppressLint(\"RestrictedApi\")\n            @Override\n            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {\n\n                if (response.body() == null) {\n                    Toast.makeText(getApplicationContext(), \"Developer Message: Algun parametro de la api esta mal\", Toast.LENGTH_SHORT).show();\n                    return;\n                } else if (response.body().routes().size() < 1) {\n                    Toast.makeText(getApplicationContext(), \"No se han encontrado rutas a esa ubicacion\", Toast.LENGTH_SHORT).show();\n                    return;\n                }\n\n                LatLng originLatLng = new LatLng(originPoint.latitude(), originPoint.longitude());\n                LatLng destinationLatLng = new LatLng(destinationPoint.latitude(), destinationPoint.longitude());\n                //esto sirve para calcular el centro entre dos puntos, de esta manera se muestra la ruta desde arriba\n                LatLngBounds latLngBounds = new LatLngBounds.Builder().include(originLatLng).include(destinationLatLng).build();\n                //este metodo sirve para mostrarte la ruta entre dos puntos de manera completa\n                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 80));\n\n                //hacer el boton de navegacion visible\n                btnStartNavegation.setVisibility(FloatingActionButton.VISIBLE);\n\n                oneRoute = response.body().routes().get(0);\n\n                //se mira si la segunda ruta existe o no, si es asi se muestran los botones sino no\n                if (response.body().routes().size() > 1) {\n                    twoRoute = response.body().routes().get(1);\n                    changeVisibilityRouteButtons(FloatingActionButton.VISIBLE);\n                } else {\n                    changeVisibilityRouteButtons(FloatingActionButton.INVISIBLE);\n                }\n\n                //de default te va a mostrar la primera ruta\n                changeRoute(oneRoute);\n            }\n\n            @Override\n            public void onFailure(Call<DirectionsResponse> call, Throwable t) {\n                Toast.makeText(getApplicationContext(), \"Developer Message: No funciona la api\", Toast.LENGTH_SHORT).show();\n            }\n        });\n    }\n\n    private String excludeOptions() {\n        String excludeText = \"\";\n        if (exclude[0] != null) {\n            excludeText = exclude[0];\n            if (exclude[1] != null) {\n                excludeText = excludeText + \",\" + exclude[1];\n                if (exclude[2] != null) {\n                    excludeText = excludeText + \",\" + exclude[2];\n                }\n            } else if (exclude[2] != null) {\n                excludeText = excludeText + \",\" + exclude[2];\n            }\n        } else if (exclude[1] != null) {\n            excludeText = exclude[1];\n            if (exclude[2] != null) {\n                excludeText = excludeText + \",\" + exclude[2];\n            }\n        } else if (exclude[2] != null) {\n            excludeText = exclude[2];\n        }\n        return excludeText;\n    }\n\n    private NavigationRoute navigationOptions() {\n        NavigationRoute result;\n        String excludeText = excludeOptions();\n        if (excludeText.equals(\"\")) {\n            result = NavigationRoute.builder(this)\n                    .accessToken(Mapbox.getAccessToken())\n                    .alternatives(Boolean.TRUE)\n                    .language(new Locale(\"es_ES\"))\n                    .profile(transporte)\n                    .origin(originPoint)\n                    .destination(destinationPoint)\n                    .build();\n        } else {\n            result = NavigationRoute.builder(this)\n                    .accessToken(Mapbox.getAccessToken())\n                    .alternatives(Boolean.TRUE)\n                    .language(new Locale(\"es_ES\"))\n                    .exclude(excludeText)\n                    .profile(transporte)\n                    .origin(originPoint)\n                    .destination(destinationPoint)\n                    .build();\n        }\n        return result;\n    }\n\n\n    /**\n     * Este metodo sirve para cuando solo haya una ruta, de esta manera no se muestran los botones ya que sería inutil\n     */\n    @SuppressLint(\"RestrictedApi\")\n    private void changeVisibilityRouteButtons(int visibility) {\n        btnUno.setVisibility(visibility);\n        btnDos.setVisibility(visibility);\n    }\n\n\n    private void changeRoute(DirectionsRoute route) {\n        //esto de aqui sirve para mostrar la ruta en el mapa\n        if (navigationMapRoute != null) {\n            navigationMapRoute.removeRoute();\n        } else {\n            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationViewDark);\n        }\n\n        //esto de aqui sirve para que en la barra de abajo te ponga que tipo de transporte tiene la ruta, que distancia tiene y el tiempo que vas a tardar\n        if (transporte.equals(\"driving\")) {\n            ivTransporte.setBackgroundResource(R.drawable.ic_coche);\n        } else if (transporte.equals(\"walking\")) {\n            ivTransporte.setBackgroundResource(R.drawable.ic_andar);\n        } else if (transporte.equals(\"cycling\")) {\n            ivTransporte.setBackgroundResource(R.drawable.ic_cycling);\n        }\n\n        //para mostrar las horas y minutos que dura la ruta\n        barraAbajo.setVisibility(LinearLayout.VISIBLE);\n        double seconds = route.duration();\n        if (seconds >= 3600) {\n            int hours = (int) (seconds / 3600);\n            seconds = seconds % 3600;\n            int minutes = (int) (seconds / 60);\n            textDuration.setText(hours + \" h \" + minutes + \" min \");\n        } else {\n            int minutes = (int) (seconds / 60);\n            textDuration.setText(minutes + \" min \");\n        }\n\n        //para mostrar los km o metros que tiene la ruta\n        double meters = route.distance();\n        if (meters >= 1000) {\n            int kilometers = (int) (meters / 1000);\n            textDistance.setText(kilometers + \" km \");\n        } else {\n            textDistance.setText(meters + \" m \");\n        }\n\n        currentRoute = route;\n        navigationMapRoute.addRoute(route);\n    }\n\n    private void changeRouteButtonColor(int uno, int dos) {\n        btnUno.setBackgroundTintList(ColorStateList.valueOf(\n                Color.parseColor(getString(uno))));\n        btnDos.setBackgroundTintList(ColorStateList.valueOf(\n                Color.parseColor(getString(dos))));\n    }\n\n    public void navDialog() {\n        //mostrar el dialog con las opciones de la ruta\n        NavigationDialog navigationDialog = new NavigationDialog(this);\n        //para que aun clicando el back button o fuera del dialog este no se cierre\n        navigationDialog.setCancelable(false);\n        navigationDialog.show(getSupportFragmentManager(), \"example dialog\");\n    }\n\n    private void getLocation() {\n        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n        if (locationManager != null) {\n            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {\n                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {\n                    if(nav){\n                        try {\n                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);\n                        } catch (Exception e) {\n                            e.printStackTrace();\n                        }\n                    }\n                    else {\n                        if (originPoint == null) {\n                            try {\n                                locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);\n                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);\n                            } catch (Exception e) {\n                                e.printStackTrace();\n                            }\n                        } else {\n                            locationComponent = mapboxMap.getLocationComponent();\n                            locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));\n                            locationComponent.setLocationComponentEnabled(true);\n                            locationComponent.setCameraMode(CameraMode.TRACKING);\n                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(\n                                    new CameraPosition.Builder()\n                                            .target(new LatLng(originPoint.latitude(), originPoint.longitude()))\n                                            .zoom(14)\n                                            .build()), 4000);\n                        }\n                    }\n                } else {\n                    showSettingsAlert();\n                }\n            } else {\n                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);\n            }\n        }\n    }\n\n    @Override\n    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {\n        if (requestCode == 100) {\n            for (int i = 0, len = permissions.length; i < len; i++) {\n                String permission = permissions[i];\n                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {\n                    // user rejected the permission\n                    boolean askAgain = shouldShowRequestPermissionRationale(permission);\n                    if (!askAgain) {\n                        Toast.makeText(this, \"La aplicación no tiene permisos de ubicación\", Toast.LENGTH_SHORT).show();\n                    }\n                }\n            }\n        }\n    }\n\n    public void showSettingsAlert() {\n        AlertDialog.Builder builder = new AlertDialog.Builder(this);\n        builder.setTitle(\"El gps esta desactivado. ¿Quieres activarlo?\");\n        builder.setPositiveButton(\"Si\", (dialogInterface, i) -> {\n            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);\n            getApplicationContext().startActivity(intent);\n        });\n        builder.setNegativeButton(\"No\", (dialogInterface, i) -> {\n            dialogInterface.cancel();\n        });\n        builder.create().show();\n    }\n\n    @SuppressLint(\"MissingPermission\")\n    @Override\n    public void onLocationChanged(Location location) {\n        if (location != null) {\n            originPoint = Point.fromLngLat(\n                    location.getLongitude(),\n                    location.getLatitude()\n            );\n\n            if (nav) {\n                if (currentRoute == null) {\n                    getRoutes();\n                    Toast.makeText(getApplicationContext(), \"Elige la ruta que quieras\", Toast.LENGTH_SHORT);\n                } else {\n                    boolean simulateRoute = false;\n                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()\n                            .directionsRoute(currentRoute)\n                            .shouldSimulateRoute(simulateRoute)\n                            .build();\n                    NavigationLauncher.startNavigation(NavigationActivity.this, options);\n                }\n            } else {\n                locationComponent = mapboxMap.getLocationComponent();\n                locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));\n                locationComponent.setLocationComponentEnabled(true);\n                locationComponent.setCameraMode(CameraMode.TRACKING);\n                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(\n                        new CameraPosition.Builder()\n                                .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))\n                                .zoom(14)\n                                .build()), 4000);\n            }\n        }\n    }\n\n    @Override\n    public void onStatusChanged(String provider, int status, Bundle extras) {\n    }\n\n    @Override\n    public void onProviderEnabled(String provider) {\n    }\n\n    @Override\n    public void onProviderDisabled(String provider) {\n    }\n\n    @Override\n    public void networkAvailable() {\n    }\n\n    @Override\n    public void networkUnavailable() {\n        Toast.makeText(this, \"Se ha perdido la conexión a Internet\", Toast.LENGTH_SHORT).show();\n    }\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/Main/NavigationActivity.java b/app/src/main/java/Main/NavigationActivity.java
+--- a/app/src/main/java/Main/NavigationActivity.java	
++++ b/app/src/main/java/Main/NavigationActivity.java	
+@@ -10,8 +10,6 @@
+ import android.annotation.SuppressLint;
+ import android.app.Activity;
+ import android.app.AlertDialog;
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
+ import android.content.pm.PackageManager;
+@@ -21,9 +19,6 @@
+ import android.location.Location;
+ import android.location.LocationListener;
+ import android.location.LocationManager;
+-import android.net.ConnectivityManager;
+-import android.net.Network;
+-import android.net.NetworkInfo;
+ import android.os.Bundle;
+ import android.provider.Settings;
+ import android.view.Menu;
+@@ -32,7 +27,6 @@
+ import android.view.View;
+ import android.widget.ImageView;
+ import android.widget.LinearLayout;
+-import android.widget.ProgressBar;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
+@@ -42,8 +36,6 @@
+ import androidx.core.content.ContextCompat;
+ 
+ import com.google.android.material.floatingactionbutton.FloatingActionButton;
+-import com.mapbox.android.core.permissions.PermissionsListener;
+-import com.mapbox.android.core.permissions.PermissionsManager;
+ import com.mapbox.api.directions.v5.models.DirectionsResponse;
+ import com.mapbox.api.directions.v5.models.DirectionsRoute;
+ import com.mapbox.api.geocoding.v5.models.CarmenFeature;
+@@ -51,7 +43,6 @@
+ import com.mapbox.geojson.FeatureCollection;
+ import com.mapbox.geojson.Point;
+ import com.mapbox.mapboxsdk.Mapbox;
+-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+ import com.mapbox.mapboxsdk.camera.CameraPosition;
+ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+ import com.mapbox.mapboxsdk.geometry.LatLng;
+@@ -62,7 +53,6 @@
+ import com.mapbox.mapboxsdk.maps.MapboxMap;
+ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+ import com.mapbox.mapboxsdk.maps.Style;
+-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+ import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
+ import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
+ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+@@ -72,7 +62,6 @@
+ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
+ 
+-import java.util.List;
+ import java.util.Locale;
+ import java.util.Objects;
+ 
+@@ -237,7 +226,7 @@
+             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                     locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
++                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
+                 }
+             }
+         }
+@@ -463,8 +452,15 @@
+                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                     if(nav){
+                         try {
+-                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
++                            //esto lo hago porque es bastante lento sino en caso de que el usuario notenga el gps activado
++                            Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
++                            if(lastLocation == null) {
++                                locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
++                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
++                            }
++                            else{
++                                locationReceived(lastLocation);
++                            }
+                         } catch (Exception e) {
+                             e.printStackTrace();
+                         }
+@@ -472,8 +468,14 @@
+                     else {
+                         if (originPoint == null) {
+                             try {
+-                                locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+-                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
++                                Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
++                                if(lastLocation == null) {
++                                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
++                                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
++                                }
++                                else {
++                                    locationReceived(lastLocation);
++                                }
+                             } catch (Exception e) {
+                                 e.printStackTrace();
+                             }
+@@ -519,7 +521,7 @@
+         builder.setTitle("El gps esta desactivado. ¿Quieres activarlo?");
+         builder.setPositiveButton("Si", (dialogInterface, i) -> {
+             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+-            getApplicationContext().startActivity(intent);
++            startActivity(intent);
+         });
+         builder.setNegativeButton("No", (dialogInterface, i) -> {
+             dialogInterface.cancel();
+@@ -527,38 +529,42 @@
+         builder.create().show();
+     }
+ 
+-    @SuppressLint("MissingPermission")
+     @Override
+     public void onLocationChanged(Location location) {
+         if (location != null) {
+-            originPoint = Point.fromLngLat(
+-                    location.getLongitude(),
+-                    location.getLatitude()
+-            );
++            locationReceived(location);
++        }
++    }
++
++    @SuppressLint("MissingPermission")
++    private void locationReceived(Location location){
++        originPoint = Point.fromLngLat(
++                location.getLongitude(),
++                location.getLatitude()
++        );
+ 
+-            if (nav) {
+-                if (currentRoute == null) {
+-                    getRoutes();
+-                    Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
+-                } else {
+-                    boolean simulateRoute = false;
+-                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+-                            .directionsRoute(currentRoute)
+-                            .shouldSimulateRoute(simulateRoute)
+-                            .build();
+-                    NavigationLauncher.startNavigation(NavigationActivity.this, options);
+-                }
+-            } else {
+-                locationComponent = mapboxMap.getLocationComponent();
+-                locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
+-                locationComponent.setLocationComponentEnabled(true);
+-                locationComponent.setCameraMode(CameraMode.TRACKING);
+-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+-                        new CameraPosition.Builder()
+-                                .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
+-                                .zoom(14)
+-                                .build()), 4000);
+-            }
++        if (nav) {
++            if (currentRoute == null) {
++                getRoutes();
++                Toast.makeText(getApplicationContext(), "Elige la ruta que quieras", Toast.LENGTH_SHORT);
++            } else {
++                boolean simulateRoute = false;
++                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
++                        .directionsRoute(currentRoute)
++                        .shouldSimulateRoute(simulateRoute)
++                        .build();
++                NavigationLauncher.startNavigation(NavigationActivity.this, options);
++            }
++        } else {
++            locationComponent = mapboxMap.getLocationComponent();
++            locationComponent.activateLocationComponent(this, Objects.requireNonNull(mapboxMap.getStyle()));
++            locationComponent.setLocationComponentEnabled(true);
++            locationComponent.setCameraMode(CameraMode.TRACKING);
++            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(
++                    new CameraPosition.Builder()
++                            .target(new LatLng(originPoint.latitude(), (originPoint.longitude())))
++                            .zoom(14)
++                            .build()), 4000);
+         }
+     }
+ 
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\n    <string name=\"app_name\">UbiManager</string>\n    <string name=\"mapbox_access_token\">pk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbGFyaXA0MmJqNDJqbWVrbW16dW9meCJ9.sqdWDtlJnGBeBu9FyCK-mg</string>\n</resources>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	
++++ b/app/src/main/res/values/strings.xml	
+@@ -1,4 +1,5 @@
+ <resources>
+     <string name="app_name">UbiManager</string>
++    <string name="maptiles_api_key">SARii5cAjICSk5ztI06K</string>
+     <string name="mapbox_access_token">pk.eyJ1IjoiYXNkZmFzZmQiLCJhIjoiY2xvbGFyaXA0MmJqNDJqbWVrbW16dW9meCJ9.sqdWDtlJnGBeBu9FyCK-mg</string>
+ </resources>
