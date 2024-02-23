@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //Para que al iniciar cargue el layout del inicio
         setContentView(R.layout.main_layout);
 
-        toolbar=findViewById(R.id.toolBar);
+        toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("UbiManager");
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
      */
     public void listaUbicaciones(View view) {
         Intent intent = new Intent(this, ListActivity.class);
-        intent.putExtra("archiveMode",false);
+        intent.putExtra("archiveMode", false);
         startActivity(intent);
     }
 
@@ -169,15 +169,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     if (lastLocation == null) {
                         try {
                             locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, this);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else {
-                        if(pulsar) {
-                            pulsar = false;
-                            processWithLocation(lastLocation);
-                        }
+                        processWithLocation(lastLocation);
                     }
                 } else {
                     showSettingsAlert();
@@ -191,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onLocationChanged(@NonNull Location location) {
         if (location != null) {
-            if(pulsar) {
+            if (pulsar) {
                 pulsar = false;
                 processWithLocation(location);
             }
