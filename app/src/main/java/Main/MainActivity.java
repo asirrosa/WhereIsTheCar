@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
     private LocationRequest mLocationRequest;
 
 
@@ -270,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        //processWithLocation(location);
         displayLocation();
     }
 

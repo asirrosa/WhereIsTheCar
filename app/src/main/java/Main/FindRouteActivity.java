@@ -17,7 +17,6 @@ import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -32,12 +31,19 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -73,7 +79,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FindRouteActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener, LocationListener, View.OnClickListener, OnMapReadyCallback, MenuItem.OnMenuItemClickListener {
+public class FindRouteActivity extends AppCompatActivity implements LocationListener, NetworkStateReceiver.NetworkStateReceiverListener, View.OnClickListener, OnMapReadyCallback, MenuItem.OnMenuItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -95,6 +101,9 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
     private NetworkStateReceiver networkStateReceiver;
     private Toolbar toolbar;
     private TextView toolbarTitle;
+    private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +114,7 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        toolbar=findViewById(R.id.toolBar);
+        toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("Navegación");
@@ -142,6 +151,11 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
                 finish();
             }
         });
+
+        if (checkGooglePlayServices()) {
+            buildGoogleApiClient();
+            createLocationRequest();
+        }
     }
 
     @Override
@@ -273,10 +287,57 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
                 }
             }
+        }
+    }
+
+    private boolean checkGooglePlayServices() {
+        int checkGooglePlayServices = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+            /*
+             * Google Play Services is missing or update is required
+             *  return code could be
+             * SUCCESS,
+             * SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED,
+             * SERVICE_DISABLED, SERVICE_INVALID.
+             */
+            GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices,
+                    this, REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
         }
     }
 
@@ -498,19 +559,25 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (lastLocation == null) {
+                    Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    if (mLastLocation == null) {
                         try {
-                            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
+                            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else {
-                        if(navegar) {
-                            navegar = false;
-                            processWithLocation(lastLocation);
-                        }
+                        displayLocation();
                     }
                 } else {
                     showSettingsAlert();
@@ -521,14 +588,29 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
         }
     }
 
+    private void displayLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null && navegar) {
+            navegar = false;
+            processWithLocation(mLastLocation);
+        } else {
+            System.out.println("(Couldn't get the location. Make sure location is enabled on the device)");
+        }
+    }
+
     @Override
     public void onLocationChanged(Location location) {
-        if (location != null) {
-            if(navegar) {
-                navegar = false;
-                processWithLocation(location);
-            }
-        }
+        displayLocation();
     }
 
     @SuppressLint("MissingPermission")
@@ -592,18 +674,6 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
-    @Override
     public void networkAvailable() {
     }
 
@@ -612,4 +682,18 @@ public class FindRouteActivity extends AppCompatActivity implements NetworkState
         Toast.makeText(this, "Se ha perdido la conexión a Internet", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }
