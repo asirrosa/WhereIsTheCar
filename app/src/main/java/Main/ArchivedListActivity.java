@@ -30,9 +30,10 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
     ImageView empty_imageview;
     ArchivedUbicacionAdapter archivedUbicacionAdapter;
     TextView no_data;
-    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemUnarchiveSelected;
+    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemUnarchiveSelected, itemEditSelected;
     public Toolbar toolbar;
     public TextView toolbarTitle;
+    private int folderId;
     public String folderName;
     private int LAUNCH_SECOND_ACTIVITY = 1;
 
@@ -54,6 +55,7 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
         no_data = findViewById(R.id.no_data);
 
         folderName = getIntent().getStringExtra("folderName");
+        folderId = getIntent().getIntExtra("folderId",0);
         initialize();
     }
 
@@ -116,6 +118,13 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
                     confirmDialogUnarchiveSelected();
                 }
                 break;
+            case R.id.editSelected:
+                if (archivedUbicacionAdapter.selectList.size() < 1) {
+                    Toast.makeText(this, "Selecciona al menos una ubicacion", Toast.LENGTH_SHORT).show();
+                } else {
+                    changeNombreUbicacionDialog();
+                }
+                break;
         }
         return true;
     }
@@ -145,7 +154,6 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
 
     private void initialize(){
         toolbarTitle.setText(folderName);
-
         storeArchivedDataInArrays();
         recyclerUbicaciones.setAdapter(archivedUbicacionAdapter);
         recyclerUbicaciones.setLayoutManager(new LinearLayoutManager(ArchivedListActivity.this));
@@ -205,6 +213,11 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
         builder.create().show();
     }
 
+    public void changeNombreUbicacionDialog(){
+        EditArchivedLocationNameDialog editArchivedLocationNameDialog = new EditArchivedLocationNameDialog(this);
+        editArchivedLocationNameDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
     private void confirmDialogDeleteSelected() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("¿Borrar seleccionados?");
@@ -227,7 +240,8 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
             Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
             intent.putExtra("archiveMode", true);
-            intent.putExtra("folderName", folderName);
+            intent.putExtra("folderId", folderId);
+            intent.putExtra("folderName",folderName);
             startActivityForResult(intent, LAUNCH_SECOND_ACTIVITY);
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
@@ -238,22 +252,19 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
 
     private void storeArchivedDataInArrays() {
         MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        Cursor cursor = myDB.readAllArchivedData(folderName);
+        Cursor cursor = myDB.readAllArchivedDataFromCarpeta(folderId);
         ArrayList<UbicacionItem> ubicacionList = new ArrayList<>();
         archivedUbicacionAdapter = new ArchivedUbicacionAdapter(this, ubicacionList, new ArrayList<>());
-        if (cursor.getCount() <= 1) {
+        if (cursor.getCount() < 1) {
             empty_imageview.setVisibility(View.VISIBLE);
             no_data.setVisibility(View.VISIBLE);
         } else {
             empty_imageview.setVisibility(View.INVISIBLE);
             no_data.setVisibility(View.INVISIBLE);
             while (cursor.moveToNext()) {
-                //miramos si el nombre = null si es asi esque es una row para identificar carpetas
-                if (!(cursor.getString(3) == null)) {
-                    UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0, cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getDouble(5), cursor.getDouble(6));
-                    archivedUbicacionAdapter.ubicacionList.add(ubicacionItem);
-                    archivedUbicacionAdapter.ubicacionListFull.add(ubicacionItem);
-                }
+                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0,cursor.getInt(1),cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getDouble(5), cursor.getDouble(6));
+                archivedUbicacionAdapter.ubicacionList.add(ubicacionItem);
+                archivedUbicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }
         }
     }

@@ -19,11 +19,11 @@ import java.util.Collection;
 
 public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapter.DeleteFolderViewHolder> {
 
-    public ArrayList<String> deleteFolderList;
+    public ArrayList<UbicacionItem> deleteFolderList;
     private FolderActivity folderActivity;
 
 
-    public DeleteFolderAdapter(FolderActivity folderActivity, ArrayList<String> deleteFolderList) {
+    public DeleteFolderAdapter(FolderActivity folderActivity, ArrayList<UbicacionItem> deleteFolderList) {
         this.folderActivity = folderActivity;
         this.deleteFolderList = deleteFolderList;
     }
@@ -41,8 +41,10 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
      */
     @Override
     public void onBindViewHolder(@NonNull final DeleteFolderAdapter.DeleteFolderViewHolder holder, final int position) {
-        String nombre = deleteFolderList.get(position);
+        String nombre = deleteFolderList.get(position).getNombre();
+        int id = deleteFolderList.get(position).getFolderId();
         holder.folderName.setText(nombre);
+        holder.folderId.setText(String.valueOf(id));
     }
 
     @Override
@@ -53,7 +55,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
     public void deleteSelectedFolders(){
         String result = "";
         for(int i = 0;i<deleteFolderList.size();i++){
-            result = result + "'" + deleteFolderList.get(i) + "',";
+            result = result + "'" + deleteFolderList.get(i).getFolderId() + "',";
         }
         result = result.substring(0, result.length() - 1);
 
@@ -64,6 +66,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
 
     public class DeleteFolderViewHolder extends RecyclerView.ViewHolder {
         TextView folderName;
+        TextView folderId;
 
         /**
          * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse alguna ubicacion guardada
@@ -72,6 +75,7 @@ public class DeleteFolderAdapter extends RecyclerView.Adapter<DeleteFolderAdapte
         public DeleteFolderViewHolder(View itemView) {
             super(itemView);
             folderName = itemView.findViewById(R.id.folderName);
+            folderId = itemView.findViewById(R.id.folderId);
         }
     }
 }

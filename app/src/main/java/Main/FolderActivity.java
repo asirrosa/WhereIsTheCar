@@ -28,7 +28,7 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
     ImageView empty_imageview;
     FolderAdapter folderAdapter;
     TextView no_data;
-    MenuItem itemSearch,itemDeleteSelected;
+    MenuItem itemSearch,itemDeleteSelected,itemEditSelected;
     public Toolbar toolbar;
     public TextView toolbarTitle;
     private FloatingActionButton btnAñadir;
@@ -125,6 +125,15 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 break;
 
+            case R.id.editSelected:
+                if (folderAdapter.selectList.size()<1){
+                    Toast.makeText(this, "Selecciona al menos uno", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    changeNombreUbicacionDialog();
+                }
+                break;
+
         }
         return true;
     }
@@ -145,16 +154,20 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void confirmDialogDeleteSelected(){
-        ArrayList<String> deleteList = folderAdapter.getSelectedFoldersName();
-        DeleteFolderDialog deleteFolderDialog = new DeleteFolderDialog(this,deleteList);
+        DeleteFolderDialog deleteFolderDialog = new DeleteFolderDialog(this,folderAdapter.selectList);
         deleteFolderDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    public void changeNombreUbicacionDialog(){
+        EditFolderNameDialog editFolderNameDialog = new EditFolderNameDialog(this);
+        editFolderNameDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     /**
      * Metodo para crear los arrays con diferentes valores
      */
     private void storeDataInArrays() {
-        Cursor cursor = myDB.readAllArchivedFolders();
+        Cursor cursor = myDB.readAllArchivedFoldersData();
         ArrayList<UbicacionItem> folderList = new ArrayList<>();
         folderAdapter = new FolderAdapter(this,folderList);
         if (cursor.getCount() == 0) {
@@ -162,7 +175,7 @@ public class FolderActivity extends AppCompatActivity implements View.OnClickLis
             no_data.setVisibility(View.VISIBLE);
         } else {
             while (cursor.moveToNext()) {
-                UbicacionItem ubicacionItem = new UbicacionItem(0,0,null,cursor.getString(0),null,null,null);
+                UbicacionItem ubicacionItem = new UbicacionItem(0,0,cursor.getInt(0),cursor.getString(1),null,null,null,null);
                 folderAdapter.folderList.add(ubicacionItem);
                 folderAdapter.folderListFull.add(ubicacionItem);
             }

@@ -111,6 +111,13 @@
                     tools:ignore="MissingConstraints" />
 
                 <TextView
+                    android:id="@+id/ubicacion_carpeta_id"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    tools:ignore="MissingConstraints" />
+
+                <TextView
                     android:id="@+id/ubicacion_fecha_hora"
                     android:layout_width="0dp"
                     android:layout_height="0dp"

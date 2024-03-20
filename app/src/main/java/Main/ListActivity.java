@@ -29,7 +29,7 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     ImageView empty_imageview;
     UbicacionAdapter ubicacionAdapter;
     TextView no_data;
-    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemArchiveSelected, itemArchived;
+    MenuItem itemSearch, itemAddLocation, itemDeleteSelected, itemArchiveSelected, itemArchived, itemEditSelected;
     public Toolbar toolbar;
     public TextView toolbarTitle;
     private int LAUNCH_SECOND_ACTIVITY = 1;
@@ -122,6 +122,14 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                     elegirCarpetaDialog();
                 }
                 break;
+
+            case R.id.editSelected:
+                if (ubicacionAdapter.selectList.size() < 1) {
+                    Toast.makeText(this, "Selecciona al menos una ubicacion", Toast.LENGTH_SHORT).show();
+                } else {
+                    changeNombreUbicacionDialog();
+                }
+                break;
         }
         return true;
     }
@@ -168,24 +176,18 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
     }
 
     public void elegirCarpetaDialog() {
-        ArrayList<String> folderList = getSelectedFoldersName();
-        ChooseFolderDialog chooseFolderDialog = new ChooseFolderDialog(this, folderList);
+        ChooseFolderDialog chooseFolderDialog = new ChooseFolderDialog(this, ubicacionAdapter.folderList);
         chooseFolderDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    public void changeNombreUbicacionDialog(){
+        EditLocationNameDialog editLocationNameDialog = new EditLocationNameDialog(this);
+        editLocationNameDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     public void añadirCarpetaDialog() {
         AddFolderDialog addFolderDialog = new AddFolderDialog(this, null);
         addFolderDialog.show(getSupportFragmentManager(), "example dialog");
-    }
-
-    private ArrayList<String> getSelectedFoldersName() {
-        ArrayList<String> folderList = new ArrayList<>();
-        MyDatabaseHelper myDB = new MyDatabaseHelper(this);
-        Cursor cursor = myDB.readAllArchivedFolders();
-        while (cursor.moveToNext()) {
-            folderList.add(cursor.getString(0));
-        }
-        return folderList;
     }
 
     private void confirmDialogDeleteSelected() {
@@ -233,15 +235,16 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             empty_imageview.setVisibility(View.INVISIBLE);
             no_data.setVisibility(View.INVISIBLE);
             while (cursor.moveToNext()) {
-                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0, cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getDouble(4), cursor.getDouble(5));
+                UbicacionItem ubicacionItem = new UbicacionItem(cursor.getInt(0), 0, 0,cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getDouble(4),cursor.getDouble(5));
                 ubicacionAdapter.ubicacionList.add(ubicacionItem);
                 ubicacionAdapter.ubicacionListFull.add(ubicacionItem);
             }
         }
 
-        cursor = myDB.readAllArchivedFolders();
+        cursor = myDB.readAllArchivedFoldersData();
         while (cursor.moveToNext()) {
-            ubicacionAdapter.folderList.add(cursor.getString(0));
+            UbicacionItem ubicacionItem = new UbicacionItem(0,0,cursor.getInt(0),cursor.getString(1),null,null,null,null);
+            ubicacionAdapter.folderList.add(ubicacionItem);
         }
     }
 }

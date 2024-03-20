@@ -1,5 +1,7 @@
 package Main;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +57,6 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
         LocalDateTime startDateTime = LocalDateTime.parse(String.valueOf(ubicacionItem.getFechaHora()));
         holder.ubicacion_hace_cuanto.setText(calculateTimeDiff(startDateTime));
         holder.ubicacion_fecha_hora.setText(String.valueOf(ubicacionItem.getFechaHora()));
-
         holder.ubicacion_nombre.setText(String.valueOf(ubicacionItem.getNombre()));
         holder.ubicacion_descripcion.setText(String.valueOf(ubicacionItem.getDescripcion()));
         holder.ubicacion_lat.setText(String.valueOf(ubicacionItem.getLat()));
@@ -75,6 +76,13 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
             holder.relativeLayout.setBackground(archivedListActivity.getDrawable(R.drawable.item_click));
         }
 
+    }
+
+    public void editSelected(UbicacionItem ubicacionItem){
+        notifyItemChanged(archivedListActivity.archivedUbicacionAdapter.selectList.get(0).getPosition());
+        ubicacionList.set(ubicacionList.indexOf(selectList.get(0)),ubicacionItem);
+        ubicacionListFull.set(ubicacionListFull.indexOf(selectList.get(0)),ubicacionItem);
+        disableContextualActionMode();
     }
 
     public String deleteSelectedFromScreen(){
@@ -109,6 +117,9 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
 
         archivedListActivity.itemUnarchiveSelected = archivedListActivity.toolbar.getMenu().findItem(R.id.unarchiveSelected);
         archivedListActivity.itemUnarchiveSelected.setOnMenuItemClickListener(archivedListActivity);
+
+        archivedListActivity.itemEditSelected = archivedListActivity.toolbar.getMenu().findItem(R.id.editSelected);
+        archivedListActivity.itemEditSelected.setOnMenuItemClickListener(archivedListActivity);
 
         archivedListActivity.toolbar.setBackgroundColor(archivedListActivity.getColor(R.color.black));
         archivedListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -222,7 +233,7 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
     }
 
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
-        TextView ubicacion_nombre, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_hace_cuanto, ubicacion_lat, ubicacion_lon, ubicacion_id, ubicacion_position;
+        TextView ubicacion_nombre, ubicacion_carpeta_id, ubicacion_descripcion, ubicacion_fecha_hora, ubicacion_hace_cuanto, ubicacion_lat, ubicacion_lon, ubicacion_id, ubicacion_position;
         CheckBox checkBox;
         RelativeLayout relativeLayout;
 
@@ -234,10 +245,11 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
             super(itemView);
             ubicacion_id = itemView.findViewById(R.id.ubicacion_id);
             ubicacion_position = itemView.findViewById(R.id.ubicacion_position);
-            ubicacion_fecha_hora = itemView.findViewById(R.id.ubicacion_fecha_hora);
-            ubicacion_hace_cuanto = itemView.findViewById(R.id.ubicacion_hace_cuanto);
+            ubicacion_carpeta_id = itemView.findViewById(R.id.ubicacion_carpeta_id);
             ubicacion_nombre = itemView.findViewById(R.id.ubicacion_nombre);
             ubicacion_descripcion = itemView.findViewById(R.id.ubicacion_desc);
+            ubicacion_fecha_hora = itemView.findViewById(R.id.ubicacion_fecha_hora);
+            ubicacion_hace_cuanto = itemView.findViewById(R.id.ubicacion_hace_cuanto);
             ubicacion_lat = itemView.findViewById(R.id.ubicacion_lat);
             ubicacion_lon = itemView.findViewById(R.id.ubicacion_lon);
             relativeLayout = itemView.findViewById(R.id.relativeLayout);
@@ -254,21 +266,28 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
                     makeSelection();
                 } else {
                     //le pongo un id cualquiera porque me da igual en este caso solo lo utilizo para pasar info al google maps
-                    UbicacionItem ubicacionItem = new UbicacionItem(1, 0,null,ubicacion_nombre.getText().toString(), null,
+                    UbicacionItem ubicacionItem = new UbicacionItem(
+                            1, 0, 0,
+                            ubicacion_nombre.getText().toString(), null,null,
                             Double.parseDouble(ubicacion_lat.getText().toString()),
                             Double.parseDouble(ubicacion_lon.getText().toString()));
-                    ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(null,archivedListActivity, ubicacionItem);
+         /*           ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(null,archivedListActivity, ubicacionItem);
                     chooseEngineDialog.show(archivedListActivity.getSupportFragmentManager(), "example dialog");
+                    */
+                    Uri mapUri = Uri.parse("geo:0,0?q=" + ubicacionItem.getLat() + "," + ubicacionItem.getLon() + "(Ubi: " + ubicacionItem.getNombre() + ")");
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    archivedListActivity.startActivity(mapIntent);
                 }
             });
         }
 
         private void onLongClick(View itemView) {
             itemView.setOnLongClickListener(v -> {
-                makeSelection();
                 if (!isEnable) {
                     enableContextualActionModeArchived();
                 }
+                makeSelection();
                 return true;
             });
         }
@@ -290,6 +309,13 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
                 selectList.remove(ubicacionItem);
                 counter--;
                 updateCounter();
+            }
+
+            if(selectList.size() != 1){
+                archivedListActivity.itemEditSelected.setVisible(false);
+            }
+            else {
+                archivedListActivity.itemEditSelected.setVisible(true);
             }
         }
     }

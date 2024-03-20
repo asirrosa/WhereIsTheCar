@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/deleteSelected"
-        android:icon="@drawable/ic_delete"
-        android:title="Borrar"
+        android:id="@+id/editSelected"
+        android:icon="@drawable/ic_edit"
+        android:title="Editar"
         app:showAsAction="ifRoom"
         />
 
@@ -13,6 +13,13 @@
         android:id="@+id/archiveSelected"
         android:icon="@drawable/ic_archive"
         android:title="Archivar"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/deleteSelected"
+        android:icon="@drawable/ic_delete"
+        android:title="Borrar"
         app:showAsAction="ifRoom"
         />
 

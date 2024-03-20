@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/help"
-        android:icon="@drawable/ic_help"
-        android:title="Ayuda"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/fubo"
+        android:icon="@drawable/ic_fubo"
+        android:title="Mejor campo del mundo"
+        app:showAsAction="always" />
 
 </menu>

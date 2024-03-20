@@ -15,11 +15,11 @@ import java.util.ArrayList;
 
 public class DeleteFolderDialog extends AppCompatDialogFragment{
     private RecyclerView recyclerDeleteList;
-    private ArrayList<String> deleteList;
+    private ArrayList<UbicacionItem> deleteList;
     private DeleteFolderAdapter deleteFolderAdapter;
     private FolderActivity folderActivity;
 
-    public DeleteFolderDialog(FolderActivity folderActivity, ArrayList<String> deleteList){
+    public DeleteFolderDialog(FolderActivity folderActivity, ArrayList<UbicacionItem> deleteList){
         this.folderActivity = folderActivity;
         this.deleteList = deleteList;
     }
@@ -32,7 +32,6 @@ public class DeleteFolderDialog extends AppCompatDialogFragment{
         View view = inflater.inflate(R.layout.list_folder_dialog, null);
 
         recyclerDeleteList = view.findViewById(R.id.recyclerUbicaciones);
-
         deleteFolderAdapter = new DeleteFolderAdapter(folderActivity,deleteList);
         recyclerDeleteList.setAdapter(deleteFolderAdapter);
         recyclerDeleteList.setLayoutManager(new LinearLayoutManager(folderActivity));
@@ -57,8 +56,8 @@ public class DeleteFolderDialog extends AppCompatDialogFragment{
         builder.setTitle("¿No podras recuperar las ubicaciones, estas seguro?");
         //builder.setMessage("¿Estas seguro que quieres añadir una ubicación de manera manual?");
         builder.setPositiveButton("Si", (dialogInterface, i) -> {
-            folderActivity.folderAdapter.deleteSelectedFolders();
             deleteFolderAdapter.deleteSelectedFolders();
+            folderActivity.folderAdapter.deleteSelectedFolders();
         });
         builder.setNegativeButton("No", (dialogInterface, i) -> {
             folderActivity.folderAdapter.disableContextualActionMode();

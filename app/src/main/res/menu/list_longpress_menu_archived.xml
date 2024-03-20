@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/deleteSelected"
-        android:icon="@drawable/ic_delete"
-        android:title="Borrar"
+        android:id="@+id/editSelected"
+        android:icon="@drawable/ic_edit"
+        android:title="Editar seleccionado"
         app:showAsAction="ifRoom"
         />
 
@@ -15,5 +15,14 @@
         android:title="Desarchivar seleccionados"
         app:showAsAction="ifRoom"
         />
+
+    <item
+        android:id="@+id/deleteSelected"
+        android:icon="@drawable/ic_delete"
+        android:title="Borrar"
+        app:showAsAction="ifRoom"
+        />
+
+
 
 </menu>

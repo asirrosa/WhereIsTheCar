@@ -18,12 +18,12 @@ import java.util.ArrayList;
 public class ChooseFolderDialog extends AppCompatDialogFragment {
     private ListActivity listActivity;
     private RecyclerView recyclerChooseFolder;
-    private ArrayList<String> folderList;
+    private ArrayList<UbicacionItem> folderList;
     private ChooseFolderAdapter chooseFolderAdapter;
     private TextView no_data;
 
 
-    public ChooseFolderDialog(ListActivity listActivity, ArrayList<String> folderList) {
+    public ChooseFolderDialog(ListActivity listActivity, ArrayList<UbicacionItem> folderList) {
         this.listActivity = listActivity;
         this.folderList = folderList;
     }

@@ -1,8 +1,6 @@
 package Main;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.icu.text.CaseMap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +9,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class AddFolderDialog extends AppCompatDialogFragment {
@@ -32,9 +27,9 @@ public class AddFolderDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.add_folder_dialog, null);
+        View view = inflater.inflate(R.layout.add_something_dialog, null);
 
-        nombreCarpeta = view.findViewById(R.id.nombreCarpeta);
+        nombreCarpeta = view.findViewById(R.id.nombre);
 
         builder.setView(view)
                 .setTitle("Añadir carpeta")
@@ -50,13 +45,8 @@ public class AddFolderDialog extends AppCompatDialogFragment {
 
                     if (folderActivity != null) {
                         MyDatabaseHelper myDB = new MyDatabaseHelper(folderActivity);
-                        boolean existeLaCarpeta = myDB.folderExistsAlready(nombre);
-
                         if (nombre.equals("")) {
                             Toast.makeText(folderActivity, "Por favor pon un nombre", Toast.LENGTH_SHORT).show();
-                            folderActivity.añadirCarpetaDialog();
-                        } else if (existeLaCarpeta) {
-                            Toast.makeText(folderActivity, "Ya existe una carpeta con ese nombre, cambia el nombre", Toast.LENGTH_SHORT).show();
                             folderActivity.añadirCarpetaDialog();
                         } else {
                             //se pone en invisible porque vas a meter el elemento
@@ -64,7 +54,7 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                                 folderActivity.empty_imageview.setVisibility(View.INVISIBLE);
                                 folderActivity.no_data.setVisibility(View.INVISIBLE);
                             }
-                            UbicacionItem ubicacionItem = new UbicacionItem(0, 0, null, nombre, null, null, null);
+                            UbicacionItem ubicacionItem = new UbicacionItem(0, 0,0, nombre, null, null, null, null);
                             folderActivity.folderAdapter.folderList.add(ubicacionItem);
                             folderActivity.folderAdapter.folderListFull.add(ubicacionItem);
                             folderActivity.folderAdapter.notifyItemInserted(0);
@@ -73,16 +63,12 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                         }
                     } else {
                         MyDatabaseHelper myDB = new MyDatabaseHelper(listActivity);
-                        boolean existeLaCarpeta = myDB.folderExistsAlready(nombre);
-
                         if (nombre.equals("")) {
                             Toast.makeText(listActivity, "Por favor pon un nombre", Toast.LENGTH_SHORT).show();
                             listActivity.añadirCarpetaDialog();
-                        } else if (existeLaCarpeta) {
-                            Toast.makeText(listActivity, "Ya existe una carpeta con ese nombre, cambia el nombre", Toast.LENGTH_SHORT).show();
-                            listActivity.añadirCarpetaDialog();
                         } else {
-                            listActivity.ubicacionAdapter.folderList.add(nombre);
+                            UbicacionItem ubicacionItem = new UbicacionItem(0,0,0,nombre,null,null,null,null);
+                            listActivity.ubicacionAdapter.folderList.add(ubicacionItem);
                             myDB.addFolder(nombre);
                             dialogInterface.cancel();
                             listActivity.elegirCarpetaDialog();

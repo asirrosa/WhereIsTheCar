@@ -18,10 +18,13 @@
     <!--OtherColors-->
     <color name="yellow">#d8ce02</color>
     <color name="white">#FFFFFF</color>
+    <color name="red">#fc0707</color>
     <color name="black">#000000</color>
     <color name="greyish">#302c2b</color>
     <color name="greyLight">#a5a5a5</color>
     <color name="greyDark">#424141</color>
+
+    <color name="windowBackground">#6E8BF7</color>
 
 
 </resources>

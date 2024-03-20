@@ -42,6 +42,14 @@
                     android:gravity="center"
                     android:text="Nombre"
                     android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/folderId"
+                    style="@style/TextViewList"
+                    android:visibility="invisible"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 

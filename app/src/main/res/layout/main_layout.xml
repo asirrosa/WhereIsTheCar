@@ -30,6 +30,7 @@
             android:layout_height="80dp"
             android:layout_gravity="center"
             android:text="Navegar"
+            android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@id/btnGuardar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

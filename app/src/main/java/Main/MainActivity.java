@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     Button btnNavegar, btnGuardar;
     FloatingActionButton btnLista;
     public double latitude, longitude;
-    MenuItem itemHelp;
+    MenuItem itemFubo;
     private boolean pulsar;
     private Toolbar toolbar;
     private TextView toolbarTitle;
@@ -57,7 +57,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private static int REQUEST_CODE_RECOVER_PLAY_SERVICES = 200;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private int cont = 0;
 
+    private AddLocationDialog addLocationDialog;
 
     //Singleton
     private static MainActivity main = null;
@@ -107,11 +109,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+/*        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-        itemHelp = menu.findItem(R.id.help);
-        itemHelp.setOnMenuItemClickListener(this);
+        itemFubo = menu.findItem(R.id.fubo);
+        itemFubo.setOnMenuItemClickListener(this);*/
 
         return true;
     }
@@ -143,9 +145,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.help:
-                Intent intent = new Intent(this, HelpActivity.class);
-                startActivity(intent);
+            case R.id.fubo:
+                if(cont == 5){
+                    cont = 0;
+                    Intent intent = new Intent(this, SanMamesActivity.class);
+                    startActivity(intent);
+                }
+                cont ++;
                 break;
         }
         return false;
@@ -213,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-    private void displayLocation() {
+    public void displayLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -233,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-    private void getLocation() {
+    public void getLocation() {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -256,7 +262,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             e.printStackTrace();
                         }
                     } else {
-                        displayLocation();
+                        addLocationDialog = new AddLocationDialog();
+                        addLocationDialog.show(getSupportFragmentManager(), "example dialog");
                     }
                 } else {
                     showSettingsAlert();
@@ -280,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
                 List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 String description = addresses.get(0).getAddressLine(0);
-                String name = addresses.get(0).getLocality();
+                String name = addLocationDialog.nombre.getText().toString();
                 guardarEnDB(name, description);
             } catch (Exception e) {
                 e.printStackTrace();

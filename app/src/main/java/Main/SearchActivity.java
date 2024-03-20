@@ -57,6 +57,7 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
     private TextView toolbarTitle;
     private boolean archiveMode;
     private String folderName;
+    private int folderId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,7 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
         archiveMode = getIntent().getBooleanExtra("archiveMode", false);
         folderName = getIntent().getStringExtra("folderName");
+        folderId = getIntent().getIntExtra("folderId",0);
 
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
@@ -91,6 +93,7 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mapView.onDestroy();
                 finish();
             }
         });
@@ -173,14 +176,16 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
         Toast.makeText(getApplicationContext(), "Se ha guardado la ubi!", Toast.LENGTH_SHORT).show();
         if(archiveMode){
             myDB.addUbicacionArchived(
-                    folderName,startDateTime,
+                    folderId,
+                    startDateTime,
                     this.ubicacionItem.getNombre(),
                     this.ubicacionItem.getDescripcion(),
                     this.ubicacionItem.getLat(),
                     this.ubicacionItem.getLon());
         }
         else{
-            myDB.addUbicacion(startDateTime,
+            myDB.addUbicacion(
+                    startDateTime,
                     this.ubicacionItem.getNombre(),
                     this.ubicacionItem.getDescripcion(),
                     this.ubicacionItem.getLat(),
@@ -230,9 +235,10 @@ public class SearchActivity extends AppCompatActivity implements NetworkStateRec
 
                     btnSave.setVisibility(FloatingActionButton.VISIBLE);
                     this.ubicacionItem = new UbicacionItem(
-                            1, 0, null,
+                            1, 0, folderId,
                             selectedCarmenFeature.text(),
                             selectedCarmenFeature.placeName(),
+                            null,
                             ((Point) selectedCarmenFeature.geometry()).latitude(),
                             ((Point) selectedCarmenFeature.geometry()).longitude());
                 }

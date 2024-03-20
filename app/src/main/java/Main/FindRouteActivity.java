@@ -10,6 +10,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -63,6 +64,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.building.BuildingPlugin;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
@@ -75,6 +77,7 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 import java.util.Locale;
 import java.util.Objects;
 
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -110,15 +113,16 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.find_route_layout);
-        mapView = findViewById(R.id.mapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("Navegación");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mapView = findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
 
         btnStartNavegation = findViewById(R.id.btnStartNavegation);
         btnStartNavegation.setOnClickListener(this);
@@ -165,9 +169,7 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
         this.unregisterReceiver(networkStateReceiver);
     }
 
-    /**
-     * Metodo para crear el inflater con el menu
-     */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -307,13 +309,6 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
         int checkGooglePlayServices = GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(this);
         if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-            /*
-             * Google Play Services is missing or update is required
-             *  return code could be
-             * SUCCESS,
-             * SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED,
-             * SERVICE_DISABLED, SERVICE_INVALID.
-             */
             GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices,
                     this, REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
 
@@ -460,7 +455,7 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
     }
 
     private NavigationRoute navigationOptions() {
-        NavigationRoute result;
+        NavigationRoute result = null;
         String excludeText = excludeOptions();
         if (excludeText.equals("")) {
             result = NavigationRoute.builder(this)
@@ -486,9 +481,7 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
     }
 
 
-    /**
-     * Este metodo sirve para cuando solo haya una ruta, de esta manera no se muestran los botones ya que sería inutil
-     */
+
     @SuppressLint("RestrictedApi")
     private void changeVisibilityRouteButtons(int visibility) {
         btnUno.setVisibility(visibility);
@@ -646,12 +639,16 @@ public class FindRouteActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 100) {
             for (int i = 0, len = permissions.length; i < len; i++) {
                 String permission = permissions[i];
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     // user rejected the permission
-                    boolean askAgain = shouldShowRequestPermissionRationale(permission);
+                    boolean askAgain = false;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        askAgain = shouldShowRequestPermissionRationale(permission);
+                    }
                     if (!askAgain) {
                         Toast.makeText(this, "La aplicación no tiene permisos de ubicación", Toast.LENGTH_SHORT).show();
                     }

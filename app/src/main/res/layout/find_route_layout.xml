@@ -92,7 +92,7 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        mapbox:backgroundTint="@color/mapbox_navigation_route_layer_congestion_red"
+        mapbox:backgroundTint="@color/red"
         mapbox:srcCompat="@drawable/ic_navigation"
         tools:ignore="MissingConstraints" />
 

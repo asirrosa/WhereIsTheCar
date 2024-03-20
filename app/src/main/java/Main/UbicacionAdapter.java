@@ -1,5 +1,7 @@
 package Main;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,13 +31,13 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
     private ListActivity listActivity;
     public ArrayList<UbicacionItem> ubicacionList;
     public ArrayList<UbicacionItem> ubicacionListFull;
-    public ArrayList<String> folderList;
+    public ArrayList<UbicacionItem> folderList;
     public boolean isEnable = false;
     public ArrayList<UbicacionItem> selectList = new ArrayList<>();
     private int counter = 0;
 
 
-    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList,ArrayList<String> folderList) {
+    public UbicacionAdapter(ListActivity listActivity, ArrayList<UbicacionItem> ubicacionList,ArrayList<UbicacionItem> folderList) {
         this.ubicacionList = ubicacionList;
         this.ubicacionListFull = new ArrayList<>();
         this.listActivity = listActivity;
@@ -84,6 +86,13 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
     }
 
+    public void editSelected(UbicacionItem ubicacionItem){
+        notifyItemChanged(listActivity.ubicacionAdapter.selectList.get(0).getPosition());
+        ubicacionList.set(ubicacionList.indexOf(selectList.get(0)),ubicacionItem);
+        ubicacionListFull.set(ubicacionListFull.indexOf(selectList.get(0)),ubicacionItem);
+        disableContextualActionMode();
+    }
+
     public String deleteSelectedFromScreen(){
         String result = "";
         for(int i = 0;i<selectList.size();i++){
@@ -116,6 +125,9 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
 
         listActivity.itemArchiveSelected = listActivity.toolbar.getMenu().findItem(R.id.archiveSelected);
         listActivity.itemArchiveSelected.setOnMenuItemClickListener(listActivity);
+
+        listActivity.itemEditSelected = listActivity.toolbar.getMenu().findItem(R.id.editSelected);
+        listActivity.itemEditSelected.setOnMenuItemClickListener(listActivity);
 
         listActivity.toolbar.setBackgroundColor(listActivity.getColor(R.color.black));
         listActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -253,7 +265,6 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
             relativeLayout = itemView.findViewById(R.id.relativeLayout);
             checkBox = itemView.findViewById(R.id.checkSelected);
 
-
             onClick(itemView);
             onLongClick(itemView);
         }
@@ -264,21 +275,25 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                     makeSelection();
                 } else {
                     //le pongo un id cualquiera porque me da igual en este caso solo lo utilizo para pasar info al google maps
-                    UbicacionItem ubicacionItem = new UbicacionItem(1, 0,null,ubicacion_nombre.getText().toString(), null,
+                    UbicacionItem ubicacionItem = new UbicacionItem(1, 0,0,ubicacion_nombre.getText().toString(), null,null,
                             Double.parseDouble(ubicacion_lat.getText().toString()),
                             Double.parseDouble(ubicacion_lon.getText().toString()));
-                    ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(listActivity, null, ubicacionItem);
-                    chooseEngineDialog.show(listActivity.getSupportFragmentManager(), "example dialog");
+                    /*ChooseEngineDialog chooseEngineDialog = new ChooseEngineDialog(listActivity, null, ubicacionItem);
+                    chooseEngineDialog.show(listActivity.getSupportFragmentManager(), "example dialog");*/
+                    Uri mapUri = Uri.parse("geo:0,0?q=" + ubicacionItem.getLat() + "," + ubicacionItem.getLon() + "(Ubi: " + ubicacionItem.getNombre() + ")");
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    listActivity.startActivity(mapIntent);
                 }
             });
         }
 
         private void onLongClick(View itemView) {
             itemView.setOnLongClickListener(v -> {
-                makeSelection();
                 if (!isEnable) {
                     enableContextualActionMode();
                 }
+                makeSelection();
                 return true;
             });
         }
@@ -300,6 +315,13 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
                 selectList.remove(ubicacionItem);
                 counter--;
                 updateCounter();
+            }
+
+            if(selectList.size() != 1){
+                listActivity.itemEditSelected.setVisible(false);
+            }
+            else {
+                listActivity.itemEditSelected.setVisible(true);
             }
         }
     }

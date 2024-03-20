@@ -49,6 +49,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
         UbicacionItem folderItem = folderList.get(position);
         holder.folderName.setText(String.valueOf(folderItem.getNombre()));
         holder.folderPosition.setText(String.valueOf(folderItem.getPosition()));
+        holder.folderId.setText(String.valueOf(folderItem.getFolderId()));
 
         if(selectList.contains(folderItem)){
             holder.checkBox.setChecked(true);
@@ -65,12 +66,19 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
         }
     }
 
-    public ArrayList<String> getSelectedFoldersName(){
-        ArrayList<String> result = new ArrayList<>();
+    public ArrayList<Integer> getSelectedFoldersId(){
+        ArrayList<Integer> result = new ArrayList<>();
         for(int i = 0;i<selectList.size();i++){
-            result.add(selectList.get(i).getNombre());
+            result.add(selectList.get(i).getFolderId());
         }
         return result;
+    }
+
+    public void editSelected(UbicacionItem ubicacionItem){
+        notifyItemChanged(folderActivity.folderAdapter.selectList.get(0).getPosition());
+        folderList.set(folderList.indexOf(selectList.get(0)),ubicacionItem);
+        folderListFull.set(folderListFull.indexOf(selectList.get(0)),ubicacionItem);
+        disableContextualActionMode();
     }
 
     public void deleteSelectedFolders(){
@@ -97,6 +105,9 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
 
         folderActivity.itemDeleteSelected = folderActivity.toolbar.getMenu().findItem(R.id.deleteSelected);
         folderActivity.itemDeleteSelected.setOnMenuItemClickListener(folderActivity);
+
+        folderActivity.itemEditSelected = folderActivity.toolbar.getMenu().findItem(R.id.editSelected);
+        folderActivity.itemEditSelected.setOnMenuItemClickListener(folderActivity);
 
         folderActivity.toolbar.setBackgroundColor(folderActivity.getColor(R.color.black));
         folderActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -162,7 +173,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
     public class UbicacionViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkBox;
         RelativeLayout relativeLayout;
-        TextView folderName,folderPosition;
+        TextView folderName,folderId,folderPosition;
 
         /**
          * Aqui se inicializan las distintas variables y se hace un listener para cuando se pulse alguna ubicacion guardada
@@ -171,6 +182,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
         public UbicacionViewHolder(View itemView) {
             super(itemView);
             folderName = itemView.findViewById(R.id.folderName);
+            folderId = itemView.findViewById(R.id.folderId);
             folderPosition = itemView.findViewById(R.id.folderPosition);
             relativeLayout = itemView.findViewById(R.id.relativeLayout);
             checkBox = itemView.findViewById(R.id.checkSelected);
@@ -186,7 +198,8 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
                 } else {
                     Intent intent = new Intent(folderActivity, ArchivedListActivity.class);
                     intent.putExtra("archiveMode",true);
-                    intent.putExtra("folderName",folderName.getText());
+                    intent.putExtra("folderName",folderName.getText().toString());
+                    intent.putExtra("folderId",Integer.parseInt(folderId.getText().toString()));
                     folderActivity.startActivity(intent);
                 }
             });
@@ -194,10 +207,10 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
 
         private void onLongClick(View itemView) {
             itemView.setOnLongClickListener(v -> {
-                makeSelection();
                 if (!isEnable) {
                     enableContextualActionMode();
                 }
+                makeSelection();
                 return true;
             });
         }
@@ -219,6 +232,13 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.UbicacionV
                 selectList.remove(ubicacionItem);
                 counter--;
                 updateCounter();
+            }
+
+            if(selectList.size() != 1){
+                folderActivity.itemEditSelected.setVisible(false);
+            }
+            else {
+                folderActivity.itemEditSelected.setVisible(true);
             }
         }
     }

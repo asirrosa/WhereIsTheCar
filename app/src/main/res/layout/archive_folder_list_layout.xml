@@ -52,7 +52,7 @@
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
             android:tint="@android:color/white"
-            app:backgroundTint="@color/mapbox_navigation_route_layer_congestion_red"
+            app:backgroundTint="@color/red"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_add_folder" />

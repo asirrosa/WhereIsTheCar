@@ -23,8 +23,6 @@
             </intent-filter>
         </activity>
 
-
-
         <activity
             android:name=".FindRouteActivity"
             android:label="Navegador"
@@ -42,13 +40,6 @@
             android:name=".SearchActivity"
             android:label="Añadir ubicación"
             android:exported="true"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".HelpActivity"
-            android:label="Ayuda"
-            android:exported="true"
-            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
