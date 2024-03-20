@@ -54,12 +54,13 @@ public class AddFolderDialog extends AppCompatDialogFragment {
                                 folderActivity.empty_imageview.setVisibility(View.INVISIBLE);
                                 folderActivity.no_data.setVisibility(View.INVISIBLE);
                             }
-                            UbicacionItem ubicacionItem = new UbicacionItem(0, 0,0, nombre, null, null, null, null);
+                            myDB.addFolder(nombre);
+                            int id = myDB.getAddedFolderId();
+                            UbicacionItem ubicacionItem = new UbicacionItem(0, 0,id, nombre, null, null, null, null);
                             folderActivity.folderAdapter.folderList.add(ubicacionItem);
                             folderActivity.folderAdapter.folderListFull.add(ubicacionItem);
                             folderActivity.folderAdapter.notifyItemInserted(0);
                             folderActivity.folderAdapter.notifyDataSetChanged();
-                            myDB.addFolder(nombre);
                         }
                     } else {
                         MyDatabaseHelper myDB = new MyDatabaseHelper(listActivity);

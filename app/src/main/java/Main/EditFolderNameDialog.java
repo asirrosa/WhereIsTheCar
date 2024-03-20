@@ -10,6 +10,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 
 public class EditFolderNameDialog extends AppCompatDialogFragment {
     public EditText nombre;
@@ -34,7 +37,7 @@ public class EditFolderNameDialog extends AppCompatDialogFragment {
                 }).setCancelable(true)
                 .setPositiveButton("ok", (dialogInterface, i) -> {
                     String name = nombre.getText().toString();
-                    if(name == "") {
+                    if(name.equals("")) {
                         Toast.makeText(folderActivity, "Por favor pon un nombre", Toast.LENGTH_SHORT).show();
                         folderActivity.changeNombreUbicacionDialog();
                     }

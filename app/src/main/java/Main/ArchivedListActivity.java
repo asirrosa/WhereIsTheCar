@@ -55,7 +55,7 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
         no_data = findViewById(R.id.no_data);
 
         folderName = getIntent().getStringExtra("folderName");
-        folderId = getIntent().getIntExtra("folderId",0);
+        folderId = getIntent().getIntExtra("folderId",-1);
         initialize();
     }
 

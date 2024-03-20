@@ -182,7 +182,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_CARPETA_NOMBRE, name);
-        db.update(TABLE_NAME_ARCHIVADO, cv, COLUMN_ARCHIVADO_CARPETA_ID + "=" + folderId, null);
+        db.update(TABLE_NAME_CARPETAS, cv, COLUMN_CARPETA_ID + "=" + folderId, null);
     }
 
     public void addFolder(String folderName){
@@ -190,6 +190,17 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_CARPETA_NOMBRE,folderName);
         db.insert(TABLE_NAME_CARPETAS,null,values);
+    }
+
+    public int getAddedFolderId(){
+        String query = "SELECT * FROM " + TABLE_NAME_CARPETAS + " ORDER BY " + COLUMN_CARPETA_ID + " DESC LIMIT 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        if(db != null){
+            cursor = db.rawQuery(query, null);
+        }
+        cursor.moveToNext();
+        return cursor.getInt(0);
     }
 
     public void deleteSelectedFolders(String deleteListId){
