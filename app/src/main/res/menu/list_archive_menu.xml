@@ -10,11 +10,11 @@
         app:showAsAction="always|collapseActionView"
         />
 
-    <item
+<!--    <item
         android:id="@+id/add_location"
         android:icon="@drawable/ic_add_location"
         android:title="Añadir ubicación"
         app:showAsAction="ifRoom"
-        />
+        />-->
 
 </menu>

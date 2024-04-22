@@ -69,8 +69,8 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
 
-        itemAddLocation = menu.findItem(R.id.add_location);
-        itemAddLocation.setOnMenuItemClickListener(this);
+        /*itemAddLocation = menu.findItem(R.id.add_location);
+        itemAddLocation.setOnMenuItemClickListener(this);*/
         return true;
     }
 
@@ -99,13 +99,13 @@ public class ListActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                 });
                 break;
 
-            case R.id.add_location:
+/*            case R.id.add_location:
                 if (isNetworkAvailable()) {
                     confirmDialogAddLocation();
                 } else {
                     confirmDialogNoInternetNoApiRes();
                 }
-                break;
+                break;*/
 
             case R.id.deleteSelected:
                 if (ubicacionAdapter.selectList.size() < 1) {

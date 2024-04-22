@@ -146,8 +146,8 @@ public class UbicacionAdapter extends RecyclerView.Adapter<UbicacionAdapter.Ubic
         listActivity.itemSearch = listActivity.toolbar.getMenu().findItem(R.id.searchUbicaciones);
         listActivity.itemSearch.setOnMenuItemClickListener(listActivity);
 
-        listActivity.itemAddLocation = listActivity.toolbar.getMenu().findItem(R.id.add_location);
-        listActivity.itemAddLocation.setOnMenuItemClickListener(listActivity);
+        /*listActivity.itemAddLocation = listActivity.toolbar.getMenu().findItem(R.id.add_location);
+        listActivity.itemAddLocation.setOnMenuItemClickListener(listActivity);*/
 
         listActivity.itemArchived = listActivity.toolbar.getMenu().findItem(R.id.archived);
         listActivity.itemArchived.setOnMenuItemClickListener(listActivity);

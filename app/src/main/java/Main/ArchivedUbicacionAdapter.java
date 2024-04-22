@@ -138,8 +138,8 @@ public class ArchivedUbicacionAdapter extends RecyclerView.Adapter<ArchivedUbica
         archivedListActivity.itemSearch = archivedListActivity.toolbar.getMenu().findItem(R.id.searchUbicaciones);
         archivedListActivity.itemSearch.setOnMenuItemClickListener(archivedListActivity);
 
-        archivedListActivity.itemAddLocation = archivedListActivity.toolbar.getMenu().findItem(R.id.add_location);
-        archivedListActivity.itemAddLocation.setOnMenuItemClickListener(archivedListActivity);
+/*        archivedListActivity.itemAddLocation = archivedListActivity.toolbar.getMenu().findItem(R.id.add_location);
+        archivedListActivity.itemAddLocation.setOnMenuItemClickListener(archivedListActivity);*/
 
         archivedListActivity.toolbar.setBackgroundColor(archivedListActivity.getColor(R.color.toolbarLight));
         archivedListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);

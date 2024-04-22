@@ -262,8 +262,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             e.printStackTrace();
                         }
                     } else {
-                        addLocationDialog = new AddLocationDialog();
-                        addLocationDialog.show(getSupportFragmentManager(), "example dialog");
+                        callAddLocationDialog();
                     }
                 } else {
                     showSettingsAlert();
@@ -272,6 +271,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
             }
         }
+    }
+
+    public void callAddLocationDialog(){
+        addLocationDialog = new AddLocationDialog();
+        addLocationDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     @Override

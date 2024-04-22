@@ -31,6 +31,10 @@ public class AddLocationDialog extends AppCompatDialogFragment {
                     dialogInterface.cancel();
                 }).setCancelable(true)
                 .setPositiveButton("ok", (dialogInterface, i) -> {
+                    if(nombre.getText().toString().equals("")){
+                        Toast.makeText(MainActivity.getInstance(), "Por favor pon un nombre", Toast.LENGTH_SHORT).show();
+                        MainActivity.getInstance().callAddLocationDialog();
+                    }
                     MainActivity.getInstance().displayLocation();
                 });
         return builder.create();

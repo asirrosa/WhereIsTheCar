@@ -70,8 +70,8 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
         itemSearch = menu.findItem(R.id.searchUbicaciones);
         itemSearch.setOnMenuItemClickListener(this);
 
-        itemAddLocation = menu.findItem(R.id.add_location);
-        itemAddLocation.setOnMenuItemClickListener(this);
+        /*itemAddLocation = menu.findItem(R.id.add_location);
+        itemAddLocation.setOnMenuItemClickListener(this);*/
         return true;
     }
 
@@ -95,13 +95,13 @@ public class ArchivedListActivity extends AppCompatActivity implements MenuItem.
                 });
                 break;
 
-            case R.id.add_location:
+/*            case R.id.add_location:
                 if (isNetworkAvailable()) {
                     confirmDialogAddLocation();
                 } else {
                     confirmDialogNoInternetNoApiRes();
                 }
-                break;
+                break;*/
 
             case R.id.deleteSelected:
                 if (archivedUbicacionAdapter.selectList.size() < 1) {
